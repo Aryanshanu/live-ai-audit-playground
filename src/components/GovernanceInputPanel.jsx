@@ -1,18 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence, useAnimationControls } from 'framer-motion';
 import ToggleSwitch from './ToggleSwitch';
 
-/**
- * Regex: namespace/model-name
- * Allows alphanumeric, hyphens, underscores, dots
- */
 const MODEL_ID_REGEX = /^[a-zA-Z0-9_-]+\/[a-zA-Z0-9._-]+$/;
 
-/**
- * Left panel — Governance input form.
- * Captures model ID, use-case, demographic toggles, and optional HF token.
- */
 export default function GovernanceInputPanel({ onSubmit, loading }) {
   const [modelId, setModelId] = useState('');
   const [useCase, setUseCase] = useState('customer-facing');
@@ -23,18 +16,28 @@ export default function GovernanceInputPanel({ onSubmit, loading }) {
   const [showToken, setShowToken] = useState(false);
   const [touched, setTouched] = useState(false);
 
+  const controls = useAnimationControls();
   const isValidModelId = !touched || modelId === '' || MODEL_ID_REGEX.test(modelId);
-  const canSubmit =
-    modelId.trim() !== '' && MODEL_ID_REGEX.test(modelId) && !loading;
+  const isFormValid = modelId.trim() !== '' && MODEL_ID_REGEX.test(modelId);
 
   const handleModelIdChange = (e) => {
     setTouched(true);
     setModelId(e.target.value);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!canSubmit) return;
+    setTouched(true);
+
+    if (!isFormValid) {
+      // Trigger error shake feedback on input
+      await controls.start({
+        x: [-6, 6, -4, 4, -2, 2, 0],
+        transition: { duration: 0.35, ease: 'easeInOut' },
+      });
+      return;
+    }
+
     onSubmit({
       modelId: modelId.trim(),
       useCase,
@@ -50,24 +53,22 @@ export default function GovernanceInputPanel({ onSubmit, loading }) {
       {/* Section Header */}
       <div>
         <h2 className="text-lg font-bold text-gray-100 tracking-wide flex items-center gap-2">
-          <span className="text-emerald-400">⚙</span> Governance Inputs
+          <span className="text-emerald-400">⚙</span> Model Card Scanner
         </h2>
-        <p className="text-xs text-gray-600 mt-1 font-mono">
-          Configure model audit parameters below
+        <p className="text-xs text-gray-500 mt-1 font-mono">
+          Query live metadata &amp; tags directly from Hugging Face Hub
         </p>
       </div>
 
       {/* ── Model ID ── */}
       <div>
-        <label
-          htmlFor="model-id"
-          className="block text-sm font-medium text-gray-300 mb-2"
-        >
+        <label htmlFor="model-id" className="block text-sm font-medium text-gray-300 mb-2">
           Hugging Face Model ID
         </label>
-        <input
+        <motion.input
           id="model-id"
           type="text"
+          animate={controls}
           value={modelId}
           onChange={handleModelIdChange}
           placeholder="meta-llama/Llama-3-8B-Instruct"
@@ -80,15 +81,16 @@ export default function GovernanceInputPanel({ onSubmit, loading }) {
           }`}
         />
         {!isValidModelId && modelId !== '' && (
-          <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1">
-            <span>⚠</span> Invalid format — use{' '}
-            <code className="text-red-300 bg-red-500/10 px-1 rounded">
-              namespace/model-name
-            </code>
-          </p>
+          <motion.p
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-1.5 text-xs text-red-400 flex items-center gap-1"
+          >
+            <span>⚠</span> Invalid format — use <code className="text-red-300 bg-red-500/10 px-1 rounded">namespace/model-name</code>
+          </motion.p>
         )}
 
-        {/* ── Preset Open-Source Models ── */}
+        {/* Preset Open-Source Models */}
         <div className="mt-2.5">
           <p className="text-[11px] text-gray-500 mb-1.5 font-mono">
             ⚡ Quick-select top open-weight models:
@@ -102,21 +104,23 @@ export default function GovernanceInputPanel({ onSubmit, loading }) {
               'google/gemma-2-9b-it',
               'openai-community/gpt2',
             ].map((preset) => (
-              <button
+              <motion.button
                 key={preset}
                 type="button"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => {
                   setModelId(preset);
                   setTouched(true);
                 }}
-                className={`text-[10px] font-mono px-2 py-1 rounded border transition-all duration-150 ${
+                className={`text-[10px] font-mono px-2 py-1 rounded border transition-all cursor-pointer ${
                   modelId === preset
                     ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300 font-bold'
                     : 'bg-[#0B0F19] border-[#1E293B] text-gray-400 hover:border-gray-600 hover:text-gray-200'
                 }`}
               >
                 {preset}
-              </button>
+              </motion.button>
             ))}
           </div>
         </div>
@@ -124,27 +128,18 @@ export default function GovernanceInputPanel({ onSubmit, loading }) {
 
       {/* ── Use Case ── */}
       <div>
-        <label
-          htmlFor="use-case"
-          className="block text-sm font-medium text-gray-300 mb-2"
-        >
+        <label htmlFor="use-case" className="block text-sm font-medium text-gray-300 mb-2">
           Deployment Target Use-Case
         </label>
         <select
           id="use-case"
           value={useCase}
           onChange={(e) => setUseCase(e.target.value)}
-          className="w-full px-4 py-3 bg-[#0B0F19] border border-[#1E293B] rounded-lg text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/30 transition-all duration-200 cursor-pointer"
+          className="w-full px-4 py-3 bg-[#0B0F19] border border-[#1E293B] rounded-lg text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/30 transition-all cursor-pointer"
         >
-          <option value="customer-facing">
-            🔴 Customer-Facing Conversational Interface (High Risk)
-          </option>
-          <option value="internal-analytics">
-            🟡 Internal Data Analytics &amp; Processing (Medium Risk)
-          </option>
-          <option value="academic-creative">
-            🟢 Automated Academic / Creative Generation (Low Risk)
-          </option>
+          <option value="customer-facing">🔴 Customer-Facing Conversational Interface (High Risk)</option>
+          <option value="internal-analytics">🟡 Internal Data Analytics &amp; Processing (Medium Risk)</option>
+          <option value="academic-creative">🟢 Automated Academic / Creative Generation (Low Risk)</option>
         </select>
       </div>
 
@@ -177,12 +172,12 @@ export default function GovernanceInputPanel({ onSubmit, loading }) {
         </div>
       </div>
 
-      {/* ── HF Token (Collapsible) ── */}
+      {/* ── HF Token (Collapsible with AnimatePresence) ── */}
       <div>
         <button
           type="button"
           onClick={() => setShowToken(!showToken)}
-          className="text-xs text-gray-500 hover:text-gray-300 transition-colors flex items-center gap-1.5 group"
+          className="text-xs text-gray-500 hover:text-gray-300 transition-colors flex items-center gap-1.5 group cursor-pointer"
         >
           <span
             className="transition-transform duration-200"
@@ -192,42 +187,53 @@ export default function GovernanceInputPanel({ onSubmit, loading }) {
           </span>
           <span>🔑 Optional: Hugging Face Access Token</span>
         </button>
-        {showToken && (
-          <div className="mt-2">
-            <input
-              type="password"
-              value={hfToken}
-              onChange={(e) => setHfToken(e.target.value)}
-              placeholder="hf_xxxxxxxxxxxxxxxxxxxx"
-              autoComplete="off"
-              className="w-full px-4 py-3 bg-[#0B0F19] border border-[#1E293B] rounded-lg font-mono text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/30 transition-all duration-200"
-            />
-            <p className="mt-1.5 text-[10px] text-gray-600">
-              🔒 Token is passed locally via header only — never stored or forwarded.
-            </p>
-          </div>
-        )}
+
+        <AnimatePresence>
+          {showToken && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="mt-2 overflow-hidden"
+            >
+              <input
+                type="password"
+                value={hfToken}
+                onChange={(e) => setHfToken(e.target.value)}
+                placeholder="hf_xxxxxxxxxxxxxxxxxxxx"
+                autoComplete="off"
+                className="w-full px-4 py-3 bg-[#0B0F19] border border-[#1E293B] rounded-lg font-mono text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+              />
+              <p className="mt-1.5 text-[10px] text-gray-600">
+                🔒 Token is passed locally via header only — never stored or indexed.
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
-      {/* ── Submit Button ── */}
-      <button
+      {/* ── Submit Button with Shake and whileTap ── */}
+      <motion.button
         type="submit"
-        disabled={!canSubmit}
-        className={`w-full py-4 rounded-lg font-extrabold text-sm tracking-[0.2em] uppercase transition-all duration-300 ${
-          canSubmit
-            ? 'bg-emerald-500 hover:bg-emerald-400 text-[#0B0F19] hover:shadow-[0_0_30px_rgba(16,185,129,0.4)] active:scale-[0.98] cursor-pointer'
-            : 'bg-gray-800/60 text-gray-600 cursor-not-allowed'
+        disabled={loading}
+        whileHover={{ scale: 1.01 }}
+        whileTap={{ scale: 0.98 }}
+        className={`w-full py-4 rounded-lg font-extrabold text-sm tracking-[0.2em] uppercase transition-all duration-300 cursor-pointer ${
+          isFormValid
+            ? 'bg-emerald-500 hover:bg-emerald-400 text-[#0B0F19] hover:shadow-[0_0_30px_rgba(16,185,129,0.4)] active:scale-[0.98]'
+            : 'bg-emerald-600/60 hover:bg-emerald-500/80 text-[#0B0F19]'
         }`}
       >
         {loading ? (
           <span className="flex items-center justify-center gap-3">
             <span className="w-4 h-4 border-2 border-gray-600 border-t-emerald-300 rounded-full animate-spin" />
-            <span>Auditing...</span>
+            <span>Querying HF Hub...</span>
           </span>
         ) : (
-          '▶  RUN AUDIT'
+          '▶  RUN METADATA AUDIT'
         )}
-      </button>
+      </motion.button>
     </form>
   );
 }

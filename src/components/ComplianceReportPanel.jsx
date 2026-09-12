@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import ComplianceGauge from './ComplianceGauge';
 
 const FILTER_TABS = [
@@ -24,46 +25,27 @@ const SEVERITY_STYLES = {
     border: 'border-red-500/30',
     bg: 'bg-red-500/5',
     badge: 'bg-red-500/20 text-red-400',
+    spring: { stiffness: 450, damping: 25 },
   },
   HIGH: {
     border: 'border-amber-500/30',
     bg: 'bg-amber-500/5',
     badge: 'bg-amber-500/20 text-amber-400',
+    spring: { stiffness: 350, damping: 25 },
   },
   MEDIUM: {
     border: 'border-yellow-500/30',
     bg: 'bg-yellow-500/5',
     badge: 'bg-yellow-500/20 text-yellow-400',
+    spring: { stiffness: 250, damping: 28 },
+  },
+  pass: {
+    border: 'border-emerald-500/20',
+    bg: 'bg-emerald-500/5',
+    spring: { stiffness: 200, damping: 30 },
   },
 };
 
-const ERROR_MAP = {
-  MODEL_NOT_FOUND: {
-    icon: '🔍',
-    title: 'Model Not Found',
-    desc: 'The specified model ID does not exist on Hugging Face Hub. Double-check for typos in the namespace/model-name format.',
-  },
-  GATED_MODEL: {
-    icon: '🔒',
-    title: 'Gated Model — Authorization Required',
-    desc: 'This model requires access authorization. Paste your Hugging Face access token in the optional field to bypass this restriction.',
-  },
-  RATE_LIMITED: {
-    icon: '⏱️',
-    title: 'Hugging Face API Busy',
-    desc: 'API rate limit hit. Paste your HF Token to bypass rate limitations, or wait a few minutes before retrying.',
-  },
-  NETWORK_ERROR: {
-    icon: '📡',
-    title: 'Network Error',
-    desc: 'Unable to reach the Hugging Face API. Check your internet connection and try again.',
-  },
-};
-
-/**
- * Right panel — Live compliance report dashboard.
- * Shows gauge, model metadata, filter tabs, and issue logs.
- */
 export default function ComplianceReportPanel({
   score,
   results,
@@ -73,10 +55,10 @@ export default function ComplianceReportPanel({
 }) {
   const [activeFilter, setActiveFilter] = useState('all');
 
-  // ── Export as JSON ──
   const handleExport = useCallback(() => {
     const report = {
-      _generator: 'GOV.AX v1.0.0',
+      _generator: 'GOV.AX Model Metadata Auditor',
+      _evidence: 'VERIFIED_API_METADATA',
       timestamp: new Date().toISOString(),
       model: modelMeta,
       complianceScore: score,
@@ -95,29 +77,18 @@ export default function ComplianceReportPanel({
     URL.revokeObjectURL(url);
   }, [modelMeta, score, results]);
 
-  // ── Copy to Clipboard ──
   const handleCopy = useCallback(async () => {
     const report = {
-      _generator: 'GOV.AX v1.0.0',
+      _generator: 'GOV.AX Model Metadata Auditor',
+      _evidence: 'VERIFIED_API_METADATA',
       timestamp: new Date().toISOString(),
       model: modelMeta,
       complianceScore: score,
       results,
     };
-    try {
-      await navigator.clipboard.writeText(JSON.stringify(report, null, 2));
-    } catch {
-      // Fallback for older browsers
-      const textArea = document.createElement('textarea');
-      textArea.value = JSON.stringify(report, null, 2);
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-    }
+    navigator.clipboard.writeText(JSON.stringify(report, null, 2));
   }, [modelMeta, score, results]);
 
-  // ── Filter logic ──
   const filteredResults = results
     ? results
         .filter((r) => {
@@ -138,24 +109,23 @@ export default function ComplianceReportPanel({
         })
     : [];
 
-  // ━━ Loading State ━━
   if (loading) {
     return (
-      <div className="space-y-6 animate-in">
+      <div className="space-y-6">
         <h2 className="text-lg font-bold text-gray-100 tracking-wide">
-          📊 Compliance Report
+          📊 Verified Model Card Audit
         </h2>
         <div className="flex justify-center">
           <div className="w-[200px] h-[200px] rounded-full bg-[#1E293B] skeleton-pulse" />
         </div>
         <p className="text-center text-sm text-emerald-400/80 font-mono animate-pulse">
-          Fetching metadata from Hugging Face Hub...
+          Querying metadata from Hugging Face Hub...
         </p>
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="h-28 bg-[#1E293B] rounded-lg skeleton-pulse"
+              className="h-24 bg-[#1E293B] rounded-lg skeleton-pulse"
               style={{ animationDelay: `${i * 150}ms` }}
             />
           ))}
@@ -164,25 +134,22 @@ export default function ComplianceReportPanel({
     );
   }
 
-  // ━━ Error State ━━
   if (error) {
-    const info = ERROR_MAP[error] || {
-      icon: '❌',
-      title: 'Unexpected API Error',
-      desc: `An unexpected error occurred: ${error}`,
-    };
-
     return (
       <div className="flex flex-col h-full">
         <h2 className="text-lg font-bold text-gray-100 tracking-wide mb-6">
-          📊 Compliance Report
+          📊 Verified Model Card Audit
         </h2>
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center p-8 border border-red-500/20 rounded-xl bg-red-500/5 max-w-sm neon-glow-red">
-            <span className="text-5xl block mb-4">{info.icon}</span>
-            <h3 className="text-lg font-bold text-red-400">{info.title}</h3>
+            <span className="text-5xl block mb-4">❌</span>
+            <h3 className="text-lg font-bold text-red-400">Query Failed</h3>
             <p className="text-sm text-gray-400 mt-3 leading-relaxed">
-              {info.desc}
+              {error === 'MODEL_NOT_FOUND'
+                ? 'Model not found on Hugging Face Hub. Double-check namespace/model-name.'
+                : error === 'GATED_MODEL'
+                ? 'Model is gated. Provide a Hugging Face Bearer Token to access metadata.'
+                : `Error: ${error}`}
             </p>
           </div>
         </div>
@@ -190,89 +157,80 @@ export default function ComplianceReportPanel({
     );
   }
 
-  // ━━ Empty / Awaiting State ━━
   if (!results) {
     return (
       <div className="flex flex-col h-full">
         <h2 className="text-lg font-bold text-gray-100 tracking-wide mb-6">
-          📊 Compliance Report
+          📊 Verified Model Card Audit
         </h2>
         <div className="flex-1 flex flex-col items-center justify-center">
           <ComplianceGauge score={null} />
           <p className="text-gray-500 mt-6 text-sm font-mono">
-            Submit a model to begin your compliance audit.
-          </p>
-          <p className="text-gray-700 text-xs mt-2">
-            Results will appear here in real-time.
+            Submit a model ID to begin your verified metadata audit.
           </p>
         </div>
       </div>
     );
   }
 
-  // ━━ Results View ━━
   const failCount = results.filter((r) => r.status === 'fail').length;
   const passCount = results.filter((r) => r.status === 'pass').length;
 
   return (
     <div className="space-y-6">
-      {/* ── Header + Export ── */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-gray-100 tracking-wide">
-          📊 Compliance Report
-        </h2>
+      {/* Header + Confidence Badge */}
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <div>
+          <h2 className="text-lg font-bold text-gray-100 tracking-wide">
+            📊 Model Card Compliance
+          </h2>
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-mono px-2 py-0.5 mt-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+            VERIFIED METADATA • Hugging Face Hub REST API
+          </span>
+        </div>
+
         <div className="flex gap-2">
           <button
             onClick={handleCopy}
-            className="px-3 py-1.5 text-xs bg-[#1E293B] hover:bg-gray-700 text-gray-300 rounded-lg transition-all duration-200 hover:text-gray-100"
-            title="Copy report to clipboard"
+            className="px-3 py-1.5 text-xs bg-[#1E293B] hover:bg-gray-700 text-gray-300 rounded-lg transition-all cursor-pointer"
           >
             📋 Copy
           </button>
           <button
             onClick={handleExport}
-            className="px-3 py-1.5 text-xs bg-[#1E293B] hover:bg-gray-700 text-gray-300 rounded-lg transition-all duration-200 hover:text-gray-100"
-            title="Download audit-report.json"
+            className="px-3 py-1.5 text-xs bg-[#1E293B] hover:bg-gray-700 text-gray-300 rounded-lg transition-all cursor-pointer"
           >
             ⬇️ Export
           </button>
         </div>
       </div>
 
-      {/* ── Gauge ── */}
+      {/* Spring Gauge */}
       <ComplianceGauge score={score} />
 
-      {/* ── Model Metadata Card ── */}
+      {/* Model Metadata Card */}
       {modelMeta && (
-        <div className="p-4 bg-[#0B0F19] border border-[#1E293B] rounded-lg">
-          <h3 className="text-[10px] font-bold text-gray-600 uppercase tracking-[0.2em] mb-3">
-            Model Metadata
+        <div className="p-4 bg-[#0B0F19] border border-[#1E293B] rounded-lg text-xs">
+          <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-2 font-mono">
+            Verified Model Parameters
           </h3>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
-            <MetaRow label="Model" value={modelMeta.id} />
-            <MetaRow label="Pipeline" value={modelMeta.pipelineTag} />
-            <MetaRow
-              label="Downloads"
-              value={modelMeta.downloads?.toLocaleString()}
-            />
-            <MetaRow label="License" value={modelMeta.license} />
-            <MetaRow label="Library" value={modelMeta.libraryName} />
-            <MetaRow
-              label="Gated"
-              value={modelMeta.gated ? 'Yes' : 'No'}
-              highlight={modelMeta.gated ? 'amber' : 'emerald'}
-            />
+          <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 font-mono">
+            <div><span className="text-slate-500">ID:</span> <span className="text-slate-200">{modelMeta.id}</span></div>
+            <div><span className="text-slate-500">Pipeline:</span> <span className="text-slate-200">{modelMeta.pipelineTag}</span></div>
+            <div><span className="text-slate-500">Downloads:</span> <span className="text-slate-200">{modelMeta.downloads?.toLocaleString()}</span></div>
+            <div><span className="text-slate-500">License:</span> <span className="text-emerald-400">{modelMeta.license}</span></div>
           </div>
         </div>
       )}
 
-      {/* ── Summary Counters ── */}
+      {/* Summary Counters */}
       <div className="flex gap-3">
         <div className="flex-1 text-center p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
           <span className="text-2xl font-extrabold text-red-400 font-mono">
             {failCount}
           </span>
-          <p className="text-[10px] text-gray-500 mt-1 uppercase tracking-wider">
+          <p className="text-[10px] text-gray-500 mt-1 uppercase tracking-wider font-mono">
             Issues Found
           </p>
         </div>
@@ -280,109 +238,92 @@ export default function ComplianceReportPanel({
           <span className="text-2xl font-extrabold text-emerald-400 font-mono">
             {passCount}
           </span>
-          <p className="text-[10px] text-gray-500 mt-1 uppercase tracking-wider">
+          <p className="text-[10px] text-gray-500 mt-1 uppercase tracking-wider font-mono">
             Rules Passed
           </p>
         </div>
       </div>
 
-      {/* ── Filter Tabs ── */}
-      <div className="flex gap-1 p-1 bg-[#0B0F19] rounded-lg border border-[#1E293B]">
-        {FILTER_TABS.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveFilter(tab.key)}
-            className={`flex-1 py-2 text-xs font-bold rounded-md transition-all duration-200 uppercase tracking-wider ${
-              activeFilter === tab.key
-                ? 'bg-[#1E293B] text-gray-100 shadow-sm'
-                : 'text-gray-600 hover:text-gray-400'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* ── Issue Logs ── */}
-      <div className="space-y-3">
-        {filteredResults.map((result) => {
-          const isFail = result.status === 'fail';
-          const styles = isFail
-            ? SEVERITY_STYLES[result.severity]
-            : { border: 'border-emerald-500/20', bg: 'bg-emerald-500/5' };
-
+      {/* Filter Tabs with layoutId activeTabPill sliding animation */}
+      <div className="flex gap-1 p-1 bg-[#0B0F19] rounded-lg border border-[#1E293B] relative">
+        {FILTER_TABS.map((tab) => {
+          const isActive = activeFilter === tab.key;
           return (
-            <div
-              key={result.id}
-              className={`p-4 rounded-lg border transition-all duration-200 ${styles.border} ${styles.bg}`}
+            <button
+              key={tab.key}
+              onClick={() => setActiveFilter(tab.key)}
+              className={`flex-1 py-2 text-xs font-bold rounded-md transition-colors uppercase tracking-wider relative cursor-pointer font-mono ${
+                isActive ? 'text-gray-100' : 'text-gray-500 hover:text-gray-400'
+              }`}
             >
-              {/* Header row */}
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-base">
-                    {isFail
-                      ? STATUS_ICONS[result.severity] || '⚠️'
-                      : STATUS_ICONS.pass}
-                  </span>
-                  <span className="font-mono text-xs text-gray-400 font-bold">
-                    {result.id}
-                  </span>
-                  {isFail && (
-                    <span
-                      className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider ${styles.badge}`}
-                    >
-                      {result.severity}
-                    </span>
-                  )}
-                </div>
-                <span className="text-[10px] text-gray-600 font-mono shrink-0 ml-2">
-                  {result.pillar}
-                </span>
-              </div>
-
-              {/* Message */}
-              <p className="text-sm text-gray-300 leading-relaxed">
-                {result.message}
-              </p>
-              <p className="text-[11px] text-gray-500 mt-1">
-                {result.regulation}
-              </p>
-
-              {/* Remediation */}
-              {result.remediation && (
-                <div className="mt-3 p-3 bg-[#0B0F19] rounded-md border border-[#1E293B]">
-                  <p className="text-xs text-emerald-400 leading-relaxed">
-                    <span className="font-bold">💡 Remediation:</span>{' '}
-                    {result.remediation}
-                  </p>
-                </div>
+              {isActive && (
+                <motion.div
+                  layoutId="activeTabPill"
+                  className="absolute inset-0 bg-[#1E293B] rounded-md shadow-sm"
+                  transition={{ type: 'spring', bounce: 0.2, duration: 0.4 }}
+                />
               )}
-            </div>
+              <span className="relative z-10">{tab.label}</span>
+            </button>
           );
         })}
+      </div>
+
+      {/* Issue Logs with Staggered Entrance & PopLayout */}
+      <motion.div layout className="space-y-3">
+        <AnimatePresence mode="popLayout">
+          {filteredResults.map((result) => {
+            const isFail = result.status === 'fail';
+            const styleConfig = isFail
+              ? SEVERITY_STYLES[result.severity] || SEVERITY_STYLES.HIGH
+              : SEVERITY_STYLES.pass;
+
+            return (
+              <motion.div
+                key={result.id}
+                layout
+                initial={{ opacity: 0, y: 12, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.96 }}
+                transition={{
+                  type: 'spring',
+                  stiffness: styleConfig.spring.stiffness,
+                  damping: styleConfig.spring.damping,
+                }}
+                className={`p-4 rounded-lg border ${styleConfig.border} ${styleConfig.bg}`}
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span>{isFail ? STATUS_ICONS[result.severity] : STATUS_ICONS.pass}</span>
+                    <span className="font-mono text-xs text-gray-400 font-bold">{result.id}</span>
+                    {isFail && (
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase font-mono ${styleConfig.badge}`}>
+                        {result.severity}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-[10px] text-gray-500 font-mono">{result.pillar}</span>
+                </div>
+
+                <p className="text-sm text-gray-300 leading-relaxed font-sans">{result.message}</p>
+                <p className="text-[11px] text-gray-500 mt-1 font-mono">{result.regulation}</p>
+
+                {result.remediation && (
+                  <div className="mt-2.5 p-2.5 bg-[#0B0F19] rounded-md border border-[#1E293B] text-xs text-emerald-400">
+                    <span className="font-bold font-mono">💡 Remediation:</span> {result.remediation}
+                  </div>
+                )}
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
 
         {filteredResults.length === 0 && (
           <p className="text-center text-gray-600 text-sm py-8 font-mono">
             No results match the &quot;{activeFilter}&quot; filter.
           </p>
         )}
-      </div>
-    </div>
-  );
-}
-
-/** Small helper for metadata rows */
-function MetaRow({ label, value, highlight }) {
-  const colorClass = highlight
-    ? highlight === 'amber'
-      ? 'text-amber-400'
-      : 'text-emerald-400'
-    : 'text-gray-300';
-
-  return (
-    <div className="flex items-baseline gap-1.5 min-w-0">
-      <span className="text-gray-500 shrink-0">{label}:</span>
-      <span className={`font-mono truncate ${colorClass}`}>{value}</span>
+      </motion.div>
     </div>
   );
 }

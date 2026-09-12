@@ -1,42 +1,68 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { getPreviousAudit } from '../lib/historyStore';
 
 export default function InteractiveRadarChart({ report }) {
+  const [prevAudit, setPrevAudit] = useState(null);
+
+  useEffect(() => {
+    setPrevAudit(getPreviousAudit());
+  }, [report]);
+
   // 1. Core structural metrics default boundaries mapping coordinates (5-axis radar chart)
   const dimensions = [
     { key: 'security', label: 'MODEL SAFETY', angle: 0 },
     { key: 'quality', label: 'DATA QUALITY', angle: 72 },
     { key: 'rai', label: 'RESPONSIBLE AI', angle: 144 },
     { key: 'legal', label: 'LEGAL PRIVACY', angle: 216 },
-    { key: 'transparency', label: 'TRANSPARENCY', angle: 288 }
+    { key: 'transparency', label: 'TRANSPARENCY', angle: 288 },
   ];
 
   // 2. Parse active structural logs to extract directional matrix vector parameters
-  const getMetricValue = (layer) => {
-    if (!report || !report.issues) return 100;
-    const violationsCount = report.issues.filter(
-      (i) => i.layer === layer || (layer === 'transparency' && (i.ruleId.includes('VERNACULAR') || i.ruleId.includes('FTC') || i.ruleId.includes('LINEAGE')))
+  const getMetricValue = (auditObj, layer) => {
+    if (!auditObj || !auditObj.issues) return 100;
+    const violationsCount = auditObj.issues.filter(
+      (i) =>
+        i.layer === layer ||
+        (layer === 'transparency' &&
+          (i.ruleId.includes('VERNACULAR') ||
+            i.ruleId.includes('FTC') ||
+            i.ruleId.includes('LINEAGE')))
     ).length;
-    return Math.max(20, 100 - (violationsCount * 25));
+    return Math.max(20, 100 - violationsCount * 25);
   };
 
-  const center = 50; 
-  const radius = 35;
+  const center = 50;
+  const radius = 34;
 
   // Convert angular tracking positions to geometric vector mapping coordinates
   const getCoordinates = (value, angle) => {
     const radians = ((angle - 90) * Math.PI) / 180; // Shift by -90 to keep the primary node vertical
-    const x = center + (radius * (value / 100)) * Math.cos(radians);
-    const y = center + (radius * (value / 100)) * Math.sin(radians);
+    const x = center + radius * (value / 100) * Math.cos(radians);
+    const y = center + radius * (value / 100) * Math.sin(radians);
     return { x, y };
   };
 
-  const dataPoints = dimensions.map((d) => {
-    const val = getMetricValue(d.key);
+  // Current audit data points
+  const currentDataPoints = dimensions.map((d) => {
+    const val = getMetricValue(report, d.key);
     return getCoordinates(val, d.angle);
   });
+  const currentPath = currentDataPoints.map((p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(' ');
 
-  const polylinePath = dataPoints.map((p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(' ');
+  // Ghosted previous audit data points
+  const prevDataPoints = prevAudit
+    ? dimensions.map((d) => {
+        const val = getMetricValue(prevAudit, d.key);
+        return getCoordinates(val, d.angle);
+      })
+    : null;
+  const prevPath = prevDataPoints
+    ? prevDataPoints.map((p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(' ')
+    : null;
+
+  const scoreDelta = prevAudit && report ? report.score - prevAudit.score : null;
 
   const strokeColor = !report
     ? '#38BDF8'
@@ -47,8 +73,8 @@ export default function InteractiveRadarChart({ report }) {
     : '#EF4444';
 
   return (
-    <div className="w-full h-full flex items-center justify-center relative select-none">
-      <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_0_8px_rgba(6,182,212,0.15)] overflow-visible">
+    <div className="w-full h-full flex flex-col items-center justify-center relative select-none">
+      <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_0_12px_rgba(6,182,212,0.18)] overflow-visible">
         {/* Background Concentric Radar Calibration Rings */}
         <circle cx={center} cy={center} r={radius} fill="none" stroke="#1E293B" strokeWidth="0.5" strokeDasharray="1 1" />
         <circle cx={center} cy={center} r={radius * 0.66} fill="none" stroke="#1E293B" strokeWidth="0.5" strokeDasharray="1 1" />
@@ -58,17 +84,25 @@ export default function InteractiveRadarChart({ report }) {
         {dimensions.map((d, idx) => {
           const edge = getCoordinates(100, d.angle);
           return (
-            <line 
-              key={idx} 
-              x1={center} y1={center} x2={edge.x} y2={edge.y} 
-              stroke="#1E293B" strokeWidth="0.5" 
-            />
+            <line key={idx} x1={center} y1={center} x2={edge.x} y2={edge.y} stroke="#1E293B" strokeWidth="0.5" />
           );
         })}
 
-        {/* Dynamic Vector Polyline Path Polygon */}
+        {/* ━━ Ghosted Previous Audit Polygon ━━ */}
+        {prevPath && (
+          <polygon
+            points={prevPath}
+            fill="none"
+            stroke="#475569"
+            strokeWidth="0.8"
+            strokeDasharray="1.5 1.5"
+            className="opacity-50"
+          />
+        )}
+
+        {/* ━━ Dynamic Current Vector Polyline Polygon ━━ */}
         <polygon
-          points={polylinePath}
+          points={currentPath}
           fill="url(#radarGradient5)"
           stroke={strokeColor}
           strokeWidth="1.2"
@@ -76,7 +110,7 @@ export default function InteractiveRadarChart({ report }) {
         />
 
         {/* Vertex Plot Nodes */}
-        {dataPoints.map((p, idx) => (
+        {currentDataPoints.map((p, idx) => (
           <circle
             key={idx}
             cx={p.x}
@@ -114,6 +148,23 @@ export default function InteractiveRadarChart({ report }) {
           );
         })}
       </svg>
+
+      {/* Ghost Legend & Delta */}
+      <div className="flex items-center gap-3 mt-1 text-[9px] font-mono text-slate-500">
+        <span className="flex items-center gap-1 text-cyan-400">
+          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" /> Current Run
+        </span>
+        {prevAudit && (
+          <span className="flex items-center gap-1 text-slate-500">
+            <span className="w-2 h-0.5 border-b border-dashed border-slate-500" /> Prev Ghost
+            {scoreDelta !== null && (
+              <span className={`font-bold ml-0.5 ${scoreDelta >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                ({scoreDelta >= 0 ? `+${scoreDelta}` : scoreDelta}%)
+              </span>
+            )}
+          </span>
+        )}
+      </div>
     </div>
   );
 }
