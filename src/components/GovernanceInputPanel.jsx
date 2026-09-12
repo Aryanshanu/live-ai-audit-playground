@@ -217,12 +217,12 @@ export default function GovernanceInputPanel({ onSubmit, loading }) {
       <motion.button
         type="submit"
         disabled={loading}
-        whileHover={{ scale: 1.01 }}
+        whileHover={isFormValid ? { scale: 1.01 } : {}}
         whileTap={{ scale: 0.98 }}
-        className={`w-full py-4 rounded-lg font-extrabold text-sm tracking-[0.2em] uppercase transition-all duration-300 cursor-pointer ${
+        className={`w-full py-4 rounded-lg font-extrabold text-sm tracking-[0.2em] uppercase transition-all duration-300 ${
           isFormValid
-            ? 'bg-emerald-500 hover:bg-emerald-400 text-[#0B0F19] hover:shadow-[0_0_30px_rgba(16,185,129,0.4)] active:scale-[0.98]'
-            : 'bg-emerald-600/60 hover:bg-emerald-500/80 text-[#0B0F19]'
+            ? 'bg-emerald-500 hover:bg-emerald-400 text-[#0B0F19] hover:shadow-[0_0_30px_rgba(16,185,129,0.4)] cursor-pointer'
+            : 'bg-gray-800/60 text-gray-500 cursor-not-allowed border border-gray-700/50'
         }`}
       >
         {loading ? (
