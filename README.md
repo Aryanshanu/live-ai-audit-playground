@@ -2,7 +2,7 @@
 
 > **Real-time, client-side AI model compliance auditing against India's DPDP Act 2023 & PSA AI Governance Framework 2024.**
 
-[![Deploy to GitHub Pages](https://github.com/YOUR_USERNAME/live-ai-audit-playground/actions/workflows/deploy.yml/badge.svg)](https://github.com/YOUR_USERNAME/live-ai-audit-playground/actions/workflows/deploy.yml)
+[![Deploy to GitHub Pages](https://github.com/Aryanshanu/live-ai-audit-playground/actions/workflows/deploy.yml/badge.svg)](https://github.com/Aryanshanu/live-ai-audit-playground/actions/workflows/deploy.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-emerald.svg)](LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-14-black.svg)](https://nextjs.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38bdf8.svg)](https://tailwindcss.com/)

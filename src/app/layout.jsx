@@ -60,7 +60,7 @@ export default function RootLayout({ children }) {
               {/* Navigation Links */}
               <div className="flex items-center gap-5">
                 <a
-                  href="https://github.com/YOUR_USERNAME/live-ai-audit-playground"
+                  href="https://github.com/Aryanshanu/live-ai-audit-playground"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm text-gray-400 hover:text-emerald-400 transition-colors duration-200 flex items-center gap-1.5"
