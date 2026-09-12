@@ -37,11 +37,12 @@ function getCoordinates(value, angle) {
   return { x, y };
 }
 
-export default function InteractiveRadarChart({ report }) {
+export default function InteractiveRadarChart({ report, auditType, subjectId }) {
   const [prevAudit, setPrevAudit] = useState(null);
 
   useEffect(() => {
-    setPrevAudit(getPreviousAudit());
+    setPrevAudit(getPreviousAudit(auditType, subjectId));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [report]);
 
   // ── One spring per axis (explicit, not a .map() — keeps hook count

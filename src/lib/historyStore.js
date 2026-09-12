@@ -57,6 +57,7 @@ export function saveAuditToHistory(auditSnapshot) {
 
     const updated = [entry, ...existing].slice(0, MAX_HISTORY);
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    window.dispatchEvent(new Event('govax-history-updated'));
     return updated;
   } catch (err) {
     console.warn('[CORE.GOV] Failed to save audit history:', err);
@@ -78,11 +79,23 @@ export function getAuditHistory() {
 }
 
 /**
- * Retrieves the immediately preceding audit to compute deltas and ghost overlays.
+ * Retrieves the most recent PRIOR audit for drift/ghost comparison —
+ * scoped to the same auditType (and, when provided, the same subject via
+ * modelOrTitle) so the radar chart never compares two unrelated audits
+ * (e.g. an HF model scan vs. an unrelated sandbox pipeline description).
+ * Previously this returned history[1] unconditionally, which could ghost
+ * against a completely different audit.
  */
-export function getPreviousAudit() {
+export function getPreviousAudit(auditType, modelOrTitle) {
   const history = getAuditHistory();
-  return history.length > 1 ? history[1] : null;
+  // Skip index 0 — that's the run currently on screen, already saved.
+  return (
+    history.slice(1).find((entry) => {
+      if (auditType && entry.auditType !== auditType) return false;
+      if (modelOrTitle && entry.modelOrTitle !== modelOrTitle) return false;
+      return true;
+    }) || null
+  );
 }
 
 /**
@@ -92,5 +105,6 @@ export function clearAuditHistory() {
   if (typeof window === 'undefined') return;
   try {
     window.localStorage.removeItem(STORAGE_KEY);
+    window.dispatchEvent(new Event('govax-history-updated'));
   } catch (err) {}
 }

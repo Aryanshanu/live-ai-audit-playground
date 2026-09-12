@@ -70,6 +70,15 @@ export default function SandboxWorkspace({
             >
               Sovereign Compliant Stack
             </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setArchitectureText(templates.paraphraseStressTest)}
+              title="Describes 4 real violations in plain language, deliberately avoiding the scanner's keyword list — shows where keyword-matching breaks down."
+              className="px-3 py-1.5 bg-amber-500/5 border border-dashed border-amber-500/40 text-amber-400 rounded-lg text-xs font-mono transition-all hover:bg-amber-500/10 cursor-pointer"
+            >
+              ⚠ Paraphrase Stress-Test
+            </motion.button>
           </div>
         </div>
 
@@ -128,7 +137,7 @@ export default function SandboxWorkspace({
 
         {/* Radar Chart Component with Ghost Overlay */}
         <div className="w-full h-64 flex items-center justify-center my-auto">
-          <InteractiveRadarChart report={report} />
+          <InteractiveRadarChart report={report} auditType="heuristic_sandbox" subjectId="Custom Pipeline Manifest" />
         </div>
 
         {/* Score Metric Bar */}

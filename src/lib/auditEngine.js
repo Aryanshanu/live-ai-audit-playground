@@ -1,13 +1,20 @@
 /**
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- * CORE.GOV — Full-Fledged Responsible AI (RAI) & Governance Matrix Engine
+ * CORE.GOV — Heuristic Keyword-Pattern Governance Scanner
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  *
- * Four Codependent Enterprise Governance Layers:
- *   1. 🛡️ AI Security Layer (OWASP Top 10 for LLMs / ISO 42001)
- *   2. 📊 Data Quality & Integrity Layer (MeitY IndiaAI Stack)
- *   3. 🧠 Responsible AI (RAI) / Ethical Alignment & Green AI
- *   4. ⚖️ Legal Compliance Layer (India DPDP Act 2023 / US FTC / UK)
+ * What this is: a client-side substring/keyword matcher against a small,
+ * illustrative rule set spanning four governance themes. It is NOT natural-
+ * language understanding — it will miss real violations phrased differently
+ * than the keywords below, and can be fooled by mentioning a mitigation
+ * keyword without actually implementing it. Treat results as a starting
+ * prompt for manual review, not a certification.
+ *
+ * Four illustrative rule themes (7 rules total — see RULE_REGISTRY):
+ *   1. 🛡️ AI Security (OWASP Top 10 for LLMs / ISO 42001) — 2 rules
+ *   2. 📊 Data Quality & Integrity (MeitY IndiaAI Stack) — 1 rule
+ *   3. 🧠 Responsible AI (RAI) / Ethical Alignment & Green AI — 2 rules
+ *   4. ⚖️ Legal Compliance (India DPDP Act 2023 / US FTC) — 2 rules
  */
 
 export const RULE_REGISTRY = [
@@ -16,7 +23,7 @@ export const RULE_REGISTRY = [
     id: "SEC-OWASP-LLM01",
     layer: "security",
     pillar: "Prompt Injection Mitigation",
-    keywords: ["raw prompt", "direct input string", "user input bypass", "dynamic concatenation", "raw prompt injection"],
+    keywords: ["raw prompt", "direct input string", "user input bypass", "dynamic concatenation", "raw prompt injection", "no input sanitization", "user input fed directly into the prompt", "unfiltered user text"],
     negativeKeywords: ["system instructions encapsulation", "xml delimiter parsing", "guardrail framework", "llm-guard", "guardrails"],
     severity: "CRITICAL",
     message: "Critical vulnerability: System accepts raw user prompt strings without structural boundaries or wrapper validation layers, exposing it to prompt injections.",
@@ -28,7 +35,7 @@ export const RULE_REGISTRY = [
     id: "SEC-OWASP-LLM03",
     layer: "security",
     pillar: "Data Poisoning Guardrails",
-    keywords: ["continuous automated retraining", "live user feedback updates", "auto-finetuning", "continuous retraining", "scraped live"],
+    keywords: ["continuous automated retraining", "live user feedback updates", "auto-finetuning", "continuous retraining", "scraped live", "auto retraining from user data", "live retraining loop", "feeds directly back into training"],
     negativeKeywords: ["anomaly detection engine", "human-in-the-loop validation", "data quarantine queue", "quarantine"],
     severity: "CRITICAL",
     message: "High Risk: Continuous automated model optimization loops lack isolated validation environments, creating vectors for malicious data poisoning.",
@@ -42,7 +49,7 @@ export const RULE_REGISTRY = [
     id: "DATA-INDIC-VERNACULAR",
     layer: "quality",
     pillar: "Indic Language Tokenization & Bias",
-    keywords: ["english-centric datasets", "standard web scrape", "only western corpus", "english-centric", "western dataset"],
+    keywords: ["english-centric datasets", "standard web scrape", "only western corpus", "english-centric", "western dataset", "english only training data", "no multilingual support", "single-language corpus"],
     negativeKeywords: ["bhashini integration", "ai4bharat pipelines", "22 scheduled languages", "multilingual tokenization", "bhashini", "ai4bharat"],
     severity: "HIGH",
     message: "Data Pipeline Bias: Training sets rely heavily on standard Western data corpuses, creating severe demographic bias against non-English vernacular speech patterns.",
@@ -56,7 +63,7 @@ export const RULE_REGISTRY = [
     id: "RAI-GREEN-COMPUTE",
     layer: "rai",
     pillar: "Green AI & Carbon Transparency",
-    keywords: ["unbounded scaling", "massive grid cluster", "compute parameters unchecked", "massive grid clusters", "high-compute optimization"],
+    keywords: ["unbounded scaling", "massive grid cluster", "compute parameters unchecked", "massive grid clusters", "high-compute optimization", "no carbon tracking", "energy usage not monitored", "unmonitored compute scaling"],
     negativeKeywords: ["carbon intensity metrics", "codecarbon logging", "green computing scheduler", "energy efficiency tracking", "codecarbon"],
     severity: "MEDIUM",
     message: "RAI Violation: Pipeline runs massive optimization workloads without tracking compute carbon footprints or hardware power usage telemetry.",
@@ -68,7 +75,7 @@ export const RULE_REGISTRY = [
     id: "RAI-CONTENT-GUARDRAIL",
     layer: "rai",
     pillar: "Toxicity & Content Moderation",
-    keywords: ["raw generation output", "direct inference routing", "no content filter", "without content filtering", "raw generation"],
+    keywords: ["raw generation output", "direct inference routing", "no content filter", "without content filtering", "raw generation", "no toxicity filter", "unmoderated model output", "outputs shown to users unfiltered"],
     negativeKeywords: ["llama-guard context checking", "moderation classification layer", "toxicity score filter", "llama-guard", "context safety wrappers"],
     severity: "CRITICAL",
     message: "Ethical Alignment Vulnerability: System routes text inference directly to end-users without dynamic toxic classification safety wrappers.",
@@ -82,7 +89,7 @@ export const RULE_REGISTRY = [
     id: "LEGAL-DPDP-SEC07",
     layer: "legal",
     pillar: "Sovereign Purpose & Storage Limitation",
-    keywords: ["retain permanently", "indefinite system storage", "logs un-purged", "stored indefinitely", "logs permanent"],
+    keywords: ["retain permanently", "indefinite system storage", "logs un-purged", "stored indefinitely", "logs permanent", "keeps user data forever", "no data deletion policy", "logs never expire"],
     negativeKeywords: ["ttl policy", "30-day cron purge", "data principal vault", "decoupled storage", "cron purge ttl policy"],
     severity: "CRITICAL",
     message: "Regulatory Breach: Data pipeline logs personal user data indefinitely, directly breaking India's DPDP Act Section 7 storage limitations.",
@@ -94,7 +101,7 @@ export const RULE_REGISTRY = [
     id: "LEGAL-US-FTC-DISGORGEMENT",
     layer: "legal",
     pillar: "US FTC Asset Protection",
-    keywords: ["scraped without permission", "shadow scraping", "unlicensed web metrics", "unverified legacy files", "legacy files without"],
+    keywords: ["scraped without permission", "shadow scraping", "unlicensed web metrics", "unverified legacy files", "legacy files without", "no data provenance tracking", "source of training data unknown", "scraped data with unclear origin"],
     negativeKeywords: ["clean provenance verification", "dvc lineage tracking", "mlflow catalog", "provenance"],
     severity: "CRITICAL",
     message: "Corporate Liability Risk: Training on data without clear provenance triggers severe FTC Algorithmic Disgorgement penalties (forced model destruction).",
@@ -187,7 +194,7 @@ export function generatePythonTestSuite(report) {
 =============================================================================
 CORE.GOV — Automated Responsible AI (RAI) & Governance Verification Suite
 Generated for: System Architecture Compliance Audit
-Engine: CORE.GOV Full-Fledged RAI Core
+Engine: CORE.GOV Heuristic Keyword-Pattern Scanner (illustrative rule set — not a certification)
 =============================================================================
 Run locally in your test environment to verify architectural claims:
   pip install pytest requests codecarbon
@@ -272,7 +279,7 @@ export function generateMarkdownAuditReport(report, text) {
 
   return `# ⚖️ CORE.GOV — Responsible AI & Sovereign Governance Audit Dossier
 *Generated on: ${new Date(report.timestamp).toUTCString()}*  
-*Engine: CORE.GOV Full-Fledged RAI Core*
+*Engine: CORE.GOV Heuristic Keyword-Pattern Scanner (illustrative rule set — not a certification)*
 
 ---
 

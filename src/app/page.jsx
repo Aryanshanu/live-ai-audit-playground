@@ -13,14 +13,17 @@ import AuditPlayground from '../components/AuditPlayground';
 import SandboxWorkspace from '../components/SandboxWorkspace';
 import IntegrationStudioPanel from '../components/IntegrationStudioPanel';
 import DataLineageGraph from '../components/DataLineageGraph';
+import HistoryIndicator from '../components/HistoryIndicator';
 
 const ARCHITECTURE_TEMPLATES = {
   ragBot:
-    'Deploying an E-Commerce RAG Customer Support Chatbot. User input text is passed via raw prompt injection blocks to a text-generation layer. The runtime engine tracks user profiles continuously to analyze churn, keeping database logs permanent and metrics stored indefinitely for optimization runs.',
+    'Deploying an E-Commerce RAG Customer Support Chatbot. There is no input sanitization — user input is fed directly into the prompt on the text-generation layer. The runtime engine tracks user profiles continuously to analyze churn, and logs never expire; metrics are kept indefinitely for optimization runs.',
   raiViolation:
-    'Deploying a high-compute optimization framework running massive grid clusters with compute parameters unchecked for carbon usage. Model output flows directly via raw generation output into client feeds without content filtering or post-inference context safety wrappers.',
+    'Deploying a high-compute optimization framework with unmonitored compute scaling across grid clusters — there is no carbon tracking on any training run. Model output goes straight to client feeds as unmoderated model output, with no toxicity filter or post-inference safety wrapper.',
   compliantSovereign:
     'Deploying a Compliant Sovereign Multi-Lingual Pipeline. Input fields utilize strict system instructions encapsulation using guardrail frameworks. Customer text data is routed through a decoupled data principal vault backed by a strict 30-day cron purge TTL policy. Natural vernacular tracking runs on 22 scheduled languages with integrated AI4Bharat tokenizers. Infrastructure is anchored in sovereign cloud with DVC data lineage verification.',
+  paraphraseStressTest:
+    'We built a support assistant that just takes whatever the customer types and hands it straight to the model — nothing checks it first. We also never really clean out old conversation logs, so they just pile up over time. Nobody on the team currently tracks how much compute or power the retraining jobs use, and we honestly aren\'t sure where all of the original training data came from since some of it was inherited from an older project.',
 };
 
 export default function UnifiedGovernanceCenter() {
@@ -50,9 +53,20 @@ export default function UnifiedGovernanceCenter() {
       return;
     }
     setIsAnalyzing(true);
-    const timer = setTimeout(() => {
+
+    // Fast path: live preview updates almost immediately as you type.
+    const previewTimer = setTimeout(() => {
       const results = runAuditEngine(architectureText, activeLayers);
       setReport(results);
+      setIsAnalyzing(false);
+    }, 250);
+
+    // Slow path: only checkpoint to history after real idle time (4s of no
+    // edits), not on every keystroke pause. Previously this fired on the
+    // same 250ms timer as the preview, so a single sentence of typing could
+    // burn through most of MAX_HISTORY's 10 slots before the user finished.
+    const historyTimer = setTimeout(() => {
+      const results = runAuditEngine(architectureText, activeLayers);
       if (results) {
         saveAuditToHistory({
           score: results.score,
@@ -62,9 +76,12 @@ export default function UnifiedGovernanceCenter() {
           modelOrTitle: 'Custom Pipeline Manifest',
         });
       }
-      setIsAnalyzing(false);
-    }, 250);
-    return () => clearTimeout(timer);
+    }, 4000);
+
+    return () => {
+      clearTimeout(previewTimer);
+      clearTimeout(historyTimer);
+    };
   }, [architectureText, activeLayers]);
 
   const handleCopy = (content, key) => {
@@ -146,6 +163,7 @@ export default function UnifiedGovernanceCenter() {
         </div>
 
         <div className="hidden lg:flex items-center gap-4 text-xs font-mono text-slate-400">
+          <HistoryIndicator />
           <a
             href="https://github.com/Aryanshanu/live-ai-audit-playground"
             target="_blank"

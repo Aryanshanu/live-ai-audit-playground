@@ -192,7 +192,7 @@ export default function ComplianceReportPanel({
       {/* 5-Axis Radar — now shared with the sandbox engine, so verified
           HF-model audits get drift tracking against their own history too */}
       <div className="h-56">
-        <InteractiveRadarChart report={radarReport} />
+        <InteractiveRadarChart report={radarReport} auditType="verified_hf_api" subjectId={modelMeta?.id} />
       </div>
 
       {/* Model Metadata Card */}
