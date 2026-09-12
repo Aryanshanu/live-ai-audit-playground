@@ -4,11 +4,13 @@ import { useState } from 'react';
 import { AlertCircle, Download, Copy, FileText } from 'lucide-react';
 import { generatePythonTestSuite, generateMarkdownAuditReport } from '../lib/auditEngine';
 import { generatePromptfooConfig, generatePromptfooWorkflow } from '../lib/promptfooExport';
+import SemanticAuditPanel from './SemanticAuditPanel';
 
 const TABS = [
   { id: 'jira', label: '🎫 Jira/Linear Mapping' },
   { id: 'cicd', label: '🚀 CI/CD & Test' },
   { id: 'redteam', label: '🎯 Red-Team Config' },
+  { id: 'semantic', label: '🧠 AI Semantic Audit' },
 ];
 
 export default function IntegrationStudioPanel({ report, architectureText, copiedKey, onCopy, onDownload }) {
@@ -164,6 +166,10 @@ export default function IntegrationStudioPanel({ report, architectureText, copie
                 {generatePromptfooWorkflow()}
               </pre>
             </div>
+          )}
+
+          {activeTab === 'semantic' && (
+            <SemanticAuditPanel description={architectureText} />
           )}
         </div>
 
