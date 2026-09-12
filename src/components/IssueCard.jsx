@@ -11,34 +11,32 @@ const STATUS_ICONS = {
 
 const SEVERITY_STYLES = {
   CRITICAL: {
-    border: 'border-red-500/30',
-    bg: 'bg-red-500/5',
-    badge: 'bg-red-500/20 text-red-400',
+    border: 'border-red-200',
+    bg: 'bg-red-50',
+    badge: 'bg-red-100 text-fb-red',
     spring: { stiffness: 450, damping: 25 },
   },
   HIGH: {
-    border: 'border-amber-500/30',
-    bg: 'bg-amber-500/5',
-    badge: 'bg-amber-500/20 text-amber-400',
+    border: 'border-amber-200',
+    bg: 'bg-amber-50',
+    badge: 'bg-amber-100 text-amber-700',
     spring: { stiffness: 350, damping: 25 },
   },
   MEDIUM: {
-    border: 'border-yellow-500/30',
-    bg: 'bg-yellow-500/5',
-    badge: 'bg-yellow-500/20 text-yellow-400',
+    border: 'border-yellow-200',
+    bg: 'bg-yellow-50',
+    badge: 'bg-yellow-100 text-yellow-700',
     spring: { stiffness: 250, damping: 28 },
   },
   pass: {
-    border: 'border-emerald-500/20',
-    bg: 'bg-emerald-500/5',
+    border: 'border-green-200',
+    bg: 'bg-green-50',
     spring: { stiffness: 200, damping: 30 },
   },
 };
 
 /**
  * Single compliance-result card — pass or fail, any severity.
- * Extracted from ComplianceReportPanel's inline .map() so the panel
- * component stops growing every time an issue-card detail changes.
  */
 export default function IssueCard({ result }) {
   const isFail = result.status === 'fail';
@@ -62,22 +60,22 @@ export default function IssueCard({ result }) {
       <div className="flex items-start justify-between mb-2">
         <div className="flex items-center gap-2 flex-wrap">
           <span>{isFail ? STATUS_ICONS[result.severity] : STATUS_ICONS.pass}</span>
-          <span className="font-mono text-xs text-gray-400 font-bold">{result.id}</span>
+          <span className="font-mono text-xs text-fb-textSecondary font-bold">{result.id}</span>
           {isFail && (
-            <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase font-mono ${styleConfig.badge}`}>
+            <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase ${styleConfig.badge}`}>
               {result.severity}
             </span>
           )}
         </div>
-        <span className="text-[10px] text-gray-500 font-mono">{result.pillar}</span>
+        <span className="text-[10px] text-fb-textSecondary">{result.pillar}</span>
       </div>
 
-      <p className="text-sm text-gray-300 leading-relaxed font-sans">{result.message}</p>
-      <p className="text-[11px] text-gray-500 mt-1 font-mono">{result.regulation}</p>
+      <p className="text-sm text-fb-text leading-relaxed">{result.message}</p>
+      <p className="text-[11px] text-fb-textSecondary mt-1">{result.regulation}</p>
 
       {result.remediation && (
-        <div className="mt-2.5 p-2.5 bg-[#0B0F19] rounded-md border border-[#1E293B] text-xs text-emerald-400">
-          <span className="font-bold font-mono">💡 Remediation:</span> {result.remediation}
+        <div className="mt-2.5 p-2.5 bg-white rounded-md border border-fb-border text-xs text-fb-blue">
+          <span className="font-bold">💡 Remediation:</span> {result.remediation}
         </div>
       )}
     </motion.div>

@@ -9,7 +9,7 @@ export default function ToggleSwitch({ label, checked, onChange, id }) {
       htmlFor={id}
       className="flex items-center justify-between cursor-pointer group py-1"
     >
-      <span className="text-sm text-gray-300 group-hover:text-gray-100 transition-colors select-none pr-4">
+      <span className="text-sm text-fb-text group-hover:text-fb-blue transition-colors select-none pr-4">
         {label}
       </span>
       <button
@@ -24,8 +24,8 @@ export default function ToggleSwitch({ label, checked, onChange, id }) {
             onChange(!checked);
           }
         }}
-        className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:ring-offset-2 focus:ring-offset-[#0B0F19] ${
-          checked ? 'bg-emerald-500' : 'bg-gray-700'
+        className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-fb-blue/40 focus:ring-offset-2 ${
+          checked ? 'bg-fb-blue' : 'bg-gray-300'
         }`}
       >
         <span

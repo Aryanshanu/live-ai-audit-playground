@@ -61,6 +61,9 @@ export function saveAuditToHistory(auditSnapshot) {
     return updated;
   } catch (err) {
     console.warn('[CORE.GOV] Failed to save audit history:', err);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('govax-history-save-failed', { detail: { message: err.message } }));
+    }
     return [];
   }
 }

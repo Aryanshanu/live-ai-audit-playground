@@ -18,6 +18,7 @@ export default function AuditPlayground() {
   const [score, setScore] = useState(null);
   const [results, setResults] = useState(null);
   const [modelMeta, setModelMeta] = useState(null);
+  const [hfToken, setHfToken] = useState(null);
 
   const handleAudit = async (input) => {
     // Reset state for fresh audit
@@ -26,6 +27,7 @@ export default function AuditPlayground() {
     setScore(null);
     setResults(null);
     setModelMeta(null);
+    setHfToken(input.hfToken || null);
 
     try {
       // Phase 1: Fetch model metadata from Hugging Face Hub
@@ -66,18 +68,19 @@ export default function AuditPlayground() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
       {/* ── Left Panel: Governance Inputs ── */}
-      <div className="p-6 lg:p-8 bg-[#111827] border border-[#1E293B] rounded-2xl">
+      <div className="p-6 lg:p-8 bg-white border border-fb-border rounded-xl shadow-fbCard">
         <GovernanceInputPanel onSubmit={handleAudit} loading={loading} />
       </div>
 
       {/* ── Right Panel: Live Compliance Report ── */}
-      <div className="p-6 lg:p-8 bg-[#111827] border border-[#1E293B] rounded-2xl min-h-[600px]">
+      <div className="p-6 lg:p-8 bg-white border border-fb-border rounded-xl shadow-fbCard min-h-[600px]">
         <ComplianceReportPanel
           score={score}
           results={results}
           modelMeta={modelMeta}
           loading={loading}
           error={error}
+          hfToken={hfToken}
         />
       </div>
     </div>

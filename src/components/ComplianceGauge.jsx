@@ -34,10 +34,10 @@ export default function ComplianceGauge({ score }) {
   );
 
   const getColor = () => {
-    if (!isReady) return '#334155';
-    if (targetScore <= 40) return '#EF4444';
-    if (targetScore <= 70) return '#F59E0B';
-    return '#10B981';
+    if (!isReady) return '#CED0D4';
+    if (targetScore <= 40) return '#FA383E';
+    if (targetScore <= 70) return '#F7B928';
+    return '#31A24C';
   };
 
   const getLabel = () => {
@@ -64,7 +64,7 @@ export default function ComplianceGauge({ score }) {
             cy="100"
             r={radius}
             fill="none"
-            stroke="#1E293B"
+            stroke="#E4E6EB"
             strokeWidth="10"
           />
           {/* Spring-animated progress arc */}
@@ -79,7 +79,6 @@ export default function ComplianceGauge({ score }) {
             strokeDasharray={circumference}
             style={{
               strokeDashoffset: isReady ? strokeOffset : circumference,
-              filter: isReady ? `drop-shadow(0 0 10px ${color}60)` : 'none',
             }}
           />
         </svg>
@@ -87,7 +86,7 @@ export default function ComplianceGauge({ score }) {
         {/* Center text overlay with spring counter */}
         <div className="absolute inset-0 flex flex-col items-center justify-center rotate-0">
           <motion.span
-            className="text-4xl font-extrabold font-mono tabular-nums"
+            className="text-4xl font-extrabold tabular-nums"
             style={{ color }}
           >
             {isReady ? (
@@ -98,7 +97,7 @@ export default function ComplianceGauge({ score }) {
             {isReady && '%'}
           </motion.span>
           <span
-            className="text-[10px] font-bold tracking-[0.25em] mt-1.5 uppercase font-mono"
+            className="text-[10px] font-bold tracking-[0.25em] mt-1.5 uppercase"
             style={{ color }}
           >
             {getLabel()}
@@ -106,7 +105,7 @@ export default function ComplianceGauge({ score }) {
         </div>
       </div>
 
-      <p className="mt-4 text-xs text-slate-500 font-mono tracking-widest uppercase">
+      <p className="mt-4 text-xs text-fb-textSecondary tracking-widest uppercase">
         Global Health Score
       </p>
     </div>

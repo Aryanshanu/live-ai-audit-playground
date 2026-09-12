@@ -30,7 +30,6 @@ export default function GovernanceInputPanel({ onSubmit, loading }) {
     setTouched(true);
 
     if (!isFormValid) {
-      // Trigger error shake feedback on input
       await controls.start({
         x: [-6, 6, -4, 4, -2, 2, 0],
         transition: { duration: 0.35, ease: 'easeInOut' },
@@ -52,17 +51,17 @@ export default function GovernanceInputPanel({ onSubmit, loading }) {
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Section Header */}
       <div>
-        <h2 className="text-lg font-bold text-gray-100 tracking-wide flex items-center gap-2">
-          <span className="text-emerald-400">⚙</span> Model Card Scanner
+        <h2 className="text-lg font-bold text-fb-text flex items-center gap-2">
+          <span className="text-fb-blue">⚙</span> Model Card Scanner
         </h2>
-        <p className="text-xs text-gray-500 mt-1 font-mono">
+        <p className="text-xs text-fb-textSecondary mt-1">
           Query live metadata &amp; tags directly from Hugging Face Hub
         </p>
       </div>
 
       {/* ── Model ID ── */}
       <div>
-        <label htmlFor="model-id" className="block text-sm font-medium text-gray-300 mb-2">
+        <label htmlFor="model-id" className="block text-sm font-medium text-fb-text mb-2">
           Hugging Face Model ID
         </label>
         <motion.input
@@ -74,25 +73,25 @@ export default function GovernanceInputPanel({ onSubmit, loading }) {
           placeholder="meta-llama/Llama-3-8B-Instruct"
           autoComplete="off"
           spellCheck="false"
-          className={`w-full px-4 py-3 bg-[#0B0F19] border rounded-lg font-mono text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:ring-2 transition-all duration-200 ${
+          className={`w-full px-4 py-3 bg-fb-bg border rounded-lg font-mono text-sm text-fb-text placeholder-gray-400 focus:outline-none focus:ring-2 focus:bg-white transition-all duration-200 ${
             !isValidModelId
-              ? 'border-red-500 focus:ring-red-500/50 neon-glow-red'
-              : 'border-[#1E293B] focus:ring-emerald-500/50 focus:border-emerald-500/30'
+              ? 'border-fb-red focus:ring-fb-red/30'
+              : 'border-fb-border focus:ring-fb-blue/30 focus:border-fb-blue'
           }`}
         />
         {!isValidModelId && modelId !== '' && (
           <motion.p
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mt-1.5 text-xs text-red-400 flex items-center gap-1"
+            className="mt-1.5 text-xs text-fb-red flex items-center gap-1"
           >
-            <span>⚠</span> Invalid format — use <code className="text-red-300 bg-red-500/10 px-1 rounded">namespace/model-name</code>
+            <span>⚠</span> Invalid format — use <code className="text-fb-red bg-red-50 px-1 rounded">namespace/model-name</code>
           </motion.p>
         )}
 
         {/* Preset Open-Source Models */}
         <div className="mt-2.5">
-          <p className="text-[11px] text-gray-500 mb-1.5 font-mono">
+          <p className="text-[11px] text-fb-textSecondary mb-1.5">
             ⚡ Quick-select top open-weight models:
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -115,8 +114,8 @@ export default function GovernanceInputPanel({ onSubmit, loading }) {
                 }}
                 className={`text-[10px] font-mono px-2 py-1 rounded border transition-all cursor-pointer ${
                   modelId === preset
-                    ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300 font-bold'
-                    : 'bg-[#0B0F19] border-[#1E293B] text-gray-400 hover:border-gray-600 hover:text-gray-200'
+                    ? 'bg-fb-blueLight border-fb-blue text-fb-blue font-bold'
+                    : 'bg-white border-fb-border text-fb-textSecondary hover:border-fb-blue hover:text-fb-blue'
                 }`}
               >
                 {preset}
@@ -128,14 +127,14 @@ export default function GovernanceInputPanel({ onSubmit, loading }) {
 
       {/* ── Use Case ── */}
       <div>
-        <label htmlFor="use-case" className="block text-sm font-medium text-gray-300 mb-2">
+        <label htmlFor="use-case" className="block text-sm font-medium text-fb-text mb-2">
           Deployment Target Use-Case
         </label>
         <select
           id="use-case"
           value={useCase}
           onChange={(e) => setUseCase(e.target.value)}
-          className="w-full px-4 py-3 bg-[#0B0F19] border border-[#1E293B] rounded-lg text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/30 transition-all cursor-pointer"
+          className="w-full px-4 py-3 bg-fb-bg border border-fb-border rounded-lg text-sm text-fb-text focus:outline-none focus:ring-2 focus:ring-fb-blue/30 focus:border-fb-blue focus:bg-white transition-all cursor-pointer"
         >
           <option value="customer-facing">🔴 Customer-Facing Conversational Interface (High Risk)</option>
           <option value="internal-analytics">🟡 Internal Data Analytics &amp; Processing (Medium Risk)</option>
@@ -145,24 +144,24 @@ export default function GovernanceInputPanel({ onSubmit, loading }) {
 
       {/* ── Demographic Framework ── */}
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-3">
+        <label className="block text-sm font-medium text-fb-text mb-3">
           Demographic Framework
         </label>
-        <div className="space-y-3 p-4 bg-[#0B0F19] border border-[#1E293B] rounded-lg">
+        <div className="space-y-3 p-4 bg-fb-bg border border-fb-border rounded-lg">
           <ToggleSwitch
             id="toggle-minor"
             label="Processes data of minors (< 18 years)"
             checked={minorData}
             onChange={setMinorData}
           />
-          <div className="border-t border-[#1E293B]" />
+          <div className="border-t border-fb-border" />
           <ToggleSwitch
             id="toggle-tracking"
             label="Executes behavioral tracking / monitoring"
             checked={behavioralTracking}
             onChange={setBehavioralTracking}
           />
-          <div className="border-t border-[#1E293B]" />
+          <div className="border-t border-fb-border" />
           <ToggleSwitch
             id="toggle-crossborder"
             label="Transfers data outside sovereign borders"
@@ -172,12 +171,12 @@ export default function GovernanceInputPanel({ onSubmit, loading }) {
         </div>
       </div>
 
-      {/* ── HF Token (Collapsible with AnimatePresence) ── */}
+      {/* ── HF Token (Collapsible) ── */}
       <div>
         <button
           type="button"
           onClick={() => setShowToken(!showToken)}
-          className="text-xs text-gray-500 hover:text-gray-300 transition-colors flex items-center gap-1.5 group cursor-pointer"
+          className="text-xs text-fb-textSecondary hover:text-fb-blue transition-colors flex items-center gap-1.5 group cursor-pointer"
         >
           <span
             className="transition-transform duration-200"
@@ -203,9 +202,9 @@ export default function GovernanceInputPanel({ onSubmit, loading }) {
                 onChange={(e) => setHfToken(e.target.value)}
                 placeholder="hf_xxxxxxxxxxxxxxxxxxxx"
                 autoComplete="off"
-                className="w-full px-4 py-3 bg-[#0B0F19] border border-[#1E293B] rounded-lg font-mono text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                className="w-full px-4 py-3 bg-fb-bg border border-fb-border rounded-lg font-mono text-sm text-fb-text placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-fb-blue/30 focus:bg-white"
               />
-              <p className="mt-1.5 text-[10px] text-gray-600">
+              <p className="mt-1.5 text-[10px] text-fb-textSecondary">
                 🔒 Token is passed locally via header only — never stored or indexed.
               </p>
             </motion.div>
@@ -213,25 +212,25 @@ export default function GovernanceInputPanel({ onSubmit, loading }) {
         </AnimatePresence>
       </div>
 
-      {/* ── Submit Button with Shake and whileTap ── */}
+      {/* ── Submit Button ── */}
       <motion.button
         type="submit"
         disabled={loading}
         whileHover={isFormValid ? { scale: 1.01 } : {}}
         whileTap={{ scale: 0.98 }}
-        className={`w-full py-4 rounded-lg font-extrabold text-sm tracking-[0.2em] uppercase transition-all duration-300 ${
+        className={`w-full py-3 rounded-lg font-bold text-sm transition-all duration-300 ${
           isFormValid
-            ? 'bg-emerald-500 hover:bg-emerald-400 text-[#0B0F19] hover:shadow-[0_0_30px_rgba(16,185,129,0.4)] cursor-pointer'
-            : 'bg-gray-800/60 text-gray-500 cursor-not-allowed border border-gray-700/50'
+            ? 'bg-fb-blue hover:bg-fb-blueHover text-white cursor-pointer shadow-sm'
+            : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-fb-border'
         }`}
       >
         {loading ? (
           <span className="flex items-center justify-center gap-3">
-            <span className="w-4 h-4 border-2 border-gray-600 border-t-emerald-300 rounded-full animate-spin" />
+            <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
             <span>Querying HF Hub...</span>
           </span>
         ) : (
-          '▶  RUN METADATA AUDIT'
+          'Run Metadata Audit'
         )}
       </motion.button>
     </form>

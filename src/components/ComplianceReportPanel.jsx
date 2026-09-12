@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ComplianceGauge from './ComplianceGauge';
 import InteractiveRadarChart from './InteractiveRadarChart';
 import IssueCard from './IssueCard';
+import { generatePromptfooConfig } from '../lib/promptfooExport';
+import { runLiveInjectionProbe } from '../lib/livePromptProbe';
 
 const FILTER_TABS = [
   { key: 'all', label: 'All' },
@@ -21,8 +23,17 @@ export default function ComplianceReportPanel({
   modelMeta,
   loading,
   error,
+  hfToken,
 }) {
   const [activeFilter, setActiveFilter] = useState('all');
+  const [probeState, setProbeState] = useState(null); // null | 'running' | {status, detail, rawResponse}
+
+  const handleRunProbe = useCallback(async () => {
+    if (!modelMeta?.id) return;
+    setProbeState('running');
+    const result = await runLiveInjectionProbe(modelMeta.id, hfToken);
+    setProbeState(result);
+  }, [modelMeta, hfToken]);
 
   const handleExport = useCallback(() => {
     const report = {
@@ -81,20 +92,20 @@ export default function ComplianceReportPanel({
   if (loading) {
     return (
       <div className="space-y-6">
-        <h2 className="text-lg font-bold text-gray-100 tracking-wide">
+        <h2 className="text-lg font-bold text-fb-text">
           📊 Verified Model Card Audit
         </h2>
         <div className="flex justify-center">
-          <div className="w-[200px] h-[200px] rounded-full bg-[#1E293B] skeleton-pulse" />
+          <div className="w-[200px] h-[200px] rounded-full bg-gray-100 skeleton-pulse" />
         </div>
-        <p className="text-center text-sm text-emerald-400/80 font-mono animate-pulse">
+        <p className="text-center text-sm text-fb-blue animate-pulse">
           Querying metadata from Hugging Face Hub...
         </p>
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="h-24 bg-[#1E293B] rounded-lg skeleton-pulse"
+              className="h-24 bg-gray-100 rounded-lg skeleton-pulse"
               style={{ animationDelay: `${i * 150}ms` }}
             />
           ))}
@@ -106,14 +117,14 @@ export default function ComplianceReportPanel({
   if (error) {
     return (
       <div className="flex flex-col h-full">
-        <h2 className="text-lg font-bold text-gray-100 tracking-wide mb-6">
+        <h2 className="text-lg font-bold text-fb-text mb-6">
           📊 Verified Model Card Audit
         </h2>
         <div className="flex-1 flex items-center justify-center">
-          <div className="text-center p-8 border border-red-500/20 rounded-xl bg-red-500/5 max-w-sm neon-glow-red">
+          <div className="text-center p-8 border border-red-200 rounded-xl bg-red-50 max-w-sm">
             <span className="text-5xl block mb-4">❌</span>
-            <h3 className="text-lg font-bold text-red-400">Query Failed</h3>
-            <p className="text-sm text-gray-400 mt-3 leading-relaxed">
+            <h3 className="text-lg font-bold text-fb-red">Query Failed</h3>
+            <p className="text-sm text-fb-textSecondary mt-3 leading-relaxed">
               {error === 'MODEL_NOT_FOUND'
                 ? 'Model not found on Hugging Face Hub. Double-check namespace/model-name.'
                 : error === 'GATED_MODEL'
@@ -129,12 +140,12 @@ export default function ComplianceReportPanel({
   if (!results) {
     return (
       <div className="flex flex-col h-full">
-        <h2 className="text-lg font-bold text-gray-100 tracking-wide mb-6">
+        <h2 className="text-lg font-bold text-fb-text mb-6">
           📊 Verified Model Card Audit
         </h2>
         <div className="flex-1 flex flex-col items-center justify-center">
           <ComplianceGauge score={null} />
-          <p className="text-gray-500 mt-6 text-sm font-mono">
+          <p className="text-fb-textSecondary mt-6 text-sm">
             Submit a model ID to begin your verified metadata audit.
           </p>
         </div>
@@ -145,10 +156,6 @@ export default function ComplianceReportPanel({
   const failCount = results.filter((r) => r.status === 'fail').length;
   const passCount = results.filter((r) => r.status === 'pass').length;
 
-  // Adapt this panel's {id, status, layer, ...} shape into the
-  // {score, issues: [{ruleId, layer}]} shape InteractiveRadarChart expects
-  // — the same radar component now serves both the sandbox heuristic
-  // engine and this verified HF-metadata engine.
   const radarReport = {
     score,
     issues: results
@@ -161,11 +168,11 @@ export default function ComplianceReportPanel({
       {/* Header + Confidence Badge */}
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <h2 className="text-lg font-bold text-gray-100 tracking-wide">
+          <h2 className="text-lg font-bold text-fb-text">
             📊 Model Card Compliance
           </h2>
-          <span className="inline-flex items-center gap-1.5 text-[10px] font-mono px-2 py-0.5 mt-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-mono px-2 py-0.5 mt-1 rounded-full bg-green-50 text-fb-green border border-green-200 font-bold">
+            <span className="w-1.5 h-1.5 rounded-full bg-fb-green" />
             VERIFIED METADATA • Hugging Face Hub REST API
           </span>
         </div>
@@ -173,79 +180,135 @@ export default function ComplianceReportPanel({
         <div className="flex gap-2">
           <button
             onClick={handleCopy}
-            className="px-3 py-1.5 text-xs bg-[#1E293B] hover:bg-gray-700 text-gray-300 rounded-lg transition-all cursor-pointer"
+            className="px-3 py-1.5 text-xs bg-fb-bg hover:bg-gray-200 text-fb-text rounded-lg transition-all cursor-pointer font-medium"
           >
             📋 Copy
           </button>
           <button
             onClick={handleExport}
-            className="px-3 py-1.5 text-xs bg-[#1E293B] hover:bg-gray-700 text-gray-300 rounded-lg transition-all cursor-pointer"
+            className="px-3 py-1.5 text-xs bg-fb-bg hover:bg-gray-200 text-fb-text rounded-lg transition-all cursor-pointer font-medium"
           >
             ⬇️ Export
           </button>
+          {modelMeta?.id && (
+            <button
+              onClick={() =>
+                navigator.clipboard.writeText(
+                  generatePromptfooConfig({
+                    modelId: modelMeta.id,
+                    activeLayers: [...new Set(results.filter((r) => r.status === 'fail').map((r) => r.layer))],
+                    purpose: `Pre-deployment red-team scan of ${modelMeta.id}, generated from a GOV.AX audit finding ${failCount} issue(s).`,
+                  })
+                )
+              }
+              title="Copies a promptfooconfig.yaml targeting this exact model via huggingface:chat — a real target, not a placeholder"
+              className="px-3 py-1.5 text-xs bg-fb-blueLight hover:bg-blue-100 text-fb-blue border border-fb-blue/30 rounded-lg transition-all cursor-pointer font-medium"
+            >
+              🎯 Copy Red-Team Config
+            </button>
+          )}
         </div>
       </div>
 
       {/* Spring Gauge */}
       <ComplianceGauge score={score} />
 
-      {/* 5-Axis Radar — now shared with the sandbox engine, so verified
-          HF-model audits get drift tracking against their own history too */}
+      {/* 5-Axis Radar */}
       <div className="h-56">
         <InteractiveRadarChart report={radarReport} auditType="verified_hf_api" subjectId={modelMeta?.id} />
       </div>
 
       {/* Model Metadata Card */}
       {modelMeta && (
-        <div className="p-4 bg-[#0B0F19] border border-[#1E293B] rounded-lg text-xs">
-          <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-2 font-mono">
+        <div className="p-4 bg-fb-bg border border-fb-border rounded-lg text-xs">
+          <h3 className="text-[10px] font-bold text-fb-textSecondary uppercase tracking-[0.2em] mb-2">
             Verified Model Parameters
           </h3>
           <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 font-mono">
-            <div><span className="text-slate-500">ID:</span> <span className="text-slate-200">{modelMeta.id}</span></div>
-            <div><span className="text-slate-500">Pipeline:</span> <span className="text-slate-200">{modelMeta.pipelineTag}</span></div>
-            <div><span className="text-slate-500">Downloads:</span> <span className="text-slate-200">{modelMeta.downloads?.toLocaleString()}</span></div>
-            <div><span className="text-slate-500">License:</span> <span className="text-emerald-400">{modelMeta.license}</span></div>
+            <div><span className="text-fb-textSecondary">ID:</span> <span className="text-fb-text">{modelMeta.id}</span></div>
+            <div><span className="text-fb-textSecondary">Pipeline:</span> <span className="text-fb-text">{modelMeta.pipelineTag}</span></div>
+            <div><span className="text-fb-textSecondary">Downloads:</span> <span className="text-fb-text">{modelMeta.downloads?.toLocaleString()}</span></div>
+            <div><span className="text-fb-textSecondary">License:</span> <span className="text-fb-blue">{modelMeta.license}</span></div>
           </div>
+        </div>
+      )}
+
+      {/* Live Prompt-Injection Probe — the one part of this audit that
+          actually talks to the model, instead of reading static metadata.
+          Uses the user's own free HF inference credits; costs GOV.AX nothing. */}
+      {modelMeta?.id && (
+        <div className="p-4 bg-white border border-fb-border rounded-lg">
+          <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
+            <h3 className="text-xs font-bold text-fb-text flex items-center gap-1.5">
+              🧪 Live Injection Probe
+              <span className="text-[9px] font-normal text-fb-textSecondary">(dynamic test, not metadata)</span>
+            </h3>
+            <button
+              onClick={handleRunProbe}
+              disabled={probeState === 'running'}
+              className="px-3 py-1 text-[11px] bg-fb-blueLight hover:bg-blue-100 text-fb-blue border border-fb-blue/30 rounded-lg cursor-pointer disabled:opacity-50 font-medium"
+            >
+              {probeState === 'running' ? 'Probing…' : 'Run Free Probe'}
+            </button>
+          </div>
+          <p className="text-[10px] text-fb-textSecondary leading-relaxed mb-2">
+            Sends one adversarial prompt directly to this model via your own Hugging Face token (free monthly inference credits — nothing billed to GOV.AX). One probe isn't a full security clearance, just a real, live data point instead of only static metadata.
+          </p>
+          {probeState && probeState !== 'running' && (
+            <div
+              className={`p-2.5 rounded-lg text-[11px] border ${
+                probeState.status === 'fail'
+                  ? 'bg-red-50 border-red-200 text-fb-red'
+                  : probeState.status === 'pass'
+                  ? 'bg-green-50 border-green-200 text-fb-green'
+                  : 'bg-amber-50 border-amber-200 text-amber-700'
+              }`}
+            >
+              <span className="font-bold uppercase">
+                {probeState.status === 'fail' ? '🚫 Injection Succeeded' : probeState.status === 'pass' ? '✅ Resisted' : '⚠ Could Not Run'}
+              </span>
+              <p className="mt-1">{probeState.detail}</p>
+            </div>
+          )}
         </div>
       )}
 
       {/* Summary Counters */}
       <div className="flex gap-3">
-        <div className="flex-1 text-center p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
-          <span className="text-2xl font-extrabold text-red-400 font-mono">
+        <div className="flex-1 text-center p-3 bg-red-50 border border-red-200 rounded-lg">
+          <span className="text-2xl font-extrabold text-fb-red">
             {failCount}
           </span>
-          <p className="text-[10px] text-gray-500 mt-1 uppercase tracking-wider font-mono">
+          <p className="text-[10px] text-fb-textSecondary mt-1 uppercase tracking-wider font-medium">
             Issues Found
           </p>
         </div>
-        <div className="flex-1 text-center p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
-          <span className="text-2xl font-extrabold text-emerald-400 font-mono">
+        <div className="flex-1 text-center p-3 bg-green-50 border border-green-200 rounded-lg">
+          <span className="text-2xl font-extrabold text-fb-green">
             {passCount}
           </span>
-          <p className="text-[10px] text-gray-500 mt-1 uppercase tracking-wider font-mono">
+          <p className="text-[10px] text-fb-textSecondary mt-1 uppercase tracking-wider font-medium">
             Rules Passed
           </p>
         </div>
       </div>
 
-      {/* Filter Tabs with layoutId activeTabPill sliding animation */}
-      <div className="flex gap-1 p-1 bg-[#0B0F19] rounded-lg border border-[#1E293B] relative">
+      {/* Filter Tabs */}
+      <div className="flex gap-1 p-1 bg-fb-bg rounded-lg border border-fb-border relative">
         {FILTER_TABS.map((tab) => {
           const isActive = activeFilter === tab.key;
           return (
             <button
               key={tab.key}
               onClick={() => setActiveFilter(tab.key)}
-              className={`flex-1 py-2 text-xs font-bold rounded-md transition-colors uppercase tracking-wider relative cursor-pointer font-mono ${
-                isActive ? 'text-gray-100' : 'text-gray-500 hover:text-gray-400'
+              className={`flex-1 py-2 text-xs font-bold rounded-md transition-colors uppercase tracking-wider relative cursor-pointer ${
+                isActive ? 'text-fb-blue' : 'text-fb-textSecondary hover:text-fb-text'
               }`}
             >
               {isActive && (
                 <motion.div
                   layoutId="activeTabPill"
-                  className="absolute inset-0 bg-[#1E293B] rounded-md shadow-sm"
+                  className="absolute inset-0 bg-white rounded-md shadow-fbCard"
                   transition={{ type: 'spring', bounce: 0.2, duration: 0.4 }}
                 />
               )}
@@ -255,7 +318,7 @@ export default function ComplianceReportPanel({
         })}
       </div>
 
-      {/* Issue Logs with Staggered Entrance & PopLayout */}
+      {/* Issue Logs */}
       <motion.div layout className="space-y-3">
         <AnimatePresence mode="popLayout">
           {filteredResults.map((result) => (
@@ -264,7 +327,7 @@ export default function ComplianceReportPanel({
         </AnimatePresence>
 
         {filteredResults.length === 0 && (
-          <p className="text-center text-gray-600 text-sm py-8 font-mono">
+          <p className="text-center text-fb-textSecondary text-sm py-8">
             No results match the &quot;{activeFilter}&quot; filter.
           </p>
         )}

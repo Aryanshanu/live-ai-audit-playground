@@ -3,16 +3,18 @@
  * CORE.GOV — Heuristic Keyword-Pattern Governance Scanner
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  *
- * What this is: a client-side substring/keyword matcher against a small,
- * illustrative rule set spanning four governance themes. It is NOT natural-
- * language understanding — it will miss real violations phrased differently
- * than the keywords below, and can be fooled by mentioning a mitigation
- * keyword without actually implementing it. Treat results as a starting
- * prompt for manual review, not a certification.
+ * What this is: a client-side word-boundary keyword matcher against a
+ * small, illustrative rule set spanning four governance themes. It is NOT
+ * natural-language understanding — it will miss real violations phrased
+ * differently than the keywords below, doesn't understand negation (e.g.
+ * "we do NOT retain logs indefinitely" can still read as a hit if the
+ * phrase overlaps), and can be fooled by mentioning a mitigation keyword
+ * without actually implementing it. Treat results as a starting prompt
+ * for manual review, not a certification.
  *
- * Four illustrative rule themes (7 rules total — see RULE_REGISTRY):
+ * Four illustrative rule themes (9 rules total — see RULE_REGISTRY):
  *   1. 🛡️ AI Security (OWASP Top 10 for LLMs / ISO 42001) — 2 rules
- *   2. 📊 Data Quality & Integrity (MeitY IndiaAI Stack) — 1 rule
+ *   2. 📊 Data Quality & Integrity (MeitY IndiaAI Stack / ISO 5259) — 3 rules
  *   3. 🧠 Responsible AI (RAI) / Ethical Alignment & Green AI — 2 rules
  *   4. ⚖️ Legal Compliance (India DPDP Act 2023 / US FTC) — 2 rules
  */
@@ -56,6 +58,30 @@ export const RULE_REGISTRY = [
     remediation: "Refactor data pre-processing stages to interface with MeitY's Bhashini API or open-source AI4Bharat tokenizers to reliably balance the 22 Scheduled Indian languages.",
     jiraPriority: "Medium",
     clause: "MeitY IndiaAI Stack Principle 2"
+  },
+  {
+    id: "DATA-TRAIN-TEST-LEAKAGE",
+    layer: "quality",
+    pillar: "Train/Test Set Contamination",
+    keywords: ["same data for training and evaluation", "no held-out validation set", "evaluation set overlaps training", "no deduplication check", "no train test split validation"],
+    negativeKeywords: ["stratified train test split", "maintains a held-out validation set", "deduplication pipeline", "leakage detection", "no data leakage"],
+    severity: "HIGH",
+    message: "Data Integrity Risk: Evaluation metrics overlap with training data, inflating reported benchmark scores and hiding real-world failure modes from stakeholders.",
+    remediation: "Enforce a strict, stratified held-out validation/test split and run an automated deduplication pass (e.g. MinHash/embedding similarity) before every training run.",
+    jiraPriority: "Medium",
+    clause: "ISO/IEC 5259-3 Data Quality for ML"
+  },
+  {
+    id: "DATA-LABEL-QUALITY",
+    layer: "quality",
+    pillar: "Label Quality & Annotation Integrity",
+    keywords: ["unvalidated crowd labels", "no annotator agreement check", "single annotator per sample", "no quality control on labels", "raw crowdsourced labels"],
+    negativeKeywords: ["inter annotator agreement", "gold standard validation set", "multiple annotators per sample", "label quality audit"],
+    severity: "MEDIUM",
+    message: "Label Reliability Risk: Ground-truth labels come from unaudited single-pass annotation, so systematic annotator bias or error propagates directly into model behavior.",
+    remediation: "Require multiple annotators per sample with an inter-annotator agreement threshold (e.g. Cohen's Kappa), plus periodic spot-checks against a gold-standard set.",
+    jiraPriority: "Low",
+    clause: "ISO/IEC 5259-2 Data Quality Measures"
   },
 
   // ================= 🧠 RESPONSIBLE AI (RAI) / ETHICAL ALIGNMENT LAYER =================
@@ -102,7 +128,7 @@ export const RULE_REGISTRY = [
     layer: "legal",
     pillar: "US FTC Asset Protection",
     keywords: ["scraped without permission", "shadow scraping", "unlicensed web metrics", "unverified legacy files", "legacy files without", "no data provenance tracking", "source of training data unknown", "scraped data with unclear origin"],
-    negativeKeywords: ["clean provenance verification", "dvc lineage tracking", "mlflow catalog", "provenance"],
+    negativeKeywords: ["clean provenance verification", "dvc lineage tracking", "mlflow catalog", "clear chain of custody"],
     severity: "CRITICAL",
     message: "Corporate Liability Risk: Training on data without clear provenance triggers severe FTC Algorithmic Disgorgement penalties (forced model destruction).",
     remediation: "Halt rogue ingestion loops. Deploy Data Version Control (DVC) or MLflow to maintain an immutable, auditable lineage record from source to weights.",
@@ -142,6 +168,22 @@ export function generateThreatNarrative(issues) {
   return narrative;
 }
 
+function escapeRegExp(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * True if `phrase` appears in `text` as a whole phrase, not as a substring
+ * mid-word. Word-boundary (\b) anchors are based on \w (letters/digits/
+ * underscore), so this still matches correctly across hyphens and normal
+ * punctuation while avoiding e.g. a short keyword matching inside an
+ * unrelated longer word.
+ */
+function matchesPhrase(text, phrase) {
+  const pattern = new RegExp(`\\b${escapeRegExp(phrase)}\\b`, 'i');
+  return pattern.test(text);
+}
+
 /**
  * Runs the audit engine on input text against active layers.
  */
@@ -150,15 +192,14 @@ export function runAuditEngine(text, activeLayers = ['security', 'quality', 'rai
     return null;
   }
 
-  const normalizedText = text.toLowerCase();
   let triggeredIssues = [];
   let baseScore = 100;
 
   const targetRules = RULE_REGISTRY.filter((rule) => activeLayers.includes(rule.layer));
 
   targetRules.forEach((rule) => {
-    const containsTrigger = rule.keywords.some((kw) => normalizedText.includes(kw));
-    const lacksMitigation = !rule.negativeKeywords.some((neg) => normalizedText.includes(neg));
+    const containsTrigger = rule.keywords.some((kw) => matchesPhrase(text, kw));
+    const lacksMitigation = !rule.negativeKeywords.some((neg) => matchesPhrase(text, neg));
 
     if (containsTrigger && lacksMitigation) {
       triggeredIssues.push({
@@ -225,40 +266,6 @@ def test_rai_green_compute_tracking():
 def test_rai_content_moderation_layer():
     """Verify that downstream outputs pass through toxic classification safety wrappers (Llama-Guard)."""
     assert True, "Content moderation filter active"
-`;
-}
-
-/**
- * Generates a GitHub Actions CI/CD workflow YAML to block pull requests on Critical risks.
- */
-export function generateGitHubActionWorkflow() {
-  return `name: Responsible AI & DPDP Governance Audit
-
-on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main ]
-
-jobs:
-  rai-governance-audit:
-    name: Shift-Left RAI Compliance Scanner
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Code Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js Environment
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Run CORE.GOV RAI Scanner
-        run: |
-          echo "Scanning architecture docs, model cards, and green compute metrics..."
-          echo "Auditing against OWASP LLM01/03, MeitY IndiaAI, and DPDP Act 2023..."
-          exit 0
 `;
 }
 

@@ -1,7 +1,7 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { Terminal, Sparkles, RefreshCw } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Terminal, Sparkles, RefreshCw, Save } from 'lucide-react';
 import InteractiveRadarChart from './InteractiveRadarChart';
 
 const AUDIT_LENSES = [
@@ -11,38 +11,32 @@ const AUDIT_LENSES = [
   { id: 'legal', label: '⚖️ Legal', sub: 'DPDP 2023' },
 ];
 
-/**
- * Upper bento pair for the sandbox mode: the free-text architecture input
- * console (left) plus the live 5-axis radar + score readout (right).
- * Extracted from page.jsx — was previously ~140 inline lines contributing
- * to a 500+ line monolith with no other reason to exist together beyond
- * "they're rendered side by side."
- */
 export default function SandboxWorkspace({
   architectureText,
   setArchitectureText,
   activeLayers,
   toggleLayer,
   isAnalyzing,
+  justCheckpointed,
   report,
   templates,
 }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
       {/* Left Console (7 Cols) */}
-      <div className="lg:col-span-7 flex flex-col gap-4 p-6 rounded-2xl border border-slate-800 bg-[#090D18]/80 backdrop-blur-md shadow-xl">
+      <div className="lg:col-span-7 flex flex-col gap-4 p-6 rounded-xl border border-fb-border bg-white shadow-fbCard">
         <div>
-          <h2 className="text-xs font-mono text-slate-300 uppercase tracking-widest flex items-center gap-2 font-bold">
-            <Terminal size={14} className="text-emerald-400" /> Technical Architecture Console
+          <h2 className="text-xs text-fb-textSecondary uppercase tracking-widest flex items-center gap-2 font-bold">
+            <Terminal size={14} className="text-fb-blue" /> Technical Architecture Console
           </h2>
-          <p className="text-[11px] text-slate-500 mt-1">
+          <p className="text-[11px] text-fb-textSecondary mt-1">
             Inject pipeline specifications, prompt templates, or data retention parameters.
           </p>
         </div>
 
         {/* Presets Bar */}
         <div className="space-y-1.5">
-          <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider block">
+          <span className="text-[10px] text-fb-textSecondary uppercase tracking-wider block font-bold">
             Pre-Formatted Archetypes:
           </span>
           <div className="flex flex-wrap gap-2">
@@ -50,7 +44,8 @@ export default function SandboxWorkspace({
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setArchitectureText(templates.ragBot)}
-              className="px-3 py-1.5 bg-slate-900/80 border border-slate-800 hover:border-slate-700 rounded-lg text-xs font-mono text-slate-300 transition-all cursor-pointer"
+              title="Demonstrates: unsanitized prompt injection + indefinite log retention"
+              className="px-3 py-1.5 bg-fb-bg border border-fb-border hover:border-fb-blue rounded-lg text-xs text-fb-text transition-all cursor-pointer"
             >
               E-Com RAG Bot
             </motion.button>
@@ -58,15 +53,26 @@ export default function SandboxWorkspace({
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setArchitectureText(templates.raiViolation)}
-              className="px-3 py-1.5 bg-slate-900/80 border border-slate-800 hover:border-slate-700 rounded-lg text-xs font-mono text-rose-400 transition-all cursor-pointer"
+              title="Demonstrates: no carbon tracking + no content moderation on outputs"
+              className="px-3 py-1.5 bg-fb-bg border border-fb-border hover:border-fb-red rounded-lg text-xs text-fb-red transition-all cursor-pointer"
             >
               RAI Ethical Violation Case
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
+              onClick={() => setArchitectureText(templates.dataIntegrityGaps)}
+              title="Demonstrates: unreviewed continuous retraining, English-only data, unclear provenance, train/test leakage, unaudited labels"
+              className="px-3 py-1.5 bg-fb-bg border border-orange-200 hover:border-orange-400 rounded-lg text-xs text-orange-600 transition-all cursor-pointer"
+            >
+              Data Pipeline Integrity Gaps
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => setArchitectureText(templates.compliantSovereign)}
-              className="px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-lg text-xs font-mono transition-all hover:bg-emerald-500/20 cursor-pointer"
+              title="Demonstrates: all mitigations in place — should score clean"
+              className="px-3 py-1.5 bg-green-50 border border-green-200 text-fb-green rounded-lg text-xs transition-all hover:bg-green-100 cursor-pointer"
             >
               Sovereign Compliant Stack
             </motion.button>
@@ -75,7 +81,7 @@ export default function SandboxWorkspace({
               whileTap={{ scale: 0.98 }}
               onClick={() => setArchitectureText(templates.paraphraseStressTest)}
               title="Describes 4 real violations in plain language, deliberately avoiding the scanner's keyword list — shows where keyword-matching breaks down."
-              className="px-3 py-1.5 bg-amber-500/5 border border-dashed border-amber-500/40 text-amber-400 rounded-lg text-xs font-mono transition-all hover:bg-amber-500/10 cursor-pointer"
+              className="px-3 py-1.5 bg-amber-50 border border-dashed border-amber-300 text-amber-700 rounded-lg text-xs transition-all hover:bg-amber-100 cursor-pointer"
             >
               ⚠ Paraphrase Stress-Test
             </motion.button>
@@ -84,7 +90,7 @@ export default function SandboxWorkspace({
 
         {/* Active Evaluation Layers */}
         <div className="space-y-1.5">
-          <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider block">
+          <span className="text-[10px] text-fb-textSecondary uppercase tracking-wider block font-bold">
             Active Audit Lenses
           </span>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -92,14 +98,14 @@ export default function SandboxWorkspace({
               <button
                 key={l.id}
                 onClick={() => toggleLayer(l.id)}
-                className={`px-3 py-2 rounded-xl text-left font-mono border transition-all cursor-pointer ${
+                className={`px-3 py-2 rounded-xl text-left border transition-all cursor-pointer ${
                   activeLayers.includes(l.id)
-                    ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-300 shadow-md shadow-emerald-950/20'
-                    : 'bg-slate-900/40 border-slate-800/80 text-slate-500'
+                    ? 'bg-fb-blueLight border-fb-blue text-fb-blue'
+                    : 'bg-fb-bg border-fb-border text-fb-textSecondary'
                 }`}
               >
                 <span className="text-xs font-bold block">{l.label}</span>
-                <span className="text-[9px] text-slate-500 block">{l.sub}</span>
+                <span className="text-[9px] opacity-80 block">{l.sub}</span>
               </button>
             ))}
           </div>
@@ -111,26 +117,38 @@ export default function SandboxWorkspace({
             value={architectureText}
             onChange={(e) => setArchitectureText(e.target.value)}
             placeholder="Paste custom architectural data system logs or pipeline descriptions here..."
-            className="w-full flex-1 p-4 bg-[#04060C] border border-slate-800 rounded-xl font-mono text-xs leading-relaxed text-slate-300 focus:outline-none focus:border-emerald-500/40 resize-none placeholder:text-slate-700 transition-all"
+            className="w-full flex-1 p-4 bg-fb-bg border border-fb-border rounded-xl font-mono text-xs leading-relaxed text-fb-text focus:outline-none focus:border-fb-blue focus:bg-white resize-none placeholder:text-gray-400 transition-all"
           />
           {isAnalyzing && (
-            <div className="absolute bottom-4 right-4 text-[10px] font-mono text-emerald-400 bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-lg flex items-center gap-2 shadow-xl backdrop-blur">
-              <RefreshCw size={10} className="animate-spin text-cyan-400" /> Computing Matrices...
+            <div className="absolute bottom-4 right-4 text-[10px] text-fb-blue bg-white border border-fb-border px-3 py-1.5 rounded-lg flex items-center gap-2 shadow-fbCard">
+              <RefreshCw size={10} className="animate-spin text-fb-blue" /> Computing Matrices...
             </div>
           )}
+          <AnimatePresence>
+            {justCheckpointed && (
+              <motion.div
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="absolute bottom-4 right-4 text-[10px] text-fb-textSecondary bg-white border border-green-200 px-3 py-1.5 rounded-lg flex items-center gap-2 shadow-fbCard"
+              >
+                <Save size={10} className="text-fb-green" /> Checkpoint saved to history
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 
       {/* Right Radar & Compliance Overview (5 Cols) */}
-      <div className="lg:col-span-5 flex flex-col gap-4 p-6 rounded-2xl border border-slate-800 bg-[#090D18]/80 backdrop-blur-md shadow-xl justify-between">
+      <div className="lg:col-span-5 flex flex-col gap-4 p-6 rounded-xl border border-fb-border bg-white shadow-fbCard justify-between">
         <div>
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-xs font-mono font-bold text-slate-300 uppercase tracking-widest flex items-center gap-1.5">
-              <Sparkles size={12} className="text-emerald-400" /> Dynamic 5-Axis Radar
+            <h3 className="text-xs font-bold text-fb-text uppercase tracking-widest flex items-center gap-1.5">
+              <Sparkles size={12} className="text-fb-blue" /> Dynamic 5-Axis Radar
             </h3>
-            <span className="text-[10px] font-mono text-slate-500">Live Geometry</span>
+            <span className="text-[10px] text-fb-textSecondary">Live Geometry</span>
           </div>
-          <p className="text-[11px] text-slate-500 font-mono">
+          <p className="text-[11px] text-fb-textSecondary">
             Calibrated across Model Safety, Data Quality, Responsible AI, Privacy, &amp; Transparency.
           </p>
         </div>
@@ -141,22 +159,22 @@ export default function SandboxWorkspace({
         </div>
 
         {/* Score Metric Bar */}
-        <div className="p-3.5 bg-slate-950/80 border border-slate-800 rounded-xl flex items-center justify-between font-mono">
+        <div className="p-3.5 bg-fb-bg border border-fb-border rounded-xl flex items-center justify-between">
           <div>
-            <span className="text-[10px] text-slate-500 uppercase block">Health Index</span>
-            <span className="text-2xl font-black text-slate-100">
+            <span className="text-[10px] text-fb-textSecondary uppercase block font-bold">Health Index</span>
+            <span className="text-2xl font-black text-fb-text">
               {report ? `${report.score}%` : '--'}
             </span>
           </div>
           <span
             className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
               !report
-                ? 'bg-slate-900 border-slate-800 text-slate-500'
+                ? 'bg-white border-fb-border text-fb-textSecondary'
                 : report.score > 75
-                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                ? 'bg-green-50 border-green-200 text-fb-green'
                 : report.score > 45
-                ? 'bg-amber-500/10 border-amber-500/30 text-amber-400'
-                : 'bg-rose-500/10 border-rose-500/30 text-rose-400'
+                ? 'bg-amber-50 border-amber-200 text-amber-700'
+                : 'bg-red-50 border-red-200 text-fb-red'
             }`}
           >
             {!report

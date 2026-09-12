@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion, useSpring, useTransform } from 'framer-motion';
 import { getPreviousAudit } from '../lib/historyStore';
+import { timeAgo } from '../lib/timeFormat';
 
 // 5-axis dimensions — declared outside the component since they're static
 // and referenced by both the metric lookup and the spring wiring below.
@@ -106,26 +107,26 @@ export default function InteractiveRadarChart({ report, auditType, subjectId }) 
   const scoreDelta = prevAudit && report ? report.score - prevAudit.score : null;
 
   const strokeColor = !report
-    ? '#38BDF8'
+    ? '#1877F2'
     : report.score > 75
-    ? '#10B981'
+    ? '#31A24C'
     : report.score > 45
-    ? '#F59E0B'
-    : '#EF4444';
+    ? '#F7B928'
+    : '#FA383E';
 
   return (
     <div className="w-full h-full flex flex-col items-center justify-center relative select-none">
-      <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_0_12px_rgba(6,182,212,0.18)] overflow-visible">
+      <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
         {/* Background Concentric Radar Calibration Rings */}
-        <circle cx={CENTER} cy={CENTER} r={RADIUS} fill="none" stroke="#1E293B" strokeWidth="0.5" strokeDasharray="1 1" />
-        <circle cx={CENTER} cy={CENTER} r={RADIUS * 0.66} fill="none" stroke="#1E293B" strokeWidth="0.5" strokeDasharray="1 1" />
-        <circle cx={CENTER} cy={CENTER} r={RADIUS * 0.33} fill="none" stroke="#1E293B" strokeWidth="0.5" strokeDasharray="1 1" />
+        <circle cx={CENTER} cy={CENTER} r={RADIUS} fill="none" stroke="#E4E6EB" strokeWidth="0.5" strokeDasharray="1 1" />
+        <circle cx={CENTER} cy={CENTER} r={RADIUS * 0.66} fill="none" stroke="#E4E6EB" strokeWidth="0.5" strokeDasharray="1 1" />
+        <circle cx={CENTER} cy={CENTER} r={RADIUS * 0.33} fill="none" stroke="#E4E6EB" strokeWidth="0.5" strokeDasharray="1 1" />
 
         {/* Axis Web Vector Boundary Lines */}
         {DIMENSIONS.map((d, idx) => {
           const edge = getCoordinates(100, d.angle);
           return (
-            <line key={idx} x1={CENTER} y1={CENTER} x2={edge.x} y2={edge.y} stroke="#1E293B" strokeWidth="0.5" />
+            <line key={idx} x1={CENTER} y1={CENTER} x2={edge.x} y2={edge.y} stroke="#E4E6EB" strokeWidth="0.5" />
           );
         })}
 
@@ -134,11 +135,11 @@ export default function InteractiveRadarChart({ report, auditType, subjectId }) 
           <motion.polygon
             points={prevPath}
             fill="none"
-            stroke="#475569"
+            stroke="#9CA3AF"
             strokeWidth="0.8"
             strokeDasharray="1.5 1.5"
             initial={{ opacity: 0 }}
-            animate={{ opacity: 0.5 }}
+            animate={{ opacity: 0.6 }}
             transition={{ duration: 0.4, delay: 0.2 }}
           />
         )}
@@ -158,15 +159,14 @@ export default function InteractiveRadarChart({ report, auditType, subjectId }) 
             cx={coord.cx}
             cy={coord.cy}
             r="1.4"
-            fill="#06B6D4"
-            className="fill-cyan-400 animate-pulse"
+            fill="#1877F2"
           />
         ))}
 
         <defs>
           <linearGradient id="radarGradient5" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#06B6D4" stopOpacity="0.4" />
-            <stop offset="100%" stopColor="#10B981" stopOpacity="0.08" />
+            <stop offset="0%" stopColor="#1877F2" stopOpacity="0.35" />
+            <stop offset="100%" stopColor="#1877F2" stopOpacity="0.06" />
           </linearGradient>
         </defs>
 
@@ -180,10 +180,9 @@ export default function InteractiveRadarChart({ report, auditType, subjectId }) 
               y={textPos.y}
               textAnchor="middle"
               dominantBaseline="middle"
-              fill="#64748B"
+              fill="#65676B"
               fontSize="2.4"
               fontWeight="bold"
-              fontFamily="monospace"
             >
               {d.label}
             </text>
@@ -192,15 +191,16 @@ export default function InteractiveRadarChart({ report, auditType, subjectId }) 
       </svg>
 
       {/* Ghost Legend & Delta */}
-      <div className="flex items-center gap-3 mt-1 text-[9px] font-mono text-slate-500">
-        <span className="flex items-center gap-1 text-cyan-400">
-          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" /> Current Run
+      <div className="flex items-center gap-3 mt-1 text-[9px] text-fb-textSecondary">
+        <span className="flex items-center gap-1 text-fb-blue font-medium">
+          <span className="w-1.5 h-1.5 rounded-full bg-fb-blue" /> Current Run
         </span>
         {prevAudit && (
-          <span className="flex items-center gap-1 text-slate-500">
-            <span className="w-2 h-0.5 border-b border-dashed border-slate-500" /> Prev Ghost
+          <span className="flex items-center gap-1 text-fb-textSecondary">
+            <span className="w-2 h-0.5 border-b border-dashed border-gray-400" />
+            vs. {prevAudit.modelOrTitle} ({timeAgo(prevAudit.timestamp)})
             {scoreDelta !== null && (
-              <span className={`font-bold ml-0.5 ${scoreDelta >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+              <span className={`font-bold ml-0.5 ${scoreDelta >= 0 ? 'text-fb-green' : 'text-fb-red'}`}>
                 ({scoreDelta >= 0 ? `+${scoreDelta}` : scoreDelta}%)
               </span>
             )}

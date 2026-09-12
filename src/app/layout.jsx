@@ -36,7 +36,7 @@ export default function RootLayout({ children }) {
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-screen bg-[#0B0F19] text-slate-100">
+      <body className="min-h-screen bg-fb-bg text-fb-text">
         {children}
       </body>
     </html>
