@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { getEvidenceTier } from '../lib/evidenceTiers';
 
 const STATUS_ICONS = {
   CRITICAL: '🚫',
@@ -43,6 +44,7 @@ export default function IssueCard({ result }) {
   const styleConfig = isFail
     ? SEVERITY_STYLES[result.severity] || SEVERITY_STYLES.HIGH
     : SEVERITY_STYLES.pass;
+  const tier = getEvidenceTier(result.evidenceType);
 
   return (
     <motion.div
@@ -67,7 +69,15 @@ export default function IssueCard({ result }) {
             </span>
           )}
         </div>
-        <span className="text-[10px] text-fb-textSecondary">{result.pillar}</span>
+        <span className="text-[10px] text-fb-textSecondary flex items-center gap-1.5">
+          <span
+            className={`px-1.5 py-0.5 rounded-full text-[8px] font-bold uppercase border ${tier.badgeClass}`}
+            title={tier.description}
+          >
+            {tier.shortLabel}
+          </span>
+          {result.pillar}
+        </span>
       </div>
 
       <p className="text-sm text-fb-text leading-relaxed">{result.message}</p>

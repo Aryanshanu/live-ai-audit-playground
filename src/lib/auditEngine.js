@@ -24,6 +24,7 @@ export const RULE_REGISTRY = [
   {
     id: "SEC-OWASP-LLM01",
     layer: "security",
+    evidenceType: "heuristic_text",
     pillar: "Prompt Injection Mitigation",
     keywords: ["raw prompt", "direct input string", "user input bypass", "dynamic concatenation", "raw prompt injection", "no input sanitization", "user input fed directly into the prompt", "unfiltered user text"],
     negativeKeywords: ["system instructions encapsulation", "xml delimiter parsing", "guardrail framework", "llm-guard", "guardrails"],
@@ -36,6 +37,7 @@ export const RULE_REGISTRY = [
   {
     id: "SEC-OWASP-LLM03",
     layer: "security",
+    evidenceType: "heuristic_text",
     pillar: "Data Poisoning Guardrails",
     keywords: ["continuous automated retraining", "live user feedback updates", "auto-finetuning", "continuous retraining", "scraped live", "auto retraining from user data", "live retraining loop", "feeds directly back into training"],
     negativeKeywords: ["anomaly detection engine", "human-in-the-loop validation", "data quarantine queue", "quarantine"],
@@ -50,6 +52,7 @@ export const RULE_REGISTRY = [
   {
     id: "DATA-INDIC-VERNACULAR",
     layer: "quality",
+    evidenceType: "heuristic_text",
     pillar: "Indic Language Tokenization & Bias",
     keywords: ["english-centric datasets", "standard web scrape", "only western corpus", "english-centric", "western dataset", "english only training data", "no multilingual support", "single-language corpus"],
     negativeKeywords: ["bhashini integration", "ai4bharat pipelines", "22 scheduled languages", "multilingual tokenization", "bhashini", "ai4bharat"],
@@ -62,6 +65,7 @@ export const RULE_REGISTRY = [
   {
     id: "DATA-TRAIN-TEST-LEAKAGE",
     layer: "quality",
+    evidenceType: "heuristic_text",
     pillar: "Train/Test Set Contamination",
     keywords: ["same data for training and evaluation", "no held-out validation set", "evaluation set overlaps training", "no deduplication check", "no train test split validation"],
     negativeKeywords: ["stratified train test split", "maintains a held-out validation set", "deduplication pipeline", "leakage detection", "no data leakage"],
@@ -74,6 +78,7 @@ export const RULE_REGISTRY = [
   {
     id: "DATA-LABEL-QUALITY",
     layer: "quality",
+    evidenceType: "heuristic_text",
     pillar: "Label Quality & Annotation Integrity",
     keywords: ["unvalidated crowd labels", "no annotator agreement check", "single annotator per sample", "no quality control on labels", "raw crowdsourced labels"],
     negativeKeywords: ["inter annotator agreement", "gold standard validation set", "multiple annotators per sample", "label quality audit"],
@@ -88,6 +93,7 @@ export const RULE_REGISTRY = [
   {
     id: "RAI-GREEN-COMPUTE",
     layer: "rai",
+    evidenceType: "heuristic_text",
     pillar: "Green AI & Carbon Transparency",
     keywords: ["unbounded scaling", "massive grid cluster", "compute parameters unchecked", "massive grid clusters", "high-compute optimization", "no carbon tracking", "energy usage not monitored", "unmonitored compute scaling"],
     negativeKeywords: ["carbon intensity metrics", "codecarbon logging", "green computing scheduler", "energy efficiency tracking", "codecarbon"],
@@ -100,6 +106,7 @@ export const RULE_REGISTRY = [
   {
     id: "RAI-CONTENT-GUARDRAIL",
     layer: "rai",
+    evidenceType: "heuristic_text",
     pillar: "Toxicity & Content Moderation",
     keywords: ["raw generation output", "direct inference routing", "no content filter", "without content filtering", "raw generation", "no toxicity filter", "unmoderated model output", "outputs shown to users unfiltered"],
     negativeKeywords: ["llama-guard context checking", "moderation classification layer", "toxicity score filter", "llama-guard", "context safety wrappers"],
@@ -114,6 +121,7 @@ export const RULE_REGISTRY = [
   {
     id: "LEGAL-DPDP-SEC07",
     layer: "legal",
+    evidenceType: "heuristic_text",
     pillar: "Sovereign Purpose & Storage Limitation",
     keywords: ["retain permanently", "indefinite system storage", "logs un-purged", "stored indefinitely", "logs permanent", "keeps user data forever", "no data deletion policy", "logs never expire"],
     negativeKeywords: ["ttl policy", "30-day cron purge", "data principal vault", "decoupled storage", "cron purge ttl policy"],
@@ -126,6 +134,7 @@ export const RULE_REGISTRY = [
   {
     id: "LEGAL-US-FTC-DISGORGEMENT",
     layer: "legal",
+    evidenceType: "heuristic_text",
     pillar: "US FTC Asset Protection",
     keywords: ["scraped without permission", "shadow scraping", "unlicensed web metrics", "unverified legacy files", "legacy files without", "no data provenance tracking", "source of training data unknown", "scraped data with unclear origin"],
     negativeKeywords: ["clean provenance verification", "dvc lineage tracking", "mlflow catalog", "clear chain of custody"],
@@ -211,6 +220,7 @@ export function runAuditEngine(text, activeLayers = ['security', 'quality', 'rai
         remediation: rule.remediation,
         jiraPriority: rule.jiraPriority,
         clause: rule.clause,
+        evidenceType: rule.evidenceType,
       });
 
       baseScore -= rule.severity === 'CRITICAL' ? 20 : rule.severity === 'HIGH' ? 15 : 10;

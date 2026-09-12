@@ -6,7 +6,8 @@ import ComplianceGauge from './ComplianceGauge';
 import InteractiveRadarChart from './InteractiveRadarChart';
 import IssueCard from './IssueCard';
 import { generatePromptfooConfig } from '../lib/promptfooExport';
-import { runLiveInjectionProbe } from '../lib/livePromptProbe';
+import DynamicSecurityPanel from './DynamicSecurityPanel';
+import UnifiedGovernanceScore from './UnifiedGovernanceScore';
 
 const FILTER_TABS = [
   { key: 'all', label: 'All' },
@@ -26,14 +27,7 @@ export default function ComplianceReportPanel({
   hfToken,
 }) {
   const [activeFilter, setActiveFilter] = useState('all');
-  const [probeState, setProbeState] = useState(null); // null | 'running' | {status, detail, rawResponse}
-
-  const handleRunProbe = useCallback(async () => {
-    if (!modelMeta?.id) return;
-    setProbeState('running');
-    const result = await runLiveInjectionProbe(modelMeta.id, hfToken);
-    setProbeState(result);
-  }, [modelMeta, hfToken]);
+  const [securitySuiteResult, setSecuritySuiteResult] = useState(null);
 
   const handleExport = useCallback(() => {
     const report = {
@@ -210,6 +204,17 @@ export default function ComplianceReportPanel({
         </div>
       </div>
 
+      {/* Unified Governance Score — combines the static metadata score
+          with the live security suite result once it's been run */}
+      <UnifiedGovernanceScore
+        signals={[
+          { label: 'Model Metadata Audit', score, evidenceType: 'verified_data' },
+          securitySuiteResult?.score != null
+            ? { label: 'Live Security Suite', score: securitySuiteResult.score, evidenceType: 'live_dynamic_test' }
+            : null,
+        ].filter(Boolean)}
+      />
+
       {/* Spring Gauge */}
       <ComplianceGauge score={score} />
 
@@ -233,44 +238,11 @@ export default function ComplianceReportPanel({
         </div>
       )}
 
-      {/* Live Prompt-Injection Probe — the one part of this audit that
-          actually talks to the model, instead of reading static metadata.
-          Uses the user's own free HF inference credits; costs GOV.AX nothing. */}
+      {/* Dynamic Security Suite + Remediation Agent — the strongest
+          evidence tier in the app, and the first genuinely agentic
+          capability. Replaces the old single-probe card. */}
       {modelMeta?.id && (
-        <div className="p-4 bg-white border border-fb-border rounded-lg">
-          <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
-            <h3 className="text-xs font-bold text-fb-text flex items-center gap-1.5">
-              🧪 Live Injection Probe
-              <span className="text-[9px] font-normal text-fb-textSecondary">(dynamic test, not metadata)</span>
-            </h3>
-            <button
-              onClick={handleRunProbe}
-              disabled={probeState === 'running'}
-              className="px-3 py-1 text-[11px] bg-fb-blueLight hover:bg-blue-100 text-fb-blue border border-fb-blue/30 rounded-lg cursor-pointer disabled:opacity-50 font-medium"
-            >
-              {probeState === 'running' ? 'Probing…' : 'Run Free Probe'}
-            </button>
-          </div>
-          <p className="text-[10px] text-fb-textSecondary leading-relaxed mb-2">
-            Sends one adversarial prompt directly to this model via your own Hugging Face token (free monthly inference credits — nothing billed to GOV.AX). One probe isn't a full security clearance, just a real, live data point instead of only static metadata.
-          </p>
-          {probeState && probeState !== 'running' && (
-            <div
-              className={`p-2.5 rounded-lg text-[11px] border ${
-                probeState.status === 'fail'
-                  ? 'bg-red-50 border-red-200 text-fb-red'
-                  : probeState.status === 'pass'
-                  ? 'bg-green-50 border-green-200 text-fb-green'
-                  : 'bg-amber-50 border-amber-200 text-amber-700'
-              }`}
-            >
-              <span className="font-bold uppercase">
-                {probeState.status === 'fail' ? '🚫 Injection Succeeded' : probeState.status === 'pass' ? '✅ Resisted' : '⚠ Could Not Run'}
-              </span>
-              <p className="mt-1">{probeState.detail}</p>
-            </div>
-          )}
-        </div>
+        <DynamicSecurityPanel modelId={modelMeta.id} hfToken={hfToken} issues={results.filter((r) => r.status === 'fail')} onSuiteResult={setSecuritySuiteResult} />
       )}
 
       {/* Summary Counters */}

@@ -14,6 +14,8 @@ import SandboxWorkspace from '../components/SandboxWorkspace';
 import IntegrationStudioPanel from '../components/IntegrationStudioPanel';
 import DataLineageGraph from '../components/DataLineageGraph';
 import HistoryIndicator from '../components/HistoryIndicator';
+import DataQualityUpload from '../components/DataQualityUpload';
+import UnifiedGovernanceScore from '../components/UnifiedGovernanceScore';
 
 const ARCHITECTURE_TEMPLATES = {
   ragBot:
@@ -39,6 +41,7 @@ export default function UnifiedGovernanceCenter() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [justCheckpointed, setJustCheckpointed] = useState(false);
   const [copiedKey, setCopiedKey] = useState(null);
+  const [csvQualityResult, setCsvQualityResult] = useState(null);
 
   const toggleLayer = (layerId) => {
     if (activeLayers.includes(layerId)) {
@@ -220,6 +223,14 @@ export default function UnifiedGovernanceCenter() {
             </span>
           </div>
 
+          {/* ━━ Unified Governance Score — combines whatever signals exist ━━ */}
+          <UnifiedGovernanceScore
+            signals={[
+              report ? { label: 'Text-Pattern Audit', score: report.score, evidenceType: 'heuristic_text' } : null,
+              csvQualityResult ? { label: 'Dataset Quality & Fairness', score: csvQualityResult.score, evidenceType: 'verified_data' } : null,
+            ].filter(Boolean)}
+          />
+
           {/* ━━ Input Workspace + Radar Dashboard ━━ */}
           <SandboxWorkspace
             architectureText={architectureText}
@@ -234,6 +245,9 @@ export default function UnifiedGovernanceCenter() {
 
           {/* ━━ Data Lineage Node Graph ━━ */}
           <DataLineageGraph report={report} text={architectureText} />
+
+          {/* ━━ Real Dataset Quality Check ━━ */}
+          <DataQualityUpload onResult={setCsvQualityResult} />
 
           {/* ━━ Threat Scenario & Integration Tabs ━━ */}
           <IntegrationStudioPanel
