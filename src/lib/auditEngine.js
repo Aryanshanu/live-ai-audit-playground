@@ -240,6 +240,7 @@ export function runUnifiedAuditEngine(text, activeLayers = ['security', 'quality
         pillar: rule.pillar,
         framework: rule.framework,
         severity: rule.severity,
+        jiraPriority: rule.severity === 'CRITICAL' ? 'Highest' : 'High',
         message: rule.message,
         remediation: rule.remediation,
         clause: rule.clause,
@@ -277,9 +278,12 @@ export function runUnifiedAuditEngine(text, activeLayers = ['security', 'quality
     },
     issues: triggeredIssues,
     threatScenario,
+    threatModel: threatScenario,
     timestamp: new Date().toISOString(),
   };
 }
+
+export const runAuditEngine = runUnifiedAuditEngine;
 
 /**
  * Generates an adversarial threat modeling attack scenario based on specific triggered vulnerabilities.
