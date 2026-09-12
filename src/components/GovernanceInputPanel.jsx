@@ -1,0 +1,233 @@
+'use client';
+
+import { useState } from 'react';
+import ToggleSwitch from './ToggleSwitch';
+
+/**
+ * Regex: namespace/model-name
+ * Allows alphanumeric, hyphens, underscores, dots
+ */
+const MODEL_ID_REGEX = /^[a-zA-Z0-9_-]+\/[a-zA-Z0-9._-]+$/;
+
+/**
+ * Left panel — Governance input form.
+ * Captures model ID, use-case, demographic toggles, and optional HF token.
+ */
+export default function GovernanceInputPanel({ onSubmit, loading }) {
+  const [modelId, setModelId] = useState('');
+  const [useCase, setUseCase] = useState('customer-facing');
+  const [minorData, setMinorData] = useState(false);
+  const [behavioralTracking, setBehavioralTracking] = useState(false);
+  const [crossBorder, setCrossBorder] = useState(false);
+  const [hfToken, setHfToken] = useState('');
+  const [showToken, setShowToken] = useState(false);
+  const [touched, setTouched] = useState(false);
+
+  const isValidModelId = !touched || modelId === '' || MODEL_ID_REGEX.test(modelId);
+  const canSubmit =
+    modelId.trim() !== '' && MODEL_ID_REGEX.test(modelId) && !loading;
+
+  const handleModelIdChange = (e) => {
+    setTouched(true);
+    setModelId(e.target.value);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!canSubmit) return;
+    onSubmit({
+      modelId: modelId.trim(),
+      useCase,
+      minorData,
+      behavioralTracking,
+      crossBorder,
+      hfToken: hfToken.trim() || null,
+    });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Section Header */}
+      <div>
+        <h2 className="text-lg font-bold text-gray-100 tracking-wide flex items-center gap-2">
+          <span className="text-emerald-400">⚙</span> Governance Inputs
+        </h2>
+        <p className="text-xs text-gray-600 mt-1 font-mono">
+          Configure model audit parameters below
+        </p>
+      </div>
+
+      {/* ── Model ID ── */}
+      <div>
+        <label
+          htmlFor="model-id"
+          className="block text-sm font-medium text-gray-300 mb-2"
+        >
+          Hugging Face Model ID
+        </label>
+        <input
+          id="model-id"
+          type="text"
+          value={modelId}
+          onChange={handleModelIdChange}
+          placeholder="meta-llama/Llama-3-8B-Instruct"
+          autoComplete="off"
+          spellCheck="false"
+          className={`w-full px-4 py-3 bg-[#0B0F19] border rounded-lg font-mono text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:ring-2 transition-all duration-200 ${
+            !isValidModelId
+              ? 'border-red-500 focus:ring-red-500/50 neon-glow-red'
+              : 'border-[#1E293B] focus:ring-emerald-500/50 focus:border-emerald-500/30'
+          }`}
+        />
+        {!isValidModelId && modelId !== '' && (
+          <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1">
+            <span>⚠</span> Invalid format — use{' '}
+            <code className="text-red-300 bg-red-500/10 px-1 rounded">
+              namespace/model-name
+            </code>
+          </p>
+        )}
+
+        {/* ── Preset Open-Source Models ── */}
+        <div className="mt-2.5">
+          <p className="text-[11px] text-gray-500 mb-1.5 font-mono">
+            ⚡ Quick-select top open-weight models:
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {[
+              'meta-llama/Llama-3-8B-Instruct',
+              'Qwen/Qwen2.5-7B-Instruct',
+              'Qwen/Qwen2.5-7B',
+              'mistralai/Mistral-7B-Instruct-v0.3',
+              'google/gemma-2-9b-it',
+              'openai-community/gpt2',
+            ].map((preset) => (
+              <button
+                key={preset}
+                type="button"
+                onClick={() => {
+                  setModelId(preset);
+                  setTouched(true);
+                }}
+                className={`text-[10px] font-mono px-2 py-1 rounded border transition-all duration-150 ${
+                  modelId === preset
+                    ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300 font-bold'
+                    : 'bg-[#0B0F19] border-[#1E293B] text-gray-400 hover:border-gray-600 hover:text-gray-200'
+                }`}
+              >
+                {preset}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Use Case ── */}
+      <div>
+        <label
+          htmlFor="use-case"
+          className="block text-sm font-medium text-gray-300 mb-2"
+        >
+          Deployment Target Use-Case
+        </label>
+        <select
+          id="use-case"
+          value={useCase}
+          onChange={(e) => setUseCase(e.target.value)}
+          className="w-full px-4 py-3 bg-[#0B0F19] border border-[#1E293B] rounded-lg text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/30 transition-all duration-200 cursor-pointer"
+        >
+          <option value="customer-facing">
+            🔴 Customer-Facing Conversational Interface (High Risk)
+          </option>
+          <option value="internal-analytics">
+            🟡 Internal Data Analytics &amp; Processing (Medium Risk)
+          </option>
+          <option value="academic-creative">
+            🟢 Automated Academic / Creative Generation (Low Risk)
+          </option>
+        </select>
+      </div>
+
+      {/* ── Demographic Framework ── */}
+      <div>
+        <label className="block text-sm font-medium text-gray-300 mb-3">
+          Demographic Framework
+        </label>
+        <div className="space-y-3 p-4 bg-[#0B0F19] border border-[#1E293B] rounded-lg">
+          <ToggleSwitch
+            id="toggle-minor"
+            label="Processes data of minors (< 18 years)"
+            checked={minorData}
+            onChange={setMinorData}
+          />
+          <div className="border-t border-[#1E293B]" />
+          <ToggleSwitch
+            id="toggle-tracking"
+            label="Executes behavioral tracking / monitoring"
+            checked={behavioralTracking}
+            onChange={setBehavioralTracking}
+          />
+          <div className="border-t border-[#1E293B]" />
+          <ToggleSwitch
+            id="toggle-crossborder"
+            label="Transfers data outside sovereign borders"
+            checked={crossBorder}
+            onChange={setCrossBorder}
+          />
+        </div>
+      </div>
+
+      {/* ── HF Token (Collapsible) ── */}
+      <div>
+        <button
+          type="button"
+          onClick={() => setShowToken(!showToken)}
+          className="text-xs text-gray-500 hover:text-gray-300 transition-colors flex items-center gap-1.5 group"
+        >
+          <span
+            className="transition-transform duration-200"
+            style={{ display: 'inline-block', transform: showToken ? 'rotate(90deg)' : 'rotate(0deg)' }}
+          >
+            ▸
+          </span>
+          <span>🔑 Optional: Hugging Face Access Token</span>
+        </button>
+        {showToken && (
+          <div className="mt-2">
+            <input
+              type="password"
+              value={hfToken}
+              onChange={(e) => setHfToken(e.target.value)}
+              placeholder="hf_xxxxxxxxxxxxxxxxxxxx"
+              autoComplete="off"
+              className="w-full px-4 py-3 bg-[#0B0F19] border border-[#1E293B] rounded-lg font-mono text-sm text-gray-100 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/30 transition-all duration-200"
+            />
+            <p className="mt-1.5 text-[10px] text-gray-600">
+              🔒 Token is passed locally via header only — never stored or forwarded.
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* ── Submit Button ── */}
+      <button
+        type="submit"
+        disabled={!canSubmit}
+        className={`w-full py-4 rounded-lg font-extrabold text-sm tracking-[0.2em] uppercase transition-all duration-300 ${
+          canSubmit
+            ? 'bg-emerald-500 hover:bg-emerald-400 text-[#0B0F19] hover:shadow-[0_0_30px_rgba(16,185,129,0.4)] active:scale-[0.98] cursor-pointer'
+            : 'bg-gray-800/60 text-gray-600 cursor-not-allowed'
+        }`}
+      >
+        {loading ? (
+          <span className="flex items-center justify-center gap-3">
+            <span className="w-4 h-4 border-2 border-gray-600 border-t-emerald-300 rounded-full animate-spin" />
+            <span>Auditing...</span>
+          </span>
+        ) : (
+          '▶  RUN AUDIT'
+        )}
+      </button>
+    </form>
+  );
+}

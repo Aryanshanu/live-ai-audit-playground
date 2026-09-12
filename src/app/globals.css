@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   GOV.AX — Cyberpunk Dark Mode Theme
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+:root {
+  --void: #0B0F19;
+  --slate-border: #1E293B;
+  --neon-emerald: #10B981;
+  --neon-red: #EF4444;
+  --neon-amber: #F59E0B;
+  --surface: #111827;
+}
+
+/* ── Base ── */
+body {
+  background-color: var(--void);
+  color: #E2E8F0;
+  font-feature-settings: 'liga' 1, 'calt' 1;
+}
+
+/* ── Selection ── */
+::selection {
+  background-color: rgba(16, 185, 129, 0.25);
+  color: #E2E8F0;
+}
+
+/* ── Neon Glow Utilities ── */
+@layer utilities {
+  .neon-glow-green {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.25), inset 0 0 20px rgba(16, 185, 129, 0.05);
+  }
+  .neon-glow-red {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.25), inset 0 0 20px rgba(239, 68, 68, 0.05);
+  }
+  .neon-glow-amber {
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.25), inset 0 0 20px rgba(245, 158, 11, 0.05);
+  }
+}
+
+/* ── Skeleton Loader ── */
+.skeleton-pulse {
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+/* ── Custom Scrollbar ── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--void);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--slate-border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* ── Focus Ring Override ── */
+*:focus-visible {
+  outline: 2px solid var(--neon-emerald);
+  outline-offset: 2px;
+}
+
+/* ── Select Arrow ── */
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 12px;
+  padding-right: 2.5rem;
+}
