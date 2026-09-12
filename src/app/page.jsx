@@ -10,34 +10,31 @@ import {
   Copy,
   RefreshCw,
   Terminal,
+  AlertCircle,
   Sparkles,
-  Zap,
-  Code2,
-  BookmarkCheck,
-  Check,
   ExternalLink,
+  Code2,
 } from 'lucide-react';
 import {
   runAuditEngine,
   generatePythonTestSuite,
   generateGitHubActionWorkflow,
-  generateJiraTicketMapping,
   generateMarkdownAuditReport,
 } from '../lib/auditEngine';
 import InteractiveRadarChart from '../components/InteractiveRadarChart';
 
 const ARCHITECTURE_TEMPLATES = {
   ragBot:
-    'Deploying an E-Commerce RAG Customer Support Chatbot. User input text is passed via raw prompt injection blocks to a text-generation layer without guardrails. The runtime engine tracks user profiles continuously to analyze churn, keeping database logs permanent and metrics stored indefinitely in un-audited buckets. Retraining pipelines ingest newly scraped customer queries automatically every week. English-centric dataset without Indic language filters.',
-  fintechLoan:
-    'Building a FinTech Loan & Credit Underwriting AI. System implements automated screening filters and opaque credit analysis to evaluate applicant profiles without contestability or human-in-the-loop review. User financial vectors and mobile location telemetry are cross-monetized with third-party insurance partners without opt-out controls. Training pipelines rely on standard web scrape corpuses and unverified legacy files without localized anomaly detection workflows.',
+    'Deploying an E-Commerce RAG Customer Support Chatbot. User input text is passed via raw prompt injection blocks to a text-generation layer. The runtime engine tracks user profiles continuously to analyze churn, keeping database logs permanent and metrics stored indefinitely for optimization runs.',
+  raiViolation:
+    'Deploying a high-compute optimization framework running massive grid clusters with compute parameters unchecked for carbon usage. Model output flows directly via raw generation output into client feeds without content filtering or post-inference context safety wrappers.',
   compliantSovereign:
-    'Deploying a Compliant Sovereign Multi-Lingual Pipeline. Input fields utilize strict system instructions encapsulation using NeMo Guardrail frameworks. Customer text data is routed through a decoupled data principal vault backed by a strict 30-day cron purge TTL policy. Natural vernacular tracking runs on 22 scheduled languages with integrated AI4Bharat tokenizers. Infrastructure is anchored in the Mumbai sovereign cloud (ap-south-1) with DVC data lineage verification.',
+    'Deploying a Compliant Sovereign Multi-Lingual Pipeline. Input fields utilize strict system instructions encapsulation using guardrail frameworks. Customer text data is routed through a decoupled data principal vault backed by a strict 30-day cron purge TTL policy. Natural vernacular tracking runs on 22 scheduled languages with integrated AI4Bharat tokenizers.',
 };
 
 export default function AdvancedAuditPlayground() {
   const [architectureText, setArchitectureText] = useState('');
-  const [activeLayers, setActiveLayers] = useState(['security', 'quality', 'legal']);
+  const [activeLayers, setActiveLayers] = useState(['security', 'quality', 'rai', 'legal']);
   const [report, setReport] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [activeIntegrationTab, setActiveIntegrationTab] = useState('jira');
@@ -94,7 +91,7 @@ export default function AdvancedAuditPlayground() {
             &lt;GOV.AX //&gt;
           </span>
           <span className="text-[10px] bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-md font-mono text-emerald-400 tracking-widest uppercase font-bold">
-            Next-Gen Realtime Core
+            Full-Fledged RAI Core
           </span>
         </div>
         <div className="flex items-center gap-6 text-xs font-mono text-slate-400">
@@ -106,34 +103,26 @@ export default function AdvancedAuditPlayground() {
           >
             GitHub Repository <ExternalLink size={12} />
           </a>
-          <a
-            href="https://psa.gov.in/psa-prod/publication/PSA-AI-Guidelines-2024.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-emerald-400 transition-colors hidden sm:inline"
-          >
-            Framework Specs
-          </a>
         </div>
       </header>
 
-      {/* ━━ Main Workspace Split Grid ━━ */}
+      {/* ━━ Main Grid Workspace ━━ */}
       <main className="grid grid-cols-1 xl:grid-cols-2 min-h-[calc(100vh-73px)] divide-y xl:divide-y-0 xl:divide-x divide-slate-800/60">
-        {/* ── Left Input Sandbox ── */}
+        {/* ── Left Control Workspace ── */}
         <div className="p-6 flex flex-col gap-5 bg-[#0A0D1A]/40 overflow-y-auto">
           <div>
             <h2 className="text-xs font-mono text-slate-400 uppercase tracking-widest flex items-center gap-2">
-              <Terminal size={14} className="text-emerald-400" /> Pipeline Architecture Sandbox
+              <Terminal size={14} className="text-emerald-400" /> Technical Architecture Console
             </h2>
             <p className="text-xs text-slate-500 mt-1">
-              Inject system descriptions. Compliance validation vectors resolve natively inside isolated client threads with zero data persistence.
+              Paste infrastructure manifests. Operational parameters evaluate locally under sandbox constraints with zero data retention.
             </p>
           </div>
 
-          {/* Pre-Formatted Architecture Archetypes */}
+          {/* Configuration Templates */}
           <div className="space-y-1.5">
             <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider block">
-              Pre-Formatted Architecture Archetypes
+              Pre-Formatted Target Frameworks
             </span>
             <div className="flex flex-wrap gap-2">
               <button
@@ -143,29 +132,30 @@ export default function AdvancedAuditPlayground() {
                 E-Com RAG Bot
               </button>
               <button
-                onClick={() => setArchitectureText(ARCHITECTURE_TEMPLATES.fintechLoan)}
-                className="px-3 py-1.5 bg-slate-900/60 border border-slate-800 hover:border-slate-700 rounded-lg text-xs font-mono text-slate-300 transition-all hover:bg-slate-900 cursor-pointer"
+                onClick={() => setArchitectureText(ARCHITECTURE_TEMPLATES.raiViolation)}
+                className="px-3 py-1.5 bg-slate-900/60 border border-slate-800 hover:border-slate-700 rounded-lg text-xs font-mono text-rose-400 transition-all hover:bg-slate-900 cursor-pointer"
               >
-                FinTech Credit AI
+                RAI Ethical Violation Case
               </button>
               <button
                 onClick={() => setArchitectureText(ARCHITECTURE_TEMPLATES.compliantSovereign)}
                 className="px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-lg text-xs font-mono transition-all hover:bg-emerald-500/20 cursor-pointer"
               >
-                Sovereign Compliant Array
+                Sovereign Compliant Stack
               </button>
             </div>
           </div>
 
-          {/* Active Framework Toggles */}
+          {/* Active Evaluation Layers */}
           <div className="space-y-1.5">
             <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider block">
-              Active Audit Dimensions
+              Active Audit Vectors
             </span>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex gap-2 flex-wrap">
               {[
-                { id: 'security', label: '🛡️ Security Layer (OWASP)' },
-                { id: 'quality', label: '📊 Quality Stack (MeitY)' },
+                { id: 'security', label: '🛡️ Security (OWASP)' },
+                { id: 'quality', label: '📊 Quality (MeitY)' },
+                { id: 'rai', label: '🧠 Responsible AI (RAI)' },
                 { id: 'legal', label: '⚖️ Legal Check (DPDP/FTC)' },
               ].map((l) => (
                 <button
@@ -183,41 +173,38 @@ export default function AdvancedAuditPlayground() {
             </div>
           </div>
 
-          {/* Text Area Input */}
-          <div className="relative flex-1 min-h-[380px] flex flex-col">
+          {/* User Input Text Area Workspace */}
+          <div className="relative flex-1 min-h-[360px] flex flex-col">
             <textarea
               value={architectureText}
               onChange={(e) => setArchitectureText(e.target.value)}
-              placeholder="Paste custom architectural data system logs or pipeline descriptions here manually..."
-              className="w-full flex-1 p-4 bg-[#04060C] border border-slate-800 rounded-xl font-mono text-xs leading-relaxed text-slate-300 focus:outline-none focus:border-emerald-500/40 focus:ring-1 focus:ring-emerald-500/10 resize-none transition-all placeholder:text-slate-700"
+              placeholder="Paste configurations here anonymously... Or select one of the pre-formatted frameworks above."
+              className="w-full flex-1 p-4 bg-[#04060C] border border-slate-800 rounded-xl font-mono text-xs leading-relaxed text-slate-300 focus:outline-none focus:border-emerald-500/40 resize-none placeholder:text-slate-700 transition-all"
             />
             {isAnalyzing && (
               <div className="absolute bottom-4 right-4 text-[10px] font-mono text-emerald-400 bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-lg flex items-center gap-2 shadow-lg shadow-black/80 backdrop-blur">
-                <RefreshCw size={10} className="animate-spin text-cyan-400" /> Computing Vectors...
+                <RefreshCw size={10} className="animate-spin text-cyan-400" /> Computing Matrices...
               </div>
             )}
           </div>
         </div>
 
-        {/* ── Right Interactive Dashboard Output ── */}
+        {/* ── Right Output Panels ── */}
         <div className="p-6 bg-[#070915] flex flex-col gap-6 overflow-y-auto">
           {!report ? (
-            <div className="flex-1 flex flex-col items-center justify-center p-12 border border-dashed border-slate-800 rounded-2xl text-center max-w-sm mx-auto my-auto bg-slate-950/20 backdrop-blur-sm">
+            <div className="flex-1 flex flex-col items-center justify-center p-12 border border-dashed border-slate-800 rounded-2xl text-center max-w-sm mx-auto my-auto bg-slate-950/20">
               <Shield size={36} className="text-slate-800 mb-3 animate-pulse" />
               <h4 className="text-xs font-mono text-slate-400 uppercase tracking-widest">
-                System Ready For Context Ingestion
+                Awaiting Context Injection
               </h4>
               <p className="text-[11px] text-slate-600 mt-1.5 leading-relaxed">
-                Select an archetype above or inject structural specifications on the terminal workstation console to display reactive real-time telemetry mapping.
+                Provide data logs or code architectural configurations on the left sandbox console to compute full-fledged governance metrics mapping profiles.
               </p>
             </div>
           ) : (
             <>
-              {/* ── INTERACTIVE COMPLIANCE RADAR GRAPH MODULE ── */}
-              <div className="border border-slate-800 bg-gradient-to-b from-[#0F1326]/60 to-[#0B0D19]/40 backdrop-blur-md rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden shadow-2xl">
-                <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
-                <div className="absolute bottom-0 left-0 w-48 h-48 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
-
+              {/* ── RADAR SCORE CHART DASHBOARD SUMMARY ── */}
+              <div className="border border-slate-800 bg-gradient-to-b from-[#0F1326]/60 to-[#0B0D19]/40 rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-6 relative shadow-2xl">
                 <div className="space-y-1 z-10">
                   <h4 className="text-[10px] font-mono text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
                     <Sparkles size={11} className="text-emerald-400" /> Dynamic Compliance Metric Radar
@@ -230,57 +217,36 @@ export default function AdvancedAuditPlayground() {
                   </span>
                 </div>
 
-                {/* Scalable Reactive Radar Component */}
-                <div className="w-48 h-48 shrink-0 flex items-center justify-center z-10">
+                <div className="w-52 h-52 shrink-0 flex items-center justify-center z-10">
                   <InteractiveRadarChart report={report} />
                 </div>
               </div>
 
-              {/* ── Adversarial Threat Model Display ── */}
-              {report.threatModel && (
-                <div className="border border-rose-950/70 bg-rose-950/15 p-4 rounded-xl space-y-2.5">
-                  <div className="flex items-center justify-between flex-wrap gap-1">
-                    <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30 flex items-center gap-1">
-                      <Zap size={10} /> {report.threatModel.severity} THREAT SCENARIO
-                    </span>
-                    <span className="text-[10px] font-mono text-slate-400">
-                      Adversary: {report.threatModel.adversary}
-                    </span>
-                  </div>
-
-                  <h3 className="text-xs font-bold font-mono text-slate-200">
-                    {report.threatModel.title}
-                  </h3>
-
-                  <div className="p-2 bg-black/40 rounded border border-slate-800 text-[11px] font-mono text-rose-300/90">
-                    Attack Vector: {report.threatModel.attackVector}
-                  </div>
-
-                  <p className="text-xs text-slate-300 leading-relaxed font-sans">
-                    {report.threatModel.narrative}
-                  </p>
-
-                  <div className="pt-2 border-t border-rose-900/30 text-[11px] text-slate-400 font-mono">
-                    <strong className="text-rose-400">Projected Impact:</strong> {report.threatModel.impact}
-                  </div>
+              {/* ── Threat Matrix Log Component ── */}
+              <div className="bg-[#05060E] border border-slate-800 p-4 rounded-xl font-mono text-xs leading-relaxed">
+                <h5 className="text-[10px] font-bold text-rose-400 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                  <AlertCircle size={12} /> Live Threat Model Matrix
+                </h5>
+                <div className="whitespace-pre-line text-slate-300 bg-slate-950/40 p-3 border border-slate-900 rounded-lg text-[11px]">
+                  {report.threatModel}
                 </div>
-              )}
+              </div>
 
-              {/* ── Integrated Integration Studio Tabs ── */}
+              {/* ── Jira & Core Vulnerabilities Tabs ── */}
               <div className="border border-slate-800 rounded-xl overflow-hidden bg-[#0A0D1A]/50">
                 <div className="flex border-b border-slate-800 text-xs font-mono bg-slate-950/60">
                   {[
-                    { id: 'jira', label: '🎫 Jira/Linear Story Mapping' },
-                    { id: 'issues', label: `📋 Tracked Anomalies Log (${report.issues.length})` },
+                    { id: 'jira', label: '🎫 Jira/Linear Lifecycle Map' },
+                    { id: 'issues', label: `📋 Discovered Compliance Anomalies (${report.issues.length})` },
                     { id: 'cicd', label: '🚀 CI/CD & Python Test' },
                   ].map((tab) => (
                     <button
                       key={tab.id}
                       onClick={() => setActiveIntegrationTab(tab.id)}
-                      className={`flex-1 py-2.5 px-3 text-center transition-all cursor-pointer border-b-2 text-[11px] ${
+                      className={`flex-1 py-3 text-center transition-all cursor-pointer border-t-2 text-[11px] ${
                         activeIntegrationTab === tab.id
-                          ? 'bg-[#060813] text-emerald-400 font-bold border-b-emerald-400 bg-gradient-to-b from-emerald-500/5 to-transparent'
-                          : 'text-slate-500 border-b-transparent hover:text-slate-300'
+                          ? 'bg-[#060813] text-emerald-400 font-bold border-t-emerald-400 bg-gradient-to-b from-emerald-500/5 to-transparent'
+                          : 'text-slate-500 border-t-transparent hover:text-slate-300'
                       }`}
                     >
                       {tab.label}
@@ -288,9 +254,9 @@ export default function AdvancedAuditPlayground() {
                   ))}
                 </div>
 
-                {/* Tab Content */}
-                <div className="p-4 max-h-[380px] overflow-y-auto space-y-3">
-                  {/* Jira / Linear Mapping */}
+                {/* Tab Body */}
+                <div className="p-4 max-h-[360px] overflow-y-auto space-y-3">
+                  {/* Jira Tab */}
                   {activeIntegrationTab === 'jira' && (
                     <div className="space-y-3">
                       {report.issues.map((issue, index) => (
@@ -300,7 +266,7 @@ export default function AdvancedAuditPlayground() {
                         >
                           <div className="flex justify-between items-center text-[10px]">
                             <span className="text-cyan-400 font-bold">
-                              [STORY-GOV-{index + 1}]
+                              [STORY-RAI-{index + 1}]
                             </span>
                             <span
                               className={`px-1.5 py-0.5 rounded font-bold uppercase ${
@@ -309,30 +275,30 @@ export default function AdvancedAuditPlayground() {
                                   : 'bg-amber-500/20 text-amber-300'
                               }`}
                             >
-                              Priority: {issue.jiraPriority || (issue.severity === 'CRITICAL' ? 'Highest' : 'High')}
+                              Priority: {issue.jiraPriority}
                             </span>
                           </div>
                           <p className="text-slate-200 font-semibold text-[11px]">
-                            Mitigate Compliance Vulnerability: {issue.pillar}
+                            Remediate Governance Gap: {issue.pillar}
                           </p>
                           <p className="text-slate-400 text-[10px] leading-relaxed">
-                            Detected architecture violation rule <span className="text-slate-200">{issue.ruleId}</span> ({issue.clause}).
+                            System architecture violates rule <span className="text-slate-200">{issue.ruleId}</span> ({issue.clause}).
                           </p>
                           <p className="text-emerald-400 text-[10px] pt-1 border-t border-slate-800">
-                            <span className="font-bold">Mandatory engineering criteria:</span> {issue.remediation}
+                            <span className="font-bold">Mandatory execution instruction:</span> {issue.remediation}
                           </p>
                         </div>
                       ))}
 
                       {report.issues.length === 0 && (
                         <div className="text-center py-6 text-xs font-mono text-slate-500">
-                          Zero items queued for integration tracking. System is compliant.
+                          Zero backlog items generated.
                         </div>
                       )}
                     </div>
                   )}
 
-                  {/* Issues Log */}
+                  {/* Issues Tab */}
                   {activeIntegrationTab === 'issues' && (
                     <div className="space-y-3">
                       {report.issues.map((issue, idx) => (
@@ -346,7 +312,7 @@ export default function AdvancedAuditPlayground() {
                         >
                           <div className="flex justify-between items-center text-[10px]">
                             <span className="font-bold text-slate-300">
-                              {issue.ruleId} • Layer: {issue.layer}
+                              {issue.ruleId} • Layer Category: {issue.layer.toUpperCase()}
                             </span>
                             <span
                               className={`px-1.5 py-0.5 rounded font-bold uppercase ${
@@ -361,7 +327,7 @@ export default function AdvancedAuditPlayground() {
                           <p className="text-slate-400 text-[10px]">{issue.clause}</p>
                           <p className="text-slate-200 text-[11px] font-sans leading-relaxed">{issue.message}</p>
                           <p className="text-emerald-400 text-[10px] pt-1 border-t border-slate-800/80">
-                            <span className="font-bold">Fix Matrix:</span> {issue.remediation}
+                            <span className="font-bold">Remediation Matrix:</span> {issue.remediation}
                           </p>
                         </div>
                       ))}
@@ -374,7 +340,7 @@ export default function AdvancedAuditPlayground() {
                     </div>
                   )}
 
-                  {/* CI/CD & Python Test Tab */}
+                  {/* CI/CD & Python Tab */}
                   {activeIntegrationTab === 'cicd' && (
                     <div className="space-y-3 font-mono text-xs">
                       <div className="flex justify-between items-center">
