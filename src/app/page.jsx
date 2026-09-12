@@ -26,7 +26,7 @@ import {
   generateGitHubActionWorkflow,
   generateMarkdownAuditReport,
 } from '../lib/auditEngine';
-import { saveAuditToHistory } from '../lib/historyStore';
+import { saveAuditToHistory, computeLayerScores } from '../lib/historyStore';
 import InteractiveRadarChart from '../components/InteractiveRadarChart';
 import DataLineageGraph from '../components/DataLineageGraph';
 import AuditPlayground from '../components/AuditPlayground';
@@ -75,6 +75,7 @@ export default function UnifiedGovernanceCenter() {
         saveAuditToHistory({
           score: results.score,
           issues: results.issues,
+          layerScores: computeLayerScores(results.issues),
           auditType: 'heuristic_sandbox',
           modelOrTitle: 'Custom Pipeline Manifest',
         });

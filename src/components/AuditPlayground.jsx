@@ -5,6 +5,7 @@ import GovernanceInputPanel from './GovernanceInputPanel';
 import ComplianceReportPanel from './ComplianceReportPanel';
 import { fetchModelMetadata } from '../lib/huggingface';
 import { evaluateCompliance } from '../lib/rules';
+import { saveAuditToHistory, computeLayerScores } from '../lib/historyStore';
 
 /**
  * Top-level orchestrator component.
@@ -35,6 +36,26 @@ export default function AuditPlayground() {
       const evaluation = evaluateCompliance(input, meta);
       setScore(evaluation.score);
       setResults(evaluation.results);
+
+      // Phase 3: Persist to audit history — clearly tagged 'verified_hf_api'
+      // so it's distinguishable from the sandbox's 'heuristic_sandbox' runs.
+      const failedIssues = evaluation.results
+        .filter((r) => r.status === 'fail')
+        .map((r) => ({
+          ruleId: r.id,
+          layer: r.layer,
+          severity: r.severity,
+          message: r.message,
+          remediation: r.remediation,
+        }));
+
+      saveAuditToHistory({
+        score: evaluation.score,
+        issues: failedIssues,
+        layerScores: computeLayerScores(failedIssues),
+        auditType: 'verified_hf_api',
+        modelOrTitle: meta.id,
+      });
     } catch (err) {
       setError(err.message || 'UNKNOWN_ERROR');
     } finally {

@@ -13,6 +13,30 @@
 const STORAGE_KEY = 'core_gov_audit_history_v1';
 const MAX_HISTORY = 10;
 
+// Must match InteractiveRadarChart's per-axis formula exactly, so a stored
+// snapshot's layerScores reflect what the chart would actually draw for it.
+const RADAR_LAYERS = ['security', 'quality', 'rai', 'legal', 'transparency'];
+
+/**
+ * Computes a per-axis (radar-chart) score breakdown from a flat issues list.
+ * Shared by both audit engines so `layerScores` is always populated with
+ * real values rather than left at its all-100 default.
+ */
+export function computeLayerScores(issues = []) {
+  const scores = {};
+  RADAR_LAYERS.forEach((layer) => {
+    const count = issues.filter(
+      (i) =>
+        i.layer === layer ||
+        (layer === 'transparency' &&
+          i.ruleId &&
+          (i.ruleId.includes('VERNACULAR') || i.ruleId.includes('FTC') || i.ruleId.includes('LINEAGE')))
+    ).length;
+    scores[layer] = Math.max(20, 100 - count * 25);
+  });
+  return scores;
+}
+
 /**
  * Saves an audit run to local history.
  */
@@ -26,13 +50,7 @@ export function saveAuditToHistory(auditSnapshot) {
       score: auditSnapshot.score,
       issuesCount: auditSnapshot.issues ? auditSnapshot.issues.length : 0,
       issues: auditSnapshot.issues || [],
-      layerScores: auditSnapshot.layerScores || {
-        security: 100,
-        quality: 100,
-        rai: 100,
-        legal: 100,
-        transparency: 100,
-      },
+      layerScores: auditSnapshot.layerScores || computeLayerScores(auditSnapshot.issues || []),
       auditType: auditSnapshot.auditType || 'heuristic_sandbox', // 'heuristic_sandbox' | 'verified_hf_api'
       modelOrTitle: auditSnapshot.modelOrTitle || 'Custom System Pipeline',
     };

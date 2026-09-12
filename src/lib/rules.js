@@ -33,6 +33,7 @@ const GOVERNANCE_RULES = [
     id: 'DPDP-01',
     pillar: 'Privacy & Minor Protection',
     regulation: 'DPDP Act — Section 6',
+    layer: 'legal',
     severity: 'CRITICAL',
     message:
       'Behavioral profiling of minors detected. DPDP Act strictly prohibits targeted tracking and monitoring of children under 18.',
@@ -45,6 +46,7 @@ const GOVERNANCE_RULES = [
     id: 'DPDP-02',
     pillar: 'Data Sovereignty',
     regulation: 'DPDP Act — Section 16',
+    layer: 'legal',
     severity: 'HIGH',
     message:
       'Data pipeline architecture routes user vectors into prohibited jurisdictions while processing minor data.',
@@ -57,6 +59,7 @@ const GOVERNANCE_RULES = [
     id: 'DPDP-03',
     pillar: 'Data Lineage & Provenance',
     regulation: 'DPDP Act — Section 7',
+    layer: 'transparency',
     severity: 'MEDIUM',
     message:
       'Model card license field is unknown or undefined. Undefined licenses trigger IP compliance flags under data provenance mandates.',
@@ -69,6 +72,7 @@ const GOVERNANCE_RULES = [
     id: 'PSA-01',
     pillar: 'Transparency & Fairness',
     regulation: 'PSA Framework — Pillar 1',
+    layer: 'transparency',
     severity: 'CRITICAL',
     message:
       'Commercial deployment of restricted or non-commercial open-weights risks catastrophic licensing lawsuits under PSA Transparency Guidelines.',
@@ -85,6 +89,7 @@ const GOVERNANCE_RULES = [
     id: 'PSA-02',
     pillar: 'Safety & Alignment',
     regulation: 'PSA Framework — Pillar 6',
+    layer: 'security',
     severity: 'HIGH',
     message:
       'Base models lack instruction fine-tuning and are highly prone to adversarial prompts and hallucinations in customer-facing contexts.',
@@ -105,6 +110,7 @@ const GOVERNANCE_RULES = [
     id: 'PSA-03',
     pillar: 'Accountability & Inclusivity',
     regulation: 'PSA Framework — Pillar 2',
+    layer: 'rai',
     severity: 'HIGH',
     message:
       'Customer-facing deployment processing minor data requires enhanced accountability safeguards and impact assessments.',
@@ -145,6 +151,7 @@ export function evaluateCompliance(input, modelMeta) {
       id: rule.id,
       pillar: rule.pillar,
       regulation: rule.regulation,
+      layer: rule.layer,
       severity: rule.severity,
       status: failed ? 'fail' : 'pass',
       message: failed

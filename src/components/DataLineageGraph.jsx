@@ -72,74 +72,109 @@ export default function DataLineageGraph({ report, text }) {
         </span>
       </div>
 
-      {/* ━━ Flow Nodes Grid ━━ */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 relative">
+      {/* ━━ Flow Nodes + Directional Edges ━━
+          A real lineage graph, not just a card grid: stages sit in a single
+          row on lg+ screens with an animated connector between each pair,
+          so data literally flows left-to-right through the pipeline. */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1fr_auto_1fr_auto_1fr_auto_1fr] gap-3 relative items-stretch">
         {stages.map((stage, idx) => {
           const Icon = stage.icon;
           const isSelected = selectedStage === stage.id;
           const isAtRisk = stage.hasViolation;
+          const isLast = idx === stages.length - 1;
+          // An edge is "breached" if either endpoint it connects has a
+          // violation — the flow itself is compromised at that junction.
+          const nextStage = stages[idx + 1];
+          const edgeIsBreached = isAtRisk || (nextStage && nextStage.hasViolation);
 
           return (
-            <motion.div
-              key={stage.id}
-              onClick={() => setSelectedStage(isSelected ? null : stage.id)}
-              whileHover={{ y: -2 }}
-              transition={{ duration: 0.15 }}
-              className={`p-3.5 rounded-xl border transition-all cursor-pointer relative overflow-hidden flex flex-col justify-between min-h-[140px] ${
-                isAtRisk
-                  ? 'border-rose-900/60 bg-rose-950/10 hover:border-rose-500/50'
-                  : 'border-emerald-900/60 bg-emerald-950/10 hover:border-emerald-500/50'
-              } ${isSelected ? 'ring-2 ring-cyan-400' : ''}`}
-            >
-              {/* Header */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <div
-                      className={`p-1.5 rounded-lg border ${
-                        isAtRisk
-                          ? 'bg-rose-500/10 border-rose-500/30 text-rose-400'
-                          : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-                      }`}
-                    >
-                      <Icon size={14} />
+            <React.Fragment key={stage.id}>
+              <motion.div
+                onClick={() => setSelectedStage(isSelected ? null : stage.id)}
+                whileHover={{ y: -2 }}
+                transition={{ duration: 0.15 }}
+                className={`p-3.5 rounded-xl border transition-all cursor-pointer relative overflow-hidden flex flex-col justify-between min-h-[140px] ${
+                  isAtRisk
+                    ? 'border-rose-900/60 bg-rose-950/10 hover:border-rose-500/50'
+                    : 'border-emerald-900/60 bg-emerald-950/10 hover:border-emerald-500/50'
+                } ${isSelected ? 'ring-2 ring-cyan-400' : ''}`}
+              >
+                {/* Header */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className={`p-1.5 rounded-lg border ${
+                          isAtRisk
+                            ? 'bg-rose-500/10 border-rose-500/30 text-rose-400'
+                            : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                        }`}
+                      >
+                        <Icon size={14} />
+                      </div>
+                      <span className="text-[11px] font-mono font-bold text-slate-200">
+                        {stage.name}
+                      </span>
                     </div>
-                    <span className="text-[11px] font-mono font-bold text-slate-200">
-                      {stage.name}
-                    </span>
+                    {isAtRisk ? (
+                      <AlertCircle size={14} className="text-rose-400 animate-pulse shrink-0" />
+                    ) : (
+                      <CheckCircle2 size={14} className="text-emerald-400 shrink-0" />
+                    )}
                   </div>
-                  {isAtRisk ? (
-                    <AlertCircle size={14} className="text-rose-400 animate-pulse shrink-0" />
-                  ) : (
-                    <CheckCircle2 size={14} className="text-emerald-400 shrink-0" />
-                  )}
+
+                  <p className="text-[10px] text-slate-400 leading-relaxed font-sans mb-3">
+                    {stage.summary}
+                  </p>
                 </div>
 
-                <p className="text-[10px] text-slate-400 leading-relaxed font-sans mb-3">
-                  {stage.summary}
-                </p>
-              </div>
+                {/* Status Tags / Mitigations */}
+                <div className="space-y-1 pt-2 border-t border-slate-800/80 text-[10px] font-mono">
+                  {isAtRisk ? (
+                    <div className="flex items-center gap-1 text-rose-400">
+                      <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-ping" />
+                      <span>{stage.violations.length} Breach Detected</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1 text-emerald-400">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                      <span className="truncate">
+                        {stage.mitigations.length > 0 ? stage.mitigations.join(', ') : stage.defaultMitigation}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
 
-              {/* Status Tags / Mitigations */}
-              <div className="space-y-1 pt-2 border-t border-slate-800/80 text-[10px] font-mono">
-                {isAtRisk ? (
-                  <div className="flex items-center gap-1 text-rose-400">
-                    <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-ping" />
-                    <span>{stage.violations.length} Breach Detected</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-1 text-emerald-400">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                    <span className="truncate">
-                      {stage.mitigations.length > 0 ? stage.mitigations.join(', ') : stage.defaultMitigation}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </motion.div>
+              {/* Connector — only rendered between stages, and only takes
+                  its own grid column on lg+ (hidden on mobile where stages
+                  stack vertically and a horizontal arrow reads as clutter). */}
+              {!isLast && (
+                <div className="hidden lg:flex items-center justify-center px-0.5">
+                  <motion.div
+                    initial={{ opacity: 0, x: -4 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: idx * 0.08, duration: 0.3 }}
+                    className="flex items-center"
+                  >
+                    <ArrowRight
+                      size={16}
+                      className={edgeIsBreached ? 'text-rose-500/70' : 'text-emerald-600/50'}
+                    />
+                  </motion.div>
+                </div>
+              )}
+            </React.Fragment>
           );
         })}
       </div>
+
+      {/* Mobile fallback: stages stack vertically via the grid's sm/base
+          columns above, so a horizontal arrow would be meaningless there —
+          a plain "flow direction" caption substitutes for the connectors. */}
+      <p className="lg:hidden mt-2 text-[10px] font-mono text-slate-600 flex items-center gap-1">
+        <ArrowRight size={11} className="rotate-90" /> Flow reads top to bottom
+      </p>
 
       {/* ━━ Expanded Stage Details Drawer ━━ */}
       <AnimatePresence>

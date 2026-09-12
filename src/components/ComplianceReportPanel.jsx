@@ -3,6 +3,7 @@
 import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ComplianceGauge from './ComplianceGauge';
+import InteractiveRadarChart from './InteractiveRadarChart';
 
 const FILTER_TABS = [
   { key: 'all', label: 'All' },
@@ -176,6 +177,17 @@ export default function ComplianceReportPanel({
   const failCount = results.filter((r) => r.status === 'fail').length;
   const passCount = results.filter((r) => r.status === 'pass').length;
 
+  // Adapt this panel's {id, status, layer, ...} shape into the
+  // {score, issues: [{ruleId, layer}]} shape InteractiveRadarChart expects
+  // — the same radar component now serves both the sandbox heuristic
+  // engine and this verified HF-metadata engine.
+  const radarReport = {
+    score,
+    issues: results
+      .filter((r) => r.status === 'fail')
+      .map((r) => ({ ruleId: r.id, layer: r.layer, severity: r.severity })),
+  };
+
   return (
     <div className="space-y-6">
       {/* Header + Confidence Badge */}
@@ -208,6 +220,12 @@ export default function ComplianceReportPanel({
 
       {/* Spring Gauge */}
       <ComplianceGauge score={score} />
+
+      {/* 5-Axis Radar — now shared with the sandbox engine, so verified
+          HF-model audits get drift tracking against their own history too */}
+      <div className="h-56">
+        <InteractiveRadarChart report={radarReport} />
+      </div>
 
       {/* Model Metadata Card */}
       {modelMeta && (
