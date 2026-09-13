@@ -1,8 +1,13 @@
 'use client';
 
-import { useSession } from '../../lib/supabase/auth';
-import { signOut } from '../../lib/supabase/auth';
+import { useSession, useRoles, signOut } from '../../lib/supabase/auth';
 import AuthForm from './AuthForm';
+
+const ROLE_STYLE = {
+  admin: 'bg-red-50 text-fb-red border-red-200',
+  auditor: 'bg-fb-blueLight text-fb-blue border-fb-blue/30',
+  viewer: 'bg-gray-100 text-fb-textSecondary border-gray-300',
+};
 
 /**
  * Client-side auth gate. This is a UX convenience, not the security
@@ -13,6 +18,7 @@ import AuthForm from './AuthForm';
  */
 export default function AuthGate({ children }) {
   const { session, user, loading } = useSession();
+  const { roles, loading: rolesLoading } = useRoles(user?.id);
 
   if (loading) {
     return (
@@ -29,7 +35,18 @@ export default function AuthGate({ children }) {
   return (
     <div>
       <div className="bg-fb-blueLight border-b border-fb-blue/20 px-4 py-1.5 flex items-center justify-between text-[11px] text-fb-blue">
-        <span>Signed in as {user.email}</span>
+        <span className="flex items-center gap-2">
+          Signed in as {user.email}
+          {!rolesLoading &&
+            roles.map((role) => (
+              <span
+                key={role}
+                className={`px-1.5 py-0.5 rounded-full font-bold uppercase text-[9px] border ${ROLE_STYLE[role] || ROLE_STYLE.viewer}`}
+              >
+                {role}
+              </span>
+            ))}
+        </span>
         <button onClick={() => signOut()} className="hover:underline cursor-pointer font-medium">
           Sign out
         </button>

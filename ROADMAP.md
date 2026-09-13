@@ -26,7 +26,7 @@ The five platforms above represent roughly 500+ engineer-years combined. This ro
 | In-browser ML classifier (zero-shot, zero-token) | ✅ | Build verified; **CDN import never executed in a real browser from this environment** |
 | Disparate impact (four-fifths rule) on real uploaded data | ✅ | Verified against a synthetic biased dataset |
 
-**Known debt carried forward:** sandbox-mode (free-text) audits still only write to `localStorage`, not the database. RBAC exists in schema but no admin UI exists to grant roles yet (must be done via direct SQL today).
+**Known debt carried forward:** sandbox-mode (free-text) audits still only write to `localStorage`. RBAC roles are now visibly displayed in the UI (fixed — `useRoles()` existed but was never called anywhere, so every user saw an identical interface regardless of role), but there is still no admin UI to *grant* roles — must be done via direct SQL today. The signup "check your email" message used to vanish on a page refresh (fixed — now persisted so it survives a reload while confirmation is pending).
 
 ---
 

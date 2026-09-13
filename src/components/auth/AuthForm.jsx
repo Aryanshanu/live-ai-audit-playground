@@ -4,13 +4,23 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { signIn, signUp } from '../../lib/supabase/auth';
 
+const PENDING_CONFIRMATION_KEY = 'govax_pending_email_confirmation';
+
 export default function AuthForm() {
   const [mode, setMode] = useState('signin'); // 'signin' | 'signup'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [signupMessage, setSignupMessage] = useState(null);
+  // Initialized from localStorage, not just component state — a page
+  // refresh while waiting on email confirmation previously wiped this
+  // message with no explanation, leaving someone who'd already signed
+  // up looking at what appeared to be a blank, broken login form.
+  const [signupMessage, setSignupMessage] = useState(() => {
+    if (typeof window === 'undefined') return null;
+    const pendingEmail = window.localStorage.getItem(PENDING_CONFIRMATION_KEY);
+    return pendingEmail ? `Check your email (${pendingEmail}) to confirm your account before signing in.` : null;
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,9 +29,11 @@ export default function AuthForm() {
     setLoading(true);
     try {
       if (mode === 'signin') {
+        window.localStorage.removeItem(PENDING_CONFIRMATION_KEY);
         await signIn(email, password);
       } else {
         await signUp(email, password);
+        window.localStorage.setItem(PENDING_CONFIRMATION_KEY, email);
         setSignupMessage('Check your email to confirm your account before signing in.');
       }
     } catch (err) {
