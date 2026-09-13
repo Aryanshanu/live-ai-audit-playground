@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 import { runSemanticAudit } from '../lib/semanticAuditEngine';
 import { getEvidenceTier } from '../lib/evidenceTiers';
+import { useHfConfig } from '../lib/useHfConfig';
 
 const PRESET_MODELS = [
   'meta-llama/Llama-3-8B-Instruct',
@@ -26,8 +27,7 @@ const SEVERITY_STYLE = {
  * clearly separated by evidence tier, so the difference is visible.
  */
 export default function SemanticAuditPanel({ description }) {
-  const [modelId, setModelId] = useState(PRESET_MODELS[0]);
-  const [hfToken, setHfToken] = useState('');
+  const { hfToken, setHfToken, modelId, setModelId } = useHfConfig();
   const [state, setState] = useState(null); // null | 'running' | {findings, rawResponse} | {error}
   const tier = getEvidenceTier('live_dynamic_test');
 

@@ -6,6 +6,8 @@ import ComplianceReportPanel from './ComplianceReportPanel';
 import { fetchModelMetadata } from '../lib/huggingface';
 import { evaluateCompliance } from '../lib/rules';
 import { saveAuditToHistory, computeLayerScores } from '../lib/historyStore';
+import { useSession } from '../lib/supabase/auth';
+import { persistAuditToDb } from '../lib/supabase/auditPersistence';
 
 /**
  * Top-level orchestrator component.
@@ -13,6 +15,7 @@ import { saveAuditToHistory, computeLayerScores } from '../lib/historyStore';
  * Renders split-screen layout: inputs (left) ↔ report (right).
  */
 export default function AuditPlayground() {
+  const { user } = useSession();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [score, setScore] = useState(null);
@@ -58,6 +61,21 @@ export default function AuditPlayground() {
         auditType: 'verified_hf_api',
         modelOrTitle: meta.id,
       });
+
+      // Real database persistence (in addition to localStorage above —
+      // a deliberate dual-write during migration, not a replacement yet,
+      // since every other feature this session still reads from
+      // historyStore.js and ripping that out blind would be reckless).
+      // Requires an authenticated user; RLS itself would reject the
+      // insert if this check were skipped, but failing early with a
+      // clear message is better than a raw Postgres error in the console.
+      if (user) {
+        try {
+          await persistAuditToDb({ userId: user.id, modelId: meta.id, issues: failedIssues });
+        } catch (dbErr) {
+          console.warn('[GOV.AX] Database persistence failed (localStorage copy still saved):', dbErr.message);
+        }
+      }
     } catch (err) {
       setError(err.message || 'UNKNOWN_ERROR');
     } finally {

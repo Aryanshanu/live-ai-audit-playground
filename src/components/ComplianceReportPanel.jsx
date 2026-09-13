@@ -8,6 +8,7 @@ import IssueCard from './IssueCard';
 import { generatePromptfooConfig } from '../lib/promptfooExport';
 import DynamicSecurityPanel from './DynamicSecurityPanel';
 import UnifiedGovernanceScore from './UnifiedGovernanceScore';
+import { scoreModelCardCompleteness } from '../lib/modelCardCompleteness';
 
 const FILTER_TABS = [
   { key: 'all', label: 'All' },
@@ -157,6 +158,8 @@ export default function ComplianceReportPanel({
       .map((r) => ({ ruleId: r.id, layer: r.layer, severity: r.severity })),
   };
 
+  const cardCompleteness = modelMeta ? scoreModelCardCompleteness(modelMeta) : { score: 0, criteria: [] };
+
   return (
     <div className="space-y-6">
       {/* Header + Confidence Badge */}
@@ -209,6 +212,7 @@ export default function ComplianceReportPanel({
       <UnifiedGovernanceScore
         signals={[
           { label: 'Model Metadata Audit', score, evidenceType: 'verified_data' },
+          { label: 'Model Card Completeness', score: cardCompleteness.score, evidenceType: 'verified_data' },
           securitySuiteResult?.score != null
             ? { label: 'Live Security Suite', score: securitySuiteResult.score, evidenceType: 'live_dynamic_test' }
             : null,
@@ -226,14 +230,31 @@ export default function ComplianceReportPanel({
       {/* Model Metadata Card */}
       {modelMeta && (
         <div className="p-4 bg-fb-bg border border-fb-border rounded-lg text-xs">
-          <h3 className="text-[10px] font-bold text-fb-textSecondary uppercase tracking-[0.2em] mb-2">
-            Verified Model Parameters
-          </h3>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 font-mono">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-[10px] font-bold text-fb-textSecondary uppercase tracking-[0.2em]">
+              Verified Model Parameters
+            </h3>
+            <span className={`text-[10px] font-bold ${cardCompleteness.score > 70 ? 'text-fb-green' : cardCompleteness.score > 40 ? 'text-amber-600' : 'text-fb-red'}`}>
+              Card Completeness: {cardCompleteness.score}%
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 font-mono mb-2">
             <div><span className="text-fb-textSecondary">ID:</span> <span className="text-fb-text">{modelMeta.id}</span></div>
             <div><span className="text-fb-textSecondary">Pipeline:</span> <span className="text-fb-text">{modelMeta.pipelineTag}</span></div>
             <div><span className="text-fb-textSecondary">Downloads:</span> <span className="text-fb-text">{modelMeta.downloads?.toLocaleString()}</span></div>
             <div><span className="text-fb-textSecondary">License:</span> <span className="text-fb-blue">{modelMeta.license}</span></div>
+          </div>
+          <div className="flex flex-wrap gap-1 pt-2 border-t border-fb-border">
+            {cardCompleteness.criteria.map((c) => (
+              <span
+                key={c.key}
+                className={`text-[9px] px-1.5 py-0.5 rounded-full border ${
+                  c.met ? 'bg-green-50 border-green-200 text-fb-green' : 'bg-gray-100 border-gray-300 text-gray-500'
+                }`}
+              >
+                {c.met ? '✓' : '✗'} {c.label}
+              </span>
+            ))}
           </div>
         </div>
       )}

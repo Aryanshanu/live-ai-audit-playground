@@ -82,5 +82,6 @@ export async function fetchModelMetadata(modelId, token) {
     gated: data.gated || false,
     lastModified: data.lastModified || null,
     libraryName: data.library_name || 'Unknown',
+    cardData: data.cardData || null,
   };
 }

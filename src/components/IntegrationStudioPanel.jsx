@@ -5,11 +5,13 @@ import { AlertCircle, Download, Copy, FileText } from 'lucide-react';
 import { generatePythonTestSuite, generateMarkdownAuditReport } from '../lib/auditEngine';
 import { generatePromptfooConfig, generatePromptfooWorkflow } from '../lib/promptfooExport';
 import SemanticAuditPanel from './SemanticAuditPanel';
+import BrowserClassifierPanel from './BrowserClassifierPanel';
 
 const TABS = [
   { id: 'jira', label: '🎫 Jira/Linear Mapping' },
   { id: 'cicd', label: '🚀 CI/CD & Test' },
   { id: 'redteam', label: '🎯 Red-Team Config' },
+  { id: 'onchain', label: '⚡ On-Device Classifier' },
   { id: 'semantic', label: '🧠 AI Semantic Audit' },
 ];
 
@@ -166,6 +168,10 @@ export default function IntegrationStudioPanel({ report, architectureText, copie
                 {generatePromptfooWorkflow()}
               </pre>
             </div>
+          )}
+
+          {activeTab === 'onchain' && (
+            <BrowserClassifierPanel text={architectureText} />
           )}
 
           {activeTab === 'semantic' && (

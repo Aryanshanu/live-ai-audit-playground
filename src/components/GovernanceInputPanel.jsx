@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence, useAnimationControls } from 'framer-motion';
 import ToggleSwitch from './ToggleSwitch';
+import { useHfConfig } from '../lib/useHfConfig';
 
 const MODEL_ID_REGEX = /^[a-zA-Z0-9_-]+\/[a-zA-Z0-9._-]+$/;
 
@@ -12,7 +13,7 @@ export default function GovernanceInputPanel({ onSubmit, loading }) {
   const [minorData, setMinorData] = useState(false);
   const [behavioralTracking, setBehavioralTracking] = useState(false);
   const [crossBorder, setCrossBorder] = useState(false);
-  const [hfToken, setHfToken] = useState('');
+  const { hfToken, setHfToken } = useHfConfig(); // shared + persisted — previously local useState('') reset every time this panel remounted (e.g. switching Sandbox <-> HF Scanner mode)
   const [showToken, setShowToken] = useState(false);
   const [touched, setTouched] = useState(false);
 

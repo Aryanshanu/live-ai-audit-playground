@@ -16,6 +16,7 @@ import DataLineageGraph from '../components/DataLineageGraph';
 import HistoryIndicator from '../components/HistoryIndicator';
 import DataQualityUpload from '../components/DataQualityUpload';
 import UnifiedGovernanceScore from '../components/UnifiedGovernanceScore';
+import AuthGate from '../components/auth/AuthGate';
 
 const ARCHITECTURE_TEMPLATES = {
   ragBot:
@@ -111,6 +112,7 @@ export default function UnifiedGovernanceCenter() {
   };
 
   return (
+    <AuthGate>
     <div className="min-h-screen bg-fb-bg text-fb-text font-sans selection:bg-fb-blue/20 overflow-x-hidden">
       {/* ━━ Top Navbar ━━ */}
       <header className="border-b border-fb-border bg-white/95 backdrop-blur-md sticky top-0 z-50 px-6 py-2.5 flex justify-between items-center shadow-sm">
@@ -260,5 +262,6 @@ export default function UnifiedGovernanceCenter() {
         </div>
       )}
     </div>
+    </AuthGate>
   );
 }

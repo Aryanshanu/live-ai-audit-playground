@@ -41,6 +41,13 @@ export const EVIDENCE_TIERS = {
     weight: 2,
     badgeClass: 'bg-blue-50 text-fb-blue border-blue-200',
   },
+  local_inference: {
+    label: 'Local ML Inference',
+    shortLabel: 'On-Device',
+    description: 'A real open-source model ran entirely in your browser (no token, no network call) to classify this text.',
+    weight: 2,
+    badgeClass: 'bg-purple-50 text-purple-700 border-purple-200',
+  },
   live_dynamic_test: {
     label: 'Live Dynamic Test',
     shortLabel: 'Live Test',
