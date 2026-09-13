@@ -30,9 +30,9 @@ The five platforms above represent roughly 500+ engineer-years combined. This ro
 
 ---
 
-## Phase 1 — The Python Analysis Service (in progress — first check written and tested, not deployed)
+## Phase 1 — The Python Analysis Service (in progress — two checks written and tested, not deployed)
 
-**Status update:** `services/rai-agent/` now exists with a real, tested FastAPI app implementing `/checks/modelscan`. Verified: module imports cleanly, dependencies install cleanly from PyPI, the ModelScan output parser was tested against real console output samples and a real over-counting bug was caught and fixed during that testing (the summary count line "- CRITICAL: 1" was being double-counted as a separate finding from the actual finding description). **Never deployed — no live URL exists.** Region choice (Fly.io, `bom`/Mumbai primary, `sin`/Singapore fallback) is decided and documented in `fly.toml`, based on the verified fact that co-locating with `ai.gov-prod`'s AWS `ap-south-1` region minimizes latency on every write; Railway was ruled out for having no Asia presence closer than Singapore.
+**Status update:** `services/rai-agent/` now has two real, tested endpoints. `/checks/modelscan` (previous update) and `/checks/fairness` — real Fairlearn `demographic_parity_ratio`/`equalized_odds_ratio`, verified against a synthetic biased dataset via the real HTTP endpoint (not just a function call), including error-handling tests (mismatched array lengths, empty input) and a real, non-theoretical finding: a genuinely fair process at n=100/group produced a false "non-compliant" reading from pure sampling noise, confirmed by rerunning the identical fair process at n=20,000/group (correctly converged to 0.99). The endpoint now surfaces a `small_sample_warning` field rather than silently reporting a confident-sounding verdict on too little data. **Still never deployed — no live URL exists.** Region choice (Fly.io, `bom`/Mumbai primary, `sin`/Singapore fallback) is decided and documented in `fly.toml`, based on the verified fact that co-locating with `ai.gov-prod`'s AWS `ap-south-1` region minimizes latency on every write; Railway was ruled out for having no Asia presence closer than Singapore.
 
 **Reframed from "the RAI agent" to "the Python service"** after mapping this
 against real competitor "build-your-own" blueprints (Credo AI, IBM

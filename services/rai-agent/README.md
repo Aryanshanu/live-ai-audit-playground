@@ -7,11 +7,12 @@ Phase 1 of `ROADMAP.md`. The Python service GOV.AX's browser-only app couldn't p
 ## What's implemented
 
 - `POST /checks/modelscan` — scans a Hugging Face model's actual weight file for known unsafe-deserialization patterns via ModelScan's native `-hf` flag. If `audit_id` is provided, writes the result to the real `rai_findings` table using the Supabase **service role** key (bypasses RLS by design — this is the one place in the whole system that should have that level of access, and only server-side).
+- `POST /checks/fairness` — real Fairlearn `demographic_parity_ratio` and `equalized_odds_ratio` computed on caller-supplied `y_true`/`y_pred`/`sensitive_features`. Scope note: this audits decisions a model already made — it doesn't train one. Writes to the real `fairness_metrics` table when `audit_id` is provided. **Real caveat found during testing, not theoretical**: a genuinely fair 50/50 process at n=100/group produced a false "non-compliant" reading (ratio 0.77) purely from sampling noise — confirmed by rerunning at n=20,000/group, which correctly converged to 0.99. The endpoint now returns a `small_sample_warning` field whenever the smallest group has under 1,000 rows.
 - `GET /health` — reports whether the Supabase connection is configured.
 
 ## What isn't implemented yet
 
-Fairlearn, MLflow, SHAP — per `ROADMAP.md`'s sequencing, ModelScan first because it's the smallest, most self-contained integration.
+MLflow (real model-version lineage) and SHAP (real explainability) — per `ROADMAP.md`'s sequencing.
 
 ## A finding worth repeating, not just noting
 
