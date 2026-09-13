@@ -115,6 +115,8 @@ None of Fairlearn, AIF360, SHAP, ModelScan, or Evidently run in a browser — th
 
 **Honest scope note:** even just ModelScan + Fairlearn + MLflow + SHAP as four routes on one service is a multi-week task done properly (dataset upload handling, model-loading for arbitrary HF models, error handling for malformed inputs, real SHAP compute time on non-trivial models). Not a single-session addition.
 
+**Frontend caller status:** `src/lib/api/raiEngine.js` now exists — a tested frontend caller matching the real backend contract exactly (verified with mocked-fetch tests confirming the exact request/response shapes match the actual Pydantic models in `main.py`, including catching and rejecting an earlier proposed version that had genuine contract mismatches: wrong field names, and critically, `small_sample_warning` typed as a boolean instead of the informative string it actually is). **Not yet called from any UI component** — no button anywhere triggers `runFairnessCheck` or `runModelScan` yet. That wiring, plus the actual `flyctl deploy`, are the two remaining steps before this is live end-to-end.
+
 ---
 
 ## Phase 2 — The Multi-Agent Swarm
