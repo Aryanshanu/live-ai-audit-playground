@@ -30,7 +30,9 @@ The five platforms above represent roughly 500+ engineer-years combined. This ro
 
 ---
 
-## Phase 1 — The Python Analysis Service (next up)
+## Phase 1 — The Python Analysis Service (in progress — first check written and tested, not deployed)
+
+**Status update:** `services/rai-agent/` now exists with a real, tested FastAPI app implementing `/checks/modelscan`. Verified: module imports cleanly, dependencies install cleanly from PyPI, the ModelScan output parser was tested against real console output samples and a real over-counting bug was caught and fixed during that testing (the summary count line "- CRITICAL: 1" was being double-counted as a separate finding from the actual finding description). **Never deployed — no live URL exists.** Region choice (Fly.io, `bom`/Mumbai primary, `sin`/Singapore fallback) is decided and documented in `fly.toml`, based on the verified fact that co-locating with `ai.gov-prod`'s AWS `ap-south-1` region minimizes latency on every write; Railway was ruled out for having no Asia presence closer than Singapore.
 
 **Reframed from "the RAI agent" to "the Python service"** after mapping this
 against real competitor "build-your-own" blueprints (Credo AI, IBM

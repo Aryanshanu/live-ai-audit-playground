@@ -27,3 +27,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Python (services/rai-agent)
+__pycache__/
+*.pyc
+venv/
+.env

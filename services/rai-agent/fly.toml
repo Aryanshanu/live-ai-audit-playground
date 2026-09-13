@@ -1,0 +1,42 @@
+# Fly.io deployment config for the RAI Agent Service.
+#
+# Region choice is not arbitrary: `ai.gov-prod` (Supabase) already runs
+# in AWS ap-south-1 (Mumbai). Fly's `bom` region puts this service in
+# the same metro area, minimizing latency on every database write.
+# Railway was ruled out for this specific reason — it has no Asia
+# presence closer than Singapore.
+#
+# `bom` is flagged in Fly's own docs as a higher-demand region where a
+# single hardcoded region risks failing to place machines under load —
+# `sin` (Singapore) is kept as an explicit fallback, not a hope.
+
+app = "govax-rai-agent"
+primary_region = "bom"
+
+[build]
+
+[env]
+  PORT = "8000"
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 512
+
+# Deploy with: flyctl launch --no-deploy   (first time, to review before committing)
+# then:        flyctl deploy
+# Fallback region if bom is at capacity: flyctl regions add sin
+#
+# Required secrets (set via `flyctl secrets set KEY=value`, never committed):
+#   SUPABASE_URL
+#   SUPABASE_SERVICE_ROLE_KEY   <- service role, NOT the anon/publishable key.
+#                                  This key bypasses RLS entirely — it must
+#                                  only ever live in this server-side secret
+#                                  store, never in any frontend code or repo file.

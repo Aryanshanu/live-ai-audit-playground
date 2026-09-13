@@ -1,0 +1,10 @@
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+# 0.8.8 was the latest confirmed version as of the security research done
+# for this integration (Feb 2025-era sources) - known public bypasses
+# exist at that version (see main.py's KNOWN_LIMITATIONS). Check for a
+# newer release before deploying: pip index versions modelscan
+modelscan>=0.8.8
+supabase==2.10.0
+pydantic==2.10.4
+python-dotenv==1.0.1
