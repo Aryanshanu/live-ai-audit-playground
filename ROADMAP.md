@@ -32,7 +32,7 @@ The five platforms above represent roughly 500+ engineer-years combined. This ro
 
 ## Phase 1 — The Python Analysis Service (in progress — two checks written and tested, not deployed)
 
-**Status update:** `services/rai-agent/` now has two real, tested endpoints. `/checks/modelscan` (previous update) and `/checks/fairness` — real Fairlearn `demographic_parity_ratio`/`equalized_odds_ratio`, verified against a synthetic biased dataset via the real HTTP endpoint (not just a function call), including error-handling tests (mismatched array lengths, empty input) and a real, non-theoretical finding: a genuinely fair process at n=100/group produced a false "non-compliant" reading from pure sampling noise, confirmed by rerunning the identical fair process at n=20,000/group (correctly converged to 0.99). The endpoint now surfaces a `small_sample_warning` field rather than silently reporting a confident-sounding verdict on too little data. **Still never deployed — no live URL exists.** Region choice (Fly.io, `bom`/Mumbai primary, `sin`/Singapore fallback) is decided and documented in `fly.toml`, based on the verified fact that co-locating with `ai.gov-prod`'s AWS `ap-south-1` region minimizes latency on every write; Railway was ruled out for having no Asia presence closer than Singapore.
+**Status update:** `services/rai-agent/` now has two real, tested endpoints. `/checks/modelscan` (previous update) and `/checks/fairness` — real Fairlearn `demographic_parity_ratio`/`equalized_odds_ratio`, verified against a synthetic biased dataset via the real HTTP endpoint (not just a function call), including error-handling tests (mismatched array lengths, empty input) and a real, non-theoretical finding: a genuinely fair process at n=100/group produced a false "non-compliant" reading from pure sampling noise, confirmed by rerunning the identical fair process at n=20,000/group (correctly converged to 0.99). The endpoint now surfaces a `small_sample_warning` field rather than silently reporting a confident-sounding verdict on too little data. **Still never deployed — no live URL exists.** **Hosting decision superseded and finalized:** Coolify (self-hosted, open-source PaaS) on a Vultr VPS in the Mumbai region, not Fly.io — see `services/rai-agent/README.md` for the full reasoning and deploy steps. The underlying region logic carried over unchanged: `ai.gov-prod` is in AWS `ap-south-1` (Mumbai), so the VPS must actually be in Mumbai too — Hetzner was ruled out for having no India datacenter at all, despite being the default recommendation in most Coolify tutorials.
 
 **Reframed from "the RAI agent" to "the Python service"** after mapping this
 against real competitor "build-your-own" blueprints (Credo AI, IBM
@@ -102,7 +102,7 @@ None of Fairlearn, AIF360, SHAP, ModelScan, or Evidently run in a browser — th
                                   └───────────────────────────┘
 ```
 
-**Hosting options, real tradeoffs (your call, I can't decide this for you):**
+**Hosting options, real tradeoffs — RESOLVED, see decision below the table:**
 
 | Option | Cost | Fit for SHAP/AIF360/ModelScan | Complexity |
 |---|---|---|---|
@@ -111,11 +111,13 @@ None of Fairlearn, AIF360, SHAP, ModelScan, or Evidently run in a browser — th
 | Self-hosted VPS + Docker | ~$5-10/mo (Hetzner/DO) | ✅ Good | Medium-high (you manage uptime) |
 | AWS ECS/Fargate | Pay-per-use, can be $0 at low volume | ✅ Good | High (more AWS surface area) |
 
-**Recommendation:** Railway or Fly.io — Docker-native, genuinely cheap, far less operational overhead than raw ECS, and neither has Vercel's serverless constraints for heavy ML dependencies.
+**Final decision (supersedes the "Railway or Fly.io" recommendation below the table):** Coolify (self-hosted, open-source PaaS) on a Vultr VPS in the Mumbai region. More aligned with this project's own open-source stance than a commercial PaaS, and Coolify's unified dashboard is the better long-term fit once Phase 3 adds ClickHouse + Grafana alongside this one service — Kamal was the leaner option for today's single service, but that advantage shrinks as more services get added. Full reasoning and deploy steps in `services/rai-agent/README.md`.
+
+**(Superseded, kept for the historical record):** the original recommendation here was Railway or Fly.io for being Docker-native with lower operational overhead than raw ECS — reversed in favor of Coolify/Vultr per the decision above, for the open-source-alignment and multi-service-dashboard reasons stated there.
 
 **Honest scope note:** even just ModelScan + Fairlearn + MLflow + SHAP as four routes on one service is a multi-week task done properly (dataset upload handling, model-loading for arbitrary HF models, error handling for malformed inputs, real SHAP compute time on non-trivial models). Not a single-session addition.
 
-**Frontend caller status:** `src/lib/api/raiEngine.js` now exists — a tested frontend caller matching the real backend contract exactly (verified with mocked-fetch tests confirming the exact request/response shapes match the actual Pydantic models in `main.py`, including catching and rejecting an earlier proposed version that had genuine contract mismatches: wrong field names, and critically, `small_sample_warning` typed as a boolean instead of the informative string it actually is). **Not yet called from any UI component** — no button anywhere triggers `runFairnessCheck` or `runModelScan` yet. That wiring, plus the actual `flyctl deploy`, are the two remaining steps before this is live end-to-end.
+**Frontend caller status:** `src/lib/api/raiEngine.js` now exists — a tested frontend caller matching the real backend contract exactly (verified with mocked-fetch tests confirming the exact request/response shapes match the actual Pydantic models in `main.py`, including catching and rejecting an earlier proposed version that had genuine contract mismatches: wrong field names, and critically, `small_sample_warning` typed as a boolean instead of the informative string it actually is). **Not yet called from any UI component** — no button anywhere triggers `runFairnessCheck` or `runModelScan` yet. That wiring, plus the actual Coolify deployment (provision the Vultr Mumbai VPS, install Coolify, connect this repo), are the two remaining steps before this is live end-to-end.
 
 ---
 
@@ -161,4 +163,4 @@ Being honest about what we'll likely never out-build (compliance certifications,
 
 ## Immediate next action
 
-Confirm the Phase 1 hosting choice (Railway/Fly.io recommended) so the FastAPI service skeleton can actually be built and deployed, rather than designed in the abstract.
+Hosting decision made: Coolify on a Vultr VPS in Mumbai. Immediate next action is now provisioning that VPS and actually running the Coolify deployment (see `services/rai-agent/README.md`), then wiring `src/lib/api/raiEngine.js`'s functions into an actual UI button — both still outside what can be done from this environment (no Vultr/Coolify credentials or network access here).

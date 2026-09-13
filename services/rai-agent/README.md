@@ -28,13 +28,23 @@ uvicorn main:app --reload
 # http://localhost:8000/docs for interactive API docs
 ```
 
-## Deploying to Fly.io (region choice explained in `fly.toml`)
+## Deploying via Coolify on Vultr (Mumbai)
 
-```bash
-flyctl launch --no-deploy   # review the generated config against fly.toml first
-flyctl secrets set SUPABASE_URL=https://ceppqcqgwietagzixrhr.supabase.co
-flyctl secrets set SUPABASE_SERVICE_ROLE_KEY=<from Supabase dashboard, never the anon key>
-flyctl deploy
-```
+**Decision, and why:** Coolify (self-hosted, open-source PaaS) over Fly.io/Railway — more aligned with this project's own open-source stance, and its built-in multi-service dashboard is the better fit once Phase 3 adds ClickHouse + Grafana alongside this service. Kamal was the leaner alternative for today's single service, but Coolify's overhead pays for itself once there are 3-4 services to manage instead of one.
+
+**VPS: Vultr, Mumbai region specifically** — verified this is the one mainstream provider with an actual Mumbai datacenter (not just "India" generally — DigitalOcean's India presence is Bangalore, a different city). This preserves the same reasoning that drove the original Fly.io region choice: `ai.gov-prod` is in AWS `ap-south-1` (Mumbai), so co-locating this service in the same metro area minimizes latency on every database write. **Hetzner was deliberately ruled out** despite being the usual default recommendation in Coolify tutorials — it has no India datacenter at all (Germany/Finland/US/Singapore only), and using it here would have silently reintroduced the exact cross-continent latency problem already avoided once.
+
+**Sizing:** 4-8GB RAM instance, not the minimum tier — Coolify's own control plane needs real memory (~2GB) on top of whatever this FastAPI service (and later, ClickHouse/Grafana) actually need.
+
+### Steps
+
+1. Provision a Vultr VPS in the Mumbai region (4-8GB RAM, any recent Ubuntu LTS).
+2. Install Coolify: `curl -fsSL https://cdn.coollabs.io/coolify/install.sh | bash` (run as root on the fresh VPS — verify this against Coolify's current official docs before running, install scripts do change).
+3. In the Coolify dashboard: connect this GitHub repo, point the build at `services/rai-agent/Dockerfile` (Coolify builds directly from the Dockerfile — no separate deploy config file needed, unlike Kamal's `config/deploy.yml`).
+4. Set secrets in Coolify's dashboard (never commit these):
+   - `SUPABASE_URL`
+   - `SUPABASE_SERVICE_ROLE_KEY` — not the anon/publishable key (see caveat below)
+5. Deploy via the dashboard. Coolify assigns the container's `PORT` at runtime; the Dockerfile already handles this correctly (verified directly: a runtime-injected port value correctly overrides the image's default).
+6. Once live, set `NEXT_PUBLIC_RAI_ENGINE_URL` in the frontend's real `.env.local` to the Coolify-assigned URL and rebuild the Next.js static export.
 
 The `SUPABASE_SERVICE_ROLE_KEY` is not the anon/publishable key used in the frontend — it's a separate, far more powerful key that bypasses Row Level Security entirely. Get it from the Supabase dashboard (Project Settings → API → `service_role` secret). It must never appear in any frontend code, any committed file, or anywhere outside this service's deployment secrets.
