@@ -30,25 +30,79 @@ The five platforms above represent roughly 500+ engineer-years combined. This ro
 
 ---
 
-## Phase 1 — The Real RAI Agent (next up)
+## Phase 1 — The Python Analysis Service (next up)
 
-**Goal:** Make `fairness_metrics` and `explainability_reports` stop being empty tables. This is the single highest-leverage next step because it's the most obvious gap between "what the schema promises" and "what actually runs."
+**Reframed from "the RAI agent" to "the Python service"** after mapping this
+against real competitor "build-your-own" blueprints (Credo AI, IBM
+watsonx.governance, Fiddler, Robust Intelligence, Protect AI — see table
+below). Every one of those five stacks depends on Python libraries that
+cannot run in a browser: Fairlearn, Evidently AI, Garak, ModelScan, Great
+Expectations. That's not a coincidence — it means the real architectural
+unlock is **one hosted Python service**, built to be extensible, not five
+separate one-off agents. RAI is still the first integration (it's what the
+schema is already shaped for), but the service should be designed from day
+one to also host the others below without a rebuild.
+
+### What each competitor's real OSS stack maps onto for us
+
+| Competitor target | Their real OSS stack | Adopt as-is? | Notes |
+|---|---|---|---|
+| Credo AI (governance) | MLflow + Fairlearn + Budibase | **Partial** — Fairlearn yes, MLflow yes (real lineage tracking, which we don't have). **Skip Budibase** — we already have a purpose-built Next.js dashboard; a low-code tool would be a step backward for us specifically, not a gap. | MLflow is a genuine addition: real model-version lineage, which `rai_audits` currently only weakly implies via `model_id` text. |
+| IBM watsonx (LLM lifecycle) | OpenInference + Phoenix/DeepEval + Airflow | **Later (Phase 2)** | DeepEval for hallucination/toxicity metrics is a real upgrade over our current marker-based probes — worth adopting once the service exists. |
+| Fiddler (observability/drift) | Evidently AI + ClickHouse + Grafana | **Yes, this is exactly Phase 3** | This is more concrete than what Phase 3 said before — adopting this exact stack (not a vague "drift math") is the plan now. |
+| Robust Intelligence (adversarial firewall) | Garak (CI/CD) + FastAPI proxy + Llama Guard (inline) | **Yes — and it's bigger than I'd scoped.** Our current 4-probe suite is discrete, on-demand testing (closer to Garak's CI/CD batch mode). An **inline reverse-proxy firewall** running Llama Guard is a genuinely different, more advanced capability — real-time filtering of a live model endpoint's traffic, not a periodic audit. New item, added below. | |
+| Protect AI (supply chain) | ModelScan + Trivy + DefectDojo | **Yes, and this is buildable sooner than the others.** | See below — this one doesn't need the full multi-agent orchestration to be valuable; it's a single, self-contained check that plugs directly into the existing HF Model Scanner. |
+
+### A genuinely new, currently-missing capability: model file supply-chain scanning
+
+Right now, GOV.AX's HF Model Scanner reads **metadata only** (license, tags,
+pipeline type) via the HF Hub API — it never touches the actual model
+weight files. `ModelScan` (Protect AI's own open-source tool) scans
+`.pkl`/`.h5`/`SavedModel`/etc. files for unsafe deserialization — the exact
+vulnerability class behind real supply-chain attacks on downloaded model
+weights. This is a real, currently-absent check directly in our existing
+product surface, and it's a smaller, more self-contained build than the
+RAI agent (one tool, one clear input/output, no orchestration needed) —
+worth sequencing as an early win once the Python service exists, possibly
+even before the full Fairlearn/SHAP integration.
+
+### Concrete build steps once hosting is chosen
+
+1. **FastAPI service skeleton** — designed as a router with pluggable
+   "checks" (`/checks/fairness`, `/checks/modelscan`, `/checks/shap`, ...)
+   rather than a single hardcoded `/audit` endpoint, so later additions
+   (Phase 2's DeepEval, Phase 3's Evidently) are new routes, not new services.
+2. **ModelScan integration first** — smallest scope, real value, no
+   orchestration complexity. Downloads a model's weight file, runs
+   `modelscan`, returns findings.
+3. **Fairlearn + MLflow integration** — real `demographic_parity_ratio`,
+   `equalized_odds_ratio` against actual uploaded dataset + model
+   predictions; MLflow tracks the model version lineage the schema
+   currently only approximates with a text field.
+4. **SHAP integration** — `TreeExplainer`/`KernelExplainer` depending on
+   model type; store `feature_importances` matching `explainability_reports`.
+5. **Supabase service-role write-back** — server-side only, never exposed
+   to the browser.
+6. **Job status polling** — `rai_audits.status` already supports
+   `pending`/`running`/`completed`/`failed`.
+7. **Dockerfile + CI**, deployed to the chosen host.
 
 ### Architecture decision (needs your confirmation before building)
 
-None of Fairlearn, AIF360, or SHAP run in a browser — they're Python libraries needing real compute. This requires a **separate service**, not a Next.js addition:
+None of Fairlearn, AIF360, SHAP, ModelScan, or Evidently run in a browser — they're Python libraries needing real compute. This requires a **separate service**, not a Next.js addition:
 
 ```
-┌─────────────┐      HTTPS       ┌──────────────────────┐      writes      ┌─────────────┐
-│  GOV.AX     │ ───────────────► │  RAI Agent Service    │ ───────────────► │  Supabase   │
-│  (Next.js)  │                  │  FastAPI + Fairlearn/  │                  │  Postgres   │
-│  browser    │ ◄─────────────── │  AIF360 + SHAP         │ ◄─────────────── │  (Phase 0)  │
-└─────────────┘   audit status   └──────────────────────┘   read results    └─────────────┘
+┌─────────────┐      HTTPS       ┌───────────────────────────┐      writes      ┌─────────────┐
+│  GOV.AX     │ ───────────────► │  Python Analysis Service   │ ───────────────► │  Supabase   │
+│  (Next.js)  │                  │  FastAPI, pluggable checks: │                  │  Postgres   │
+│  browser    │ ◄─────────────── │  ModelScan / Fairlearn+MLflow│ ◄─────────────── │  (Phase 0)  │
+└─────────────┘   audit status   │  / SHAP / (later: Evidently) │   read results    └─────────────┘
+                                  └───────────────────────────┘
 ```
 
 **Hosting options, real tradeoffs (your call, I can't decide this for you):**
 
-| Option | Cost | Fit for SHAP/AIF360 | Complexity |
+| Option | Cost | Fit for SHAP/AIF360/ModelScan | Complexity |
 |---|---|---|---|
 | Vercel Python serverless | Free tier exists | ❌ Poor — cold starts + package size limits are a real problem for `shap`'s compiled dependencies | Low |
 | Railway / Fly.io (Docker) | ~$5-20/mo | ✅ Good — persistent container, no cold-start tax | Medium |
@@ -57,16 +111,7 @@ None of Fairlearn, AIF360, or SHAP run in a browser — they're Python libraries
 
 **Recommendation:** Railway or Fly.io — Docker-native, genuinely cheap, far less operational overhead than raw ECS, and neither has Vercel's serverless constraints for heavy ML dependencies.
 
-### Concrete build steps once hosting is chosen
-
-1. **FastAPI service skeleton** — `/audit` endpoint accepting `{model_id, dataset_url, protected_attributes}`, returns a job id immediately (async — these jobs can take real time).
-2. **Fairlearn integration** — real `demographic_parity_ratio`, `equalized_odds_ratio`, compute against an actual uploaded dataset + actual model predictions (not the simplified client-side approximation from Phase 0).
-3. **SHAP integration** — `TreeExplainer`/`KernelExplainer` depending on model type; store `feature_importances` as JSON matching the `explainability_reports` schema exactly.
-4. **Supabase service-role write-back** — the agent writes results using Supabase's service role key (server-side only, never exposed to the browser), inserting into `rai_audits`/`fairness_metrics`/`explainability_reports`.
-5. **Job status polling** — GOV.AX's frontend polls `rai_audits.status` (already `pending`/`running`/`completed`/`failed` in the schema) rather than needing a websocket.
-6. **Dockerfile + CI** — build and push to the chosen host's registry.
-
-**Honest scope note:** this alone — one agent, one FastAPI service, real metric libraries — is itself a multi-week task done properly (dataset upload handling, model-loading for arbitrary HF models, error handling for malformed inputs, actual SHAP compute time on non-trivial models). Not a single-session addition.
+**Honest scope note:** even just ModelScan + Fairlearn + MLflow + SHAP as four routes on one service is a multi-week task done properly (dataset upload handling, model-loading for arbitrary HF models, error handling for malformed inputs, real SHAP compute time on non-trivial models). Not a single-session addition.
 
 ---
 
@@ -75,6 +120,7 @@ None of Fairlearn, AIF360, or SHAP run in a browser — they're Python libraries
 **Goal:** The CrewAI/LangGraph architecture from the agentic blueprint — Supervisor + 4 specialist agents (Data Quality, RAI, AI Security, Lifecycle/Cost) collaborating and cross-critiquing.
 
 - Requires Phase 1's pattern (FastAPI + real libraries) repeated for 3 more agents: Data Quality (Great Expectations/YData-Profiling), Security (Garak, ART), Lifecycle (Infracost, FOSSA/Tern).
+- **The Security agent has two genuinely different modes, not one** — this matters, per the Robust Intelligence blueprint: (a) *pre-deployment batch testing* (Garak/ART running thousands of adversarial cases in CI/CD — closer to what our current 4-probe suite already does, just at far greater scale), and (b) a *real-time inline firewall* — a reverse proxy in front of a live model endpoint, running Llama Guard to filter adversarial inputs before they reach the model. (b) is a materially different piece of infrastructure (always-on, latency-sensitive, sits in the request path) from everything else in this roadmap, which is all audit-on-demand. Worth scoping as its own sub-project once (a) exists, not bundled in by default.
 - Requires an orchestration layer (LangGraph is the more production-proven pick per earlier research — 1.0 stable, used at Uber/LinkedIn/Klarna).
 - Requires an LLM to actually run the supervisor/aggregator reasoning — this needs either local open-weight models (Ollama/vLLM, real GPU cost) or continuing the HF-Inference-API pattern (free tier, rate-limited).
 - Cross-agent "critique" (the RFC's Phase 3) is the hardest part to get right — it's not just calling 4 agents in parallel, it's a real conversational protocol between them.
@@ -87,9 +133,11 @@ None of Fairlearn, AIF360, or SHAP run in a browser — they're Python libraries
 
 **Goal:** Move from "audit at a point in time" to "watch a deployed model over time" — drift detection, production guardrails, scheduled re-audits.
 
-- Needs a scheduler (cron-based re-runs of Phase 1/2 agents against the same model over time).
-- Needs real drift math (Population Stability Index, KS-tests) — computable in Python alongside the Phase 1 service.
-- Needs alerting integration (Slack/Teams/Jira webhooks) — technically simple, but is real integration surface, one connector at a time.
+**Concrete stack, adopted directly from the Fiddler blueprint** (this is the one competitor mapping that translates almost exactly, not just conceptually): production logs → **ClickHouse** (high-speed time-series storage) → scheduled **Evidently AI** Python jobs computing real drift statistics (PSI, KS-test) against the training baseline → **Grafana** for dashboarding and alerting, with webhook alerts into Slack/Teams/Jira for threshold breaches.
+
+- ClickHouse and Evidently both run in the same kind of container as Phase 1's service — this is an extension of that infrastructure, not a new category of system.
+- Needs a scheduler for periodic re-runs (cron is sufficient at this stage — no need for a heavier workflow engine yet).
+- Alerting integration is technically simple per-connector, but is real, ongoing integration surface — one connector (Slack, then Teams, then Jira) at a time, not all three simultaneously.
 
 ## Phase 4 — Enterprise Surface
 
