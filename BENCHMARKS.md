@@ -1,0 +1,84 @@
+# GOV.AX vs. Live Competitors — Detailed Benchmark
+
+**As of:** 2026-09-13
+**Companion to:** `ROADMAP.md` (phased plan) — this document is the reality check the roadmap is measured against.
+
+## Methodology, stated plainly
+
+Every GOV.AX row below is checked against the actual repository and the actual live Supabase project (`ai.gov-prod`) as of this date — not the plan, the state. Every competitor row is checked against the research already done this session (funding, acquisition status, actual product capabilities from their own materials). Where I'm inferring a competitor capability from general knowledge rather than a source pulled this session, it's marked. Nothing here is rounded up to make a number look better.
+
+**Verified fact that frames this whole document:** the `ai.gov-prod` Supabase project has **0 users, 0 audits ever run, 0 rows in `fairness_metrics` or `explainability_reports`.** The schema is real and advisor-verified. Nothing has used it. That gap — schema vs. live usage — is the single most important thing to hold in mind reading everything below.
+
+---
+
+## Corporate reality check (repeated from the roadmap, because it changes every row below)
+
+| Entity | Status | Scale you'd actually be measured against |
+|---|---|---|
+| Credo AI | Independent | ~60-74 employees, ~$40M raised, ~$3.7M revenue |
+| IBM watsonx.governance | Division of IBM | IBM: ~280,000 employees, ~$60B revenue |
+| Fiddler AI | Independent | ~100-118 employees, ~$100M raised, Fortune 500 customers |
+| "Robust Intelligence" | **Acquired by Cisco, Aug 2024** — now Cisco AI Defense | Cisco: ~90,000 employees, ~$240B market cap |
+| "Protect AI" | **Acquired by Palo Alto Networks, closed Jul 2025** (~$500M+ deal) — now part of Prisma AIRS | Palo Alto Networks: ~$120B market cap |
+
+---
+
+## Dimension-by-dimension capability matrix
+
+Legend: ✅ Live & real · 🟡 Partial/schema-only/limited · ❌ Absent
+
+| Capability | GOV.AX (verified today) | Credo AI | IBM watsonx.gov | Fiddler | Cisco AI Defense | Palo Alto Prisma AIRS |
+|---|---|---|---|---|---|---|
+| **Bias/fairness metrics on real data** | 🟡 Real four-fifths-rule math on uploaded CSVs (`dataQualityAnalyzer.js`, verified against synthetic biased data). No Fairlearn/AIF360 — simplified, single-metric | ✅ Core product | ✅ Core product | 🟡 Secondary to observability | ❌ Not their focus | ❌ Not their focus |
+| **Real explainability (SHAP/LIME)** | ❌ Not implemented. Schema (`explainability_reports`) exists, zero rows | 🟡 Some | 🟡 Some | ✅ Core product (their founding use case) | ❌ | ❌ |
+| **Model card / registry** | 🟡 Real HF-metadata completeness scorer (`modelCardCompleteness.js`) + GitHub-backed external registry (`githubRegistry.js`, real commits). No centralized DB registry populated (0 rows in `rai_audits`) | ✅ Core product | ✅ Core product | 🟡 Secondary | ❌ | 🟡 Via AI-BOM |
+| **RBAC** | ✅ Real Postgres RLS + role enum, advisor-verified. **0 actual users** — never exercised with a real second account | ✅ | ✅ | ✅ | ✅ (Cisco-grade) | ✅ (Palo Alto-grade) |
+| **Immutable audit log** | ✅ Genuinely immutable (no UPDATE/DELETE policy = hard deny). **0 rows ever written by a real user action** | ✅ | ✅ | 🟡 | ✅ | ✅ |
+| **Live adversarial/injection testing** | ✅ Real — 4 live probes against actual models via HF inference, verified with mocked-fetch tests, "thorough scan" gives real n=3 statistical rate | ❌ Not their focus | 🟡 Some LLM risk checks | ❌ Not their focus | ✅ Core product (pioneered "AI Firewall") | 🟡 Secondary |
+| **Real-time inline firewall (blocking live traffic)** | ❌ Not built | ❌ | ❌ | ❌ | ✅ **Their entire original differentiator** | 🟡 |
+| **Model file supply-chain scanning (pickle/malware)** | ❌ Not implemented (ModelScan integration is Phase 1, unbuilt) | ❌ | ❌ | ❌ | ❌ | ✅ **Their entire original differentiator** (ModelScan is literally their own OSS tool) |
+| **Production drift/observability at scale** | ❌ Not built (Phase 3, needs Phase 1 first) | ❌ Not their focus | 🟡 Some | ✅ **Their entire original differentiator**, now "giga-scale" streaming | ❌ | ❌ |
+| **Regulatory framework mapping (EU AI Act, NIST)** | 🟡 Rule `clause` fields cite regulations by name (e.g. "DPDP Act — Section 6"), but it's static text on 9 heuristic rules, not a maintained, versioned policy engine | ✅ **Core differentiator** — dedicated legal/policy team maintains this | ✅ | ❌ | ❌ | ❌ |
+| **In-browser / zero-cost live ML inference** | ✅ **Nobody else on this list does this** — real transformers.js zero-shot classifier, zero token, zero server cost | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Evidence-tier transparency (is this a real test or a guess?)** | ✅ **Nobody else on this list publishes this as a first-class concept** — every finding tagged heuristic/verified/local-inference/live-dynamic | ❌ Not published as a concept | ❌ | ❌ | ❌ | ❌ |
+| **Multi-tenant orgs** | ❌ Schema is user-scoped, not org-scoped | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Stage-gate deployment approval workflows** | ❌ Not built | ✅ | ✅ **Core product** | 🟡 | 🟡 | 🟡 |
+| **SIEM/enterprise security tool integration** | ❌ Not built | ❌ Not their focus | 🟡 | 🟡 | ✅ (native to Cisco Security Cloud) | ✅ (native to Prisma) |
+| **Actual production usage / paying customers** | ❌ **Zero.** 0 signups, 0 audits run, ever | ✅ Real customers, ~$3.7M revenue | ✅ Massive (IBM's install base) | ✅ Fortune 500 customers | ✅ Cisco's entire enterprise base | ✅ Palo Alto's entire enterprise base |
+
+---
+
+## What this table actually says, without softening it
+
+**Rows where GOV.AX is at genuine parity or ahead:** exactly two — evidence-tier transparency, and zero-cost in-browser inference. Both are real, both are verified, both are architecturally interesting, and **neither is a reason a security or compliance team picks a platform.** They're good differentiators for a technical audience, not yet reasons to migrate off an incumbent.
+
+**Rows where GOV.AX has a real foundation but zero live exercise:** RBAC, immutable audit log, model registry. The infrastructure is correct — genuinely, advisor-verified correct — but "0 users, 0 audits" means none of it has been tested against a real workflow. This is the single most fixable gap on this entire table, and it doesn't require new features — it requires *using what already exists*.
+
+**Rows that are fully absent, not partial:** real explainability, inline firewall, model file scanning, production-scale observability, multi-tenancy, stage-gate workflows, SIEM integration. This is most of the table. These aren't small gaps.
+
+**Rows where "catching up" isn't really the right frame:** the two acquired companies' core differentiators (Cisco's inline firewall, Palo Alto's supply-chain AI-BOM) are now backed by two of the largest security companies on earth. Closing the *functional* gap (per the earlier OSS-parity analysis, genuinely 50-90% depending on which piece) doesn't close the *trust* gap — a security team choosing between "Cisco AI Defense" and "an open-source project with zero live users" is not making a decision based on feature parity.
+
+---
+
+## Blockers, named specifically per gap
+
+| Gap | What's actually blocking it | Type |
+|---|---|---|
+| Real explainability (SHAP) | Needs the Phase 1 Python service — still no hosting decision made | **Decision, not effort** |
+| Model file scanning (ModelScan) | Same — Phase 1 Python service | **Decision, not effort** |
+| Production observability at scale | Needs Phase 1 to exist first, generating data to observe | **Sequencing** |
+| Inline firewall | Needs an actual deployed model with real traffic to sit in front of — GOV.AX audits models, it doesn't host them | **Product-scope question**, not just engineering |
+| Regulatory framework mapping (Credo AI's actual moat) | Needs *ongoing, continuous* legal/policy expertise to track law changes — this is a staffing problem forever, not a one-time build | **Structural** — no amount of engineering closes an ongoing-expertise gap |
+| Zero live usage | Needs real users signing up and running real audits — this is a distribution/adoption problem, not a code problem | **Go-to-market**, not engineering |
+| Multi-tenancy | Real schema migration (org-scoped RLS instead of user-scoped) — scoped in Roadmap Phase 4 | **Effort** — genuinely buildable |
+
+---
+
+## The honest bottom line
+
+Two separate scores, because they answer different questions:
+
+- **"If we finished building everything already scoped in `ROADMAP.md`, what % of competitor *functionality* would we match?"** — per the earlier analysis, realistically **60-65%** blended, higher (75-85%) on audit-time checks, lower (35-50%) on production-scale infrastructure.
+- **"What % of competitor *reality* — functionality that's actually live, tested, and in front of real users — do we match today?"** — meaningfully lower than the functionality number, because two of the biggest infrastructure pieces (RBAC, audit log) that show ✅ above have never been exercised by an actual second human being. A correct system with zero users isn't the same claim as a correct system in production, even before comparing to competitors at all.
+
+**The highest-leverage next move, based on this table, might not be new code.** It might be: get the existing Supabase auth flow actually smoke-tested with a real second user, run one real audit through the real database, and only then decide whether the next investment is Phase 1 (new capability) or fixing whatever breaks in that first real usage.
