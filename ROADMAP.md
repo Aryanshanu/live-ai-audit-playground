@@ -1,6 +1,21 @@
 # GOV.AX Roadmap — Toward an Open-Source AI Governance Platform
 
-**Last updated:** 2026-09-14 (Wave 1 credibility wins landed)
+**Last updated:** 2026-09-14 (multi-tenancy landed with proven isolation)
+**Vocabulary:** this roadmap uses **Waves**, not Phases. Phases are retired (see [DECISIONS.md](DECISIONS.md) D8). Waves map to decision gates, not just build order.
+
+## Wave status at a glance
+
+| Wave | What | Status |
+|---|---|---|
+| Wave 0 | Decisions | 🟡 6 of 8 decided — D1 (hosting) and D2 (project purpose) still open |
+| Wave 1 | Credibility wins | 🟡 Audit-log proof ✅, evidence-tier spec ✅, **first real browser audit ❌** |
+| Wave 2 | Multi-tenancy | ✅ **Done** — isolation proven with two real users |
+| Wave 3 | Python service (deploy 3 existing endpoints) | ❌ Gated on D1 |
+| Wave 4 | Enterprise features | ⏸️ Deferred — firewall demand-gated, regulation-as-code reviewer-gated |
+| Wave 5 | Moat expansion | ⏸️ Ongoing |
+
+**The gate that matters:** no 4th Python endpoint until endpoint #1 is reachable at a public URL.
+
 **North star:** Reach a meaningful fraction of what Credo AI, IBM watsonx.governance, Fiddler, Robust Intelligence, and Protect AI each built with dozens of engineers over years — as an open-source, self-hostable, Hugging Face-native alternative.
 
 ## Reading this document honestly

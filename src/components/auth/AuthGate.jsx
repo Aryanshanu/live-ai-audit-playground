@@ -1,12 +1,14 @@
 'use client';
 
-import { useSession, useRoles, signOut } from '../../lib/supabase/auth';
+import { useSession, useOrgMembership, signOut } from '../../lib/supabase/auth';
 import AuthForm from './AuthForm';
 
 const ROLE_STYLE = {
+  owner: 'bg-red-50 text-fb-red border-red-200',
   admin: 'bg-red-50 text-fb-red border-red-200',
   auditor: 'bg-fb-blueLight text-fb-blue border-fb-blue/30',
   viewer: 'bg-gray-100 text-fb-textSecondary border-gray-300',
+  external_auditor: 'bg-amber-50 text-amber-700 border-amber-200',
 };
 
 /**
@@ -18,7 +20,7 @@ const ROLE_STYLE = {
  */
 export default function AuthGate({ children }) {
   const { session, user, loading } = useSession();
-  const { roles, loading: rolesLoading } = useRoles(user?.id);
+  const { activeOrg, roles, loading: orgLoading } = useOrgMembership(user?.id);
 
   if (loading) {
     return (
@@ -37,7 +39,10 @@ export default function AuthGate({ children }) {
       <div className="bg-fb-blueLight border-b border-fb-blue/20 px-4 py-1.5 flex items-center justify-between text-[11px] text-fb-blue">
         <span className="flex items-center gap-2">
           Signed in as {user.email}
-          {!rolesLoading &&
+          {!orgLoading && activeOrg?.organizations?.name && (
+            <span className="text-fb-textSecondary">· {activeOrg.organizations.name}</span>
+          )}
+          {!orgLoading &&
             roles.map((role) => (
               <span
                 key={role}

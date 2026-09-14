@@ -1,6 +1,27 @@
 # GOV.AX vs. Live Competitors — Detailed Benchmark
 
-**As of:** 2026-09-14 (audit-log immutability + tamper-evidence now empirically proven)
+**As of:** 2026-09-14 (multi-tenancy landed; isolation proven with two real users)
+
+## Decisions log (summary — full rationale in [DECISIONS.md](DECISIONS.md))
+
+| ID | Decision | Status |
+|---|---|---|
+| D1 | Python service hosting | ⚠️ Pending — **no 4th endpoint until endpoint #1 is reachable** |
+| D2 | What this project is for | ⚠️ Pending owner decision |
+| D3 | Multi-tenancy before first user | ✅ Done 2026-09-14, isolation proven |
+| D4 | Inline firewall | Deferred — demand-gated |
+| D5 | Regulation-as-code | Deferred — reviewer-gated |
+| D6 | MLflow | Dropped — GitHub registry covers the governance-relevant part |
+| D7 | Mumbai region | ✅ Locked (threatened twice by generic recommendations) |
+
+## Deferred, and the gate for each
+
+| Item | Why deferred | Gate to revisit |
+|---|---|---|
+| Inline firewall | Different trust contract — if it's down, the customer's app is down | A real demand signal + sustained real usage |
+| Regulation-as-code | Wrong compliance answers are worse than none; produces false confidence | A committed legal/policy reviewer |
+| MLflow | Adjacent to governance, not the same thing | A real user asking — then an export adapter, not a dependency |
+| 4th Python endpoint | Three already exist and none are reachable | Endpoint #1 live at a public URL |
 **Companion to:** `ROADMAP.md` (phased plan) — this document is the reality check the roadmap is measured against.
 
 ## Methodology, stated plainly
@@ -32,7 +53,7 @@ Legend: ✅ Live & real · 🟡 Partial/schema-only/limited · ❌ Absent
 | **Bias/fairness metrics on real data** | 🟡 Client-side four-fifths math live; **real Fairlearn** (`demographic_parity_ratio`, `equalized_odds_ratio`) built & tested server-side — **not deployed** | ✅ Core product | ✅ Core product | 🟡 Secondary to observability | ❌ Not their focus | ❌ Not their focus |
 | **Real explainability (SHAP/LIME)** | 🟡 Real SHAP built & tested (`/checks/explainability`, ground-truth verified) — **but the service is not deployed**, so zero rows still | 🟡 Some | 🟡 Some | ✅ Core product (their founding use case) | ❌ | ❌ |
 | **Model card / registry** | 🟡 Real HF-metadata completeness scorer (`modelCardCompleteness.js`) + GitHub-backed external registry (`githubRegistry.js`, real commits). No centralized DB registry populated (0 rows in `rai_audits`) | ✅ Core product | ✅ Core product | 🟡 Secondary | ❌ | 🟡 Via AI-BOM |
-| **RBAC** | ✅ Real Postgres RLS + role enum, advisor-verified. **0 actual users** — never exercised with a real second account | ✅ | ✅ | ✅ | ✅ (Cisco-grade) | ✅ (Palo Alto-grade) |
+| **RBAC** | ✅ Real Postgres RLS, now **per-org** and exercised with a real second account during isolation testing | ✅ | ✅ | ✅ | ✅ (Cisco-grade) | ✅ (Palo Alto-grade) |
 | **Immutable audit log** | ✅ **Empirically proven**, not asserted — a real authenticated user was created and UPDATE/DELETE both confirmed blocked. Now also hash-chained: tampering by a service-role/DBA (which RLS cannot stop) was performed in a real test and the exact altered row was detected | ✅ | ✅ | 🟡 | ✅ | ✅ |
 | **Live adversarial/injection testing** | ✅ Real — 4 live probes against actual models via HF inference, verified with mocked-fetch tests, "thorough scan" gives real n=3 statistical rate | ❌ Not their focus | 🟡 Some LLM risk checks | ❌ Not their focus | ✅ Core product (pioneered "AI Firewall") | 🟡 Secondary |
 | **Real-time inline firewall (blocking live traffic)** | ❌ Not built | ❌ | ❌ | ❌ | ✅ **Their entire original differentiator** | 🟡 |
@@ -41,7 +62,7 @@ Legend: ✅ Live & real · 🟡 Partial/schema-only/limited · ❌ Absent
 | **Regulatory framework mapping (EU AI Act, NIST)** | 🟡 Rule `clause` fields cite regulations by name (e.g. "DPDP Act — Section 6"), but it's static text on 9 heuristic rules, not a maintained, versioned policy engine | ✅ **Core differentiator** — dedicated legal/policy team maintains this | ✅ | ❌ | ❌ | ❌ |
 | **In-browser / zero-cost live ML inference** | ✅ **Nobody else on this list does this** — real transformers.js zero-shot classifier, zero token, zero server cost | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Evidence-tier transparency (is this a real test or a guess?)** | ✅ **Nobody else on this list publishes this as a first-class concept** — every finding tagged heuristic/verified/local-inference/live-dynamic | ❌ Not published as a concept | ❌ | ❌ | ❌ | ❌ |
-| **Multi-tenant orgs** | ❌ Schema is user-scoped, not org-scoped | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Multi-tenant orgs** | ✅ **Org-scoped with proven isolation** — two real users tested; neither could read or write the other's data. Per-org roles (owner/admin/auditor/viewer/external_auditor), personal org auto-created on signup | ✅ | ✅ | ✅ | ✅ | ✅ |
 | **Stage-gate deployment approval workflows** | ❌ Not built | ✅ | ✅ **Core product** | 🟡 | 🟡 | 🟡 |
 | **SIEM/enterprise security tool integration** | ❌ Not built | ❌ Not their focus | 🟡 | 🟡 | ✅ (native to Cisco Security Cloud) | ✅ (native to Prisma) |
 | **Actual production usage / paying customers** | ❌ **Zero.** 0 signups, 0 audits run, ever | ✅ Real customers, ~$3.7M revenue | ✅ Massive (IBM's install base) | ✅ Fortune 500 customers | ✅ Cisco's entire enterprise base | ✅ Palo Alto's entire enterprise base |
@@ -50,7 +71,7 @@ Legend: ✅ Live & real · 🟡 Partial/schema-only/limited · ❌ Absent
 
 ## What this table actually says, without softening it
 
-**Rows where GOV.AX is at genuine parity or ahead:** three — evidence-tier transparency (now published as a spec, [EVIDENCE-TIERS.md](EVIDENCE-TIERS.md)), zero-cost in-browser inference, and hash-chained tamper-evident audit logging that any signed-in auditor can independently verify without read access to log contents. Both are real, both are verified, both are architecturally interesting, and **neither is a reason a security or compliance team picks a platform.** They're good differentiators for a technical audience, not yet reasons to migrate off an incumbent.
+**Rows where GOV.AX is at genuine parity or ahead:** four — multi-tenant isolation (proven, not asserted), evidence-tier transparency (now published as a spec, [EVIDENCE-TIERS.md](EVIDENCE-TIERS.md)), zero-cost in-browser inference, and hash-chained tamper-evident audit logging that any signed-in auditor can independently verify without read access to log contents. Both are real, both are verified, both are architecturally interesting, and **neither is a reason a security or compliance team picks a platform.** They're good differentiators for a technical audience, not yet reasons to migrate off an incumbent.
 
 **Rows where GOV.AX has a real foundation but zero live exercise:** RBAC, immutable audit log, model registry. The infrastructure is correct — genuinely, advisor-verified correct — but "0 users, 0 audits" means none of it has been tested against a real workflow. This is the single most fixable gap on this entire table, and it doesn't require new features — it requires *using what already exists*.
 

@@ -53,25 +53,25 @@ export function useSession() {
  * user_roles (shouldn't happen given the on-signup trigger, but handled
  * defensively) is treated as 'viewer'.
  */
-export function useRoles(userId) {
-  const [roles, setRoles] = useState([]);
+export function useOrgMembership(userId) {
+  const [memberships, setMemberships] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!userId) {
-      setRoles([]);
+      setMemberships([]);
       setLoading(false);
       return;
     }
     let cancelled = false;
     setLoading(true);
     supabase
-      .from('user_roles')
-      .select('role')
+      .from('org_members')
+      .select('org_id, role, organizations(id, name, slug, is_personal)')
       .eq('user_id', userId)
       .then(({ data, error }) => {
         if (cancelled) return;
-        setRoles(error || !data?.length ? ['viewer'] : data.map((r) => r.role));
+        setMemberships(error || !data?.length ? [] : data);
         setLoading(false);
       });
     return () => {
@@ -79,5 +79,19 @@ export function useRoles(userId) {
     };
   }, [userId]);
 
-  return { roles, loading, isAdmin: roles.includes('admin'), isAuditor: roles.includes('auditor') };
+  // A personal org is auto-created on signup, so in practice there is
+  // always at least one. Falling back to the first membership keeps this
+  // working if that ever isn't true rather than crashing.
+  const activeOrg = memberships.find((m) => m.organizations?.is_personal) || memberships[0] || null;
+  const roles = memberships.map((m) => m.role);
+
+  return {
+    memberships,
+    activeOrg,
+    activeOrgId: activeOrg?.org_id ?? null,
+    roles,
+    loading,
+    isOwner: activeOrg?.role === 'owner',
+    isAdmin: ['owner', 'admin'].includes(activeOrg?.role),
+  };
 }

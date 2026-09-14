@@ -6,7 +6,7 @@ import ComplianceReportPanel from './ComplianceReportPanel';
 import { fetchModelMetadata } from '../lib/huggingface';
 import { evaluateCompliance } from '../lib/rules';
 import { saveAuditToHistory, computeLayerScores } from '../lib/historyStore';
-import { useSession } from '../lib/supabase/auth';
+import { useSession, useOrgMembership } from '../lib/supabase/auth';
 import { persistAuditToDb } from '../lib/supabase/auditPersistence';
 
 /**
@@ -16,6 +16,7 @@ import { persistAuditToDb } from '../lib/supabase/auditPersistence';
  */
 export default function AuditPlayground() {
   const { user } = useSession();
+  const { activeOrgId } = useOrgMembership(user?.id);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [score, setScore] = useState(null);
@@ -69,9 +70,12 @@ export default function AuditPlayground() {
       // Requires an authenticated user; RLS itself would reject the
       // insert if this check were skipped, but failing early with a
       // clear message is better than a raw Postgres error in the console.
-      if (user) {
+      // orgId is required since the multi-tenancy migration (org_id is
+      // NOT NULL and RLS-enforced). A personal org is auto-created on
+      // signup, so activeOrgId should be present for any real user.
+      if (user && activeOrgId) {
         try {
-          await persistAuditToDb({ userId: user.id, modelId: meta.id, issues: failedIssues });
+          await persistAuditToDb({ userId: user.id, orgId: activeOrgId, modelId: meta.id, issues: failedIssues });
         } catch (dbErr) {
           console.warn('[GOV.AX] Database persistence failed (localStorage copy still saved):', dbErr.message);
         }

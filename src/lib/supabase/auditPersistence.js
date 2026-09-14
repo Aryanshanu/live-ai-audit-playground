@@ -9,18 +9,21 @@ import { supabase } from './client';
  *
  * @param {object} params
  * @param {string} params.userId - the authenticated user's id (required — RLS will reject otherwise)
+ * @param {string} params.orgId - the org this audit belongs to (required — org_id is NOT NULL and RLS-enforced since the multi-tenancy migration)
  * @param {string} params.modelId
  * @param {string} [params.datasetRef]
  * @param {Array} params.issues - findings in this app's existing shape ({ruleId|id, layer, severity, message, remediation})
  * @returns {Promise<{auditId: string}>}
  */
-export async function persistAuditToDb({ userId, modelId, datasetRef, issues }) {
+export async function persistAuditToDb({ userId, orgId, modelId, datasetRef, issues }) {
   if (!userId) throw new Error('Cannot persist an audit without an authenticated user.');
+  if (!orgId) throw new Error('Cannot persist an audit without an organization. Every audit belongs to an org (a personal org is auto-created on signup).');
 
   const { data: audit, error: auditError } = await supabase
     .from('rai_audits')
     .insert({
       created_by: userId,
+      org_id: orgId,
       model_id: modelId,
       dataset_ref: datasetRef || null,
       status: 'completed',
@@ -50,6 +53,7 @@ export async function persistAuditToDb({ userId, modelId, datasetRef, issues }) 
   // succeeded and is the more important write.
   const { error: logError } = await supabase.from('audit_log').insert({
     actor_id: userId,
+    org_id: orgId,
     action: 'audit.completed',
     resource_type: 'rai_audit',
     resource_id: audit.id,
