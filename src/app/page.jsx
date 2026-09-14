@@ -6,6 +6,7 @@ import {
   Workflow,
   Cpu,
   ExternalLink,
+  LayoutDashboard,
 } from 'lucide-react';
 import { runAuditEngine } from '../lib/auditEngine';
 import { saveAuditToHistory, computeLayerScores } from '../lib/historyStore';
@@ -19,6 +20,7 @@ import UnifiedGovernanceScore from '../components/UnifiedGovernanceScore';
 import AuthGate from '../components/auth/AuthGate';
 import SystemCheckPanel from '../components/SystemCheckPanel';
 import GovernanceNav from '../components/GovernanceNav';
+import AdminDashboard from '../components/AdminDashboard';
 
 const ARCHITECTURE_TEMPLATES = {
   ragBot:
@@ -145,7 +147,13 @@ export default function UnifiedGovernanceCenter() {
               activeMode === 'sandbox' ? 'text-fb-blue font-bold' : 'text-fb-textSecondary hover:text-fb-text'
             }`}
           >
-            {activeMode === 'sandbox' && (
+            {activeMode === 'command_center' && (
+        <main className="max-w-[1400px] mx-auto px-6 py-6">
+          <AdminDashboard />
+        </main>
+      )}
+
+      {activeMode === 'sandbox' && (
               <motion.div
                 layoutId="navModePill"
                 className="absolute inset-0 bg-white rounded-full shadow-fbCard"
@@ -171,6 +179,23 @@ export default function UnifiedGovernanceCenter() {
             )}
             <Cpu size={13} className="relative z-10" />
             <span className="relative z-10">Hugging Face Hub Scanner</span>
+          </button>
+
+          <button
+            onClick={() => setActiveMode('command_center')}
+            className={`px-4 py-1.5 rounded-full transition-colors cursor-pointer flex items-center gap-1.5 relative z-10 ${
+              activeMode === 'command_center' ? 'text-fb-blue font-bold' : 'text-fb-textSecondary hover:text-fb-text'
+            }`}
+          >
+            {activeMode === 'command_center' && (
+              <motion.div
+                layoutId="navModePill"
+                className="absolute inset-0 bg-white rounded-full shadow-fbCard"
+                transition={{ type: 'spring', bounce: 0.2, duration: 0.35 }}
+              />
+            )}
+            <LayoutDashboard size={13} className="relative z-10" />
+            <span className="relative z-10">Command Center</span>
           </button>
         </div>
 
@@ -211,6 +236,12 @@ export default function UnifiedGovernanceCenter() {
       )}
 
       {/* ━━ MODE A: ARCHITECTURE SANDBOX ━━ */}
+      {activeMode === 'command_center' && (
+        <main className="max-w-[1400px] mx-auto px-6 py-6">
+          <AdminDashboard />
+        </main>
+      )}
+
       {activeMode === 'sandbox' && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
           {/* Confidence Notice Bar */}

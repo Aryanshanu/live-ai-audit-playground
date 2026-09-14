@@ -32,7 +32,7 @@ export const NAV_SECTIONS = [
   {
     section: null, // top-level
     items: [
-      { id: 'command-center', label: 'Command Center', status: 'partial', note: 'Unified score + system check exist; not yet a full aggregated landing view.' },
+      { id: 'command-center', label: 'Command Center', status: 'live', note: 'Live status tiles, audit-log feed, and registry inventory — all real figures, no sample data.' },
     ],
   },
   {
