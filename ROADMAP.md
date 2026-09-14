@@ -14,6 +14,20 @@
 | Wave 4 | Enterprise features | ⏸️ Deferred — firewall demand-gated, regulation-as-code reviewer-gated |
 | Wave 5 | Moat expansion | ⏸️ Ongoing |
 
+## Unified governance architecture reference
+
+A prior proof-of-concept's schema (145 tables) has been captured as a capability map in [docs/ARCHITECTURE-REFERENCE.md](docs/ARCHITECTURE-REFERENCE.md) — 14 domains a complete unified governance platform covers. It is a **domain map, not a port**: no code, UI, or copy from it is reproduced, and everything rebuilt here uses GOV.AX's own org-scoped conventions (which the reference lacked).
+
+Replication is deliberately prioritised rather than wholesale — GOV.AX had 9 tables to its 145, and most of its tables held 0 rows, meaning they were scaffolded rather than used. Building all of them would be precisely the "15 speculative features, 0 users" trap recorded in DECISIONS.md.
+
+| Priority | Item | Status |
+|---|---|---|
+| 1 | Model registry (`models`, `model_versions`, `use_cases`) | ✅ Built, isolation tested |
+| 2 | `attack_library` — probes as data | ✅ Built, 4 built-ins seeded |
+| 3 | `dq_rules` — declarative data-quality rules | ⏸️ Next |
+| 4 | `review_queue` + `decision_ledger` | ⏸️ Gated on real usage |
+| 5 | Knowledge graph (`kg_nodes`/`kg_edges`) | ⏸️ Largest build |
+
 **The gate that matters:** no 4th Python endpoint until endpoint #1 is reachable at a public URL.
 
 **North star:** Reach a meaningful fraction of what Credo AI, IBM watsonx.governance, Fiddler, Robust Intelligence, and Protect AI each built with dozens of engineers over years — as an open-source, self-hostable, Hugging Face-native alternative.

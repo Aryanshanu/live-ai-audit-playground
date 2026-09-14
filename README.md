@@ -70,6 +70,8 @@ Most audit tools show you one score and ask you to trust it. This one shows the 
 | System Check — self-diagnostic naming the exact failure in the signup→audit→DB path | ✅ Live | 🔵 Verified |
 | Google OAuth + guest (anonymous) sign-in | ✅ Live (needs dashboard enablement) | 🔵 Verified |
 | Platform admin — read-only cross-org access, audit-logged | ✅ Live | 🔵 Verified |
+| Model registry — models, versions, use cases, EU AI Act risk tiers | ✅ Live (schema; UI pending) | 🔵 Verified |
+| Attack library — adversarial probes as extensible data, not hardcoded | ✅ Live (schema; runtime wiring pending) | 🔵 Verified |
 | Multi-tenant orgs with per-org roles, isolation proven with two real users | ✅ Live | 🔵 Verified |
 | Production-scale drift/observability | ❌ Not built | — |
 | Multi-tenant orgs, stage-gate approvals, SIEM export | ❌ Not built | — |
