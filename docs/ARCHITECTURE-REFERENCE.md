@@ -2,7 +2,38 @@
 
 Captured 2026-09-14 from the schema of a prior proof-of-concept (145 tables), preserved here so the design work isn't lost. This is a **capability map, not a port**: it records *what domains a complete unified governance platform covers*, which is exactly the thing that's hard to know in advance.
 
-**What this is not:** the POC's UI is auth-gated and its repo is private, so none of its code, visual design, or copy is reproduced here — only the domain structure, rebuilt independently under GOV.AX naming.
+**What this is not:** none of the POC's code, styling, or copy is reproduced. This records *information architecture* — what sections a complete governance platform needs — rebuilt independently under GOV.AX naming.
+
+## Information architecture (captured from the running app)
+
+The POC organised 31 destinations into 8 groups. This is the most valuable single artifact here: it is a worked answer to "how do you make unified governance navigable," which is genuinely hard to get right from first principles.
+
+| Group | Destinations |
+|---|---|
+| *(top level)* | Command Center · AI Governance Hub · System Admin · User Management |
+| **AUDIT** | Audit Center |
+| **MONITOR** | Observability Hub · Platform Health · Alerts & Signals · Ongoing Validation |
+| **GOVERN** | Intake & Approvals · Compliance Hub · Risk & Anomalies · Policy & Guardrails · Knowledge & Reports |
+| **DATA** | Data Inventory · Data Quality |
+| **RESPONSIBLE AI** | Validation Hub · Controller Governance · Fairness · Fidelity · Safety · Privacy · Transparency |
+| **SECURITY** | Security Dashboard · AI Pentesting · Jailbreak Lab · Threat Modeling |
+| **REGISTRIES** | Use Case Registry · Model Registry · Projects |
+| **CONFIGURE** | Robustness Benchmarks · Environments · Settings · Documentation |
+
+### What's worth stealing from this structure
+
+1. **RAI is decomposed into five named dimensions** — Fairness, Fidelity, Safety, Privacy, Transparency — rather than one lump. GOV.AX collapses all of this into "RAI," which is less legible to a non-technical reviewer who only cares about one dimension.
+2. **Separating "Intake & Approvals" from everything else.** Governance starts *before* a model exists — at intake — which is a workflow GOV.AX has no concept of.
+3. **"Ongoing Validation" as distinct from "Audit Center."** Point-in-time audit and continuous revalidation are different activities and the POC treats them as such.
+4. **A Command Center landing page** aggregating status, rather than dropping the user into a tool.
+
+### The admin dashboard pattern
+
+Its System Admin page used a consistent shape: four status tiles across the top (Database connectivity + round-trip ms, Role Assignments, Avg Latency 24h, Open Incidents), then a live audit-log feed ("Last 20 events"), then three summary panels (Infrastructure row-counts per table, Traffic 24h with blocked/warned/error counts, Platform Summary).
+
+One notable control: an **Emergency Platform Lock** ("Suspend ALL active AI systems immediately. Use only during a confirmed security breach"). Real enforcement, not just reporting — GOV.AX has no equivalent, and arguably shouldn't until it actually sits in a request path.
+
+**An honest observation from its own audit log:** the visible entries were `UPDATE` and `DELETE` on `evaluation_runs` and `models`. That log is mutable — records can be altered or removed. GOV.AX's audit log is append-only and hash-chained, with both properties proven by test. That is one dimension where GOV.AX is genuinely ahead of the reference, and worth keeping.
 
 ## The 14 domains
 

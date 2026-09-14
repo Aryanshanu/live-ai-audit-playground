@@ -18,6 +18,7 @@ import DataQualityUpload from '../components/DataQualityUpload';
 import UnifiedGovernanceScore from '../components/UnifiedGovernanceScore';
 import AuthGate from '../components/auth/AuthGate';
 import SystemCheckPanel from '../components/SystemCheckPanel';
+import GovernanceNav from '../components/GovernanceNav';
 
 const ARCHITECTURE_TEMPLATES = {
   ragBot:
@@ -174,7 +175,8 @@ export default function UnifiedGovernanceCenter() {
         </div>
 
         <div className="hidden lg:flex items-center gap-4 text-xs text-fb-textSecondary">
-          <HistoryIndicator />
+          <GovernanceNav />
+        <HistoryIndicator />
           <a
             href="https://github.com/Aryanshanu/live-ai-audit-playground"
             target="_blank"
