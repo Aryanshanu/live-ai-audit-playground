@@ -11,7 +11,7 @@ A 13-section, file-by-file, PRD-grade specification was requested in one pass. P
 | Prompt assumed | Verified now |
 |---|---|
 | 0 users | **2** — 1 email signup, 1 anonymous guest signup, both independently confirmed working |
-| 0 audits | **0** — this one holds |
+| 0 audits | Was **0** when this table was first written; **now 1**, same day, real end-to-end run — see the update note at the bottom of this document |
 | Multi-tenancy not implemented | **Implemented.** Org-scoped RLS, isolation proven with two real users in separate orgs |
 | No Data Quality / AI Governance domain | **Partially built this session** — see 1.6 |
 
@@ -38,7 +38,8 @@ A 13-section, file-by-file, PRD-grade specification was requested in one pass. P
 | `BrowserClassifierPanel.jsx` | LIVE | local-inference | No |
 | `SemanticAuditPanel.jsx` | LIVE | live-dynamic | No |
 | `GovernanceNav.jsx` | **DEAD** — superseded by `AppShell.jsx`'s sidebar, not imported anywhere | — | No |
-| `auth/AuthForm.jsx`, `auth/AuthGate.jsx` | LIVE | — | **Yes** — the only components with confirmed real-user exercise (2 real signups) |
+| `auth/AuthForm.jsx`, `auth/AuthGate.jsx` | LIVE | — | **Yes** — 2 real signups |
+| `AppShell.jsx`, `GovernanceInputPanel.jsx`, `ComplianceReportPanel.jsx`, `UnifiedGovernanceScore.jsx` | LIVE | mixed | **UPDATE, same day: Yes** — exercised by the real end-to-end audit in `docs/FIRST-AUDIT.md`, not just AuthForm/AuthGate anymore |
 | `PlaceholderView.jsx` | LIVE, intentionally (renders for `attack_library`, `user_management` nav entries) | — | No |
 | `IntegrationStudioPanel.jsx`, `IssueCard.jsx`, `InteractiveRadarChart.jsx`, `ComplianceGauge.jsx`, `DataLineageGraph.jsx`, `HistoryIndicator.jsx`, `ToggleSwitch.jsx`, `UnifiedGovernanceScore.jsx` | LIVE | — (presentational) | No |
 
@@ -130,8 +131,8 @@ Real inconsistencies found by checking, not by inspection:
 
 ---
 
-## Immediate next action
+## Immediate next action — UPDATE: completed same day
 
-Update `README.md` and `BENCHMARKS.md`'s user count from 1→2 in the same commit as this document, and delete `GovernanceNav.jsx` + `navigation.js`'s now-redundant `NAV_SECTIONS`/`navStatusCounts` per Section 10 items 1 and 3 — these are real, cheap fixes found by this audit, not deferred work.
+The original next action (user-count fix, dead-code removal) was completed in the commit that introduced this document. The action that superseded it — run one real audit through the live UI — was also completed the same day, via real browser automation against production, independently verified against the database. See `docs/FIRST-AUDIT.md`. This document's "0 audits" framing throughout Section 1 is now historical, describing the state at time of writing, not the current state — cross-reference `BENCHMARKS.md` for the live number.
 
 Sections 2–4 (as-built architecture, gap analysis, formal frontend/backend split) and 7–9 (evidence tier spec, security model, PRD change plan) remain to be produced. Section 4's formal split is substantially already covered by `docs/ACCESS-ARCHITECTURE.md`, written the same day — the next pass should extend that document rather than duplicate it under a new name.
