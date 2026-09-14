@@ -27,6 +27,16 @@ The POC organised 31 destinations into 8 groups. This is the most valuable singl
 3. **"Ongoing Validation" as distinct from "Audit Center."** Point-in-time audit and continuous revalidation are different activities and the POC treats them as such.
 4. **A Command Center landing page** aggregating status, rather than dropping the user into a tool.
 
+### The page format (adopted)
+
+Every page in the reference shares one shape, which GOV.AX now follows:
+
+- **Persistent collapsible sidebar** — logo mark, product name, role label, then uppercase-grouped sections. Scales to many destinations in a way a top switcher cannot.
+- **Page banner** — `h1` title + one-line subtitle + contextual actions (e.g. a `Refresh` button, a `Healthy` status pill), then theme toggle and user menu.
+- **Content region**, then a version footer.
+- **List pages** (Model Registry): search input + primary action, an explicit `Showing X of Y` count, then rows carrying type tag, environment tag, name, description, version, risk level, status, owner, and updated date.
+- **Evaluation pages** (Fairness): a capability-badge strip, a target selector plus a `Run` action, a genuine empty state (`Select a Model` + "1 model available"), then score tiles and a custom-prompt test panel.
+
 ### The admin dashboard pattern
 
 Its System Admin page used a consistent shape: four status tiles across the top (Database connectivity + round-trip ms, Role Assignments, Avg Latency 24h, Open Incidents), then a live audit-log feed ("Last 20 events"), then three summary panels (Infrastructure row-counts per table, Traffic 24h with blocked/warned/error counts, Platform Summary).

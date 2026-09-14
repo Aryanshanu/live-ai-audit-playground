@@ -106,12 +106,12 @@ export default function AuditPlayground() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
       {/* ── Left Panel: Governance Inputs ── */}
-      <div className="p-6 lg:p-8 bg-white border border-fb-border rounded-xl shadow-fbCard">
+      <div className="p-6 lg:p-8 bg-fb-card border border-fb-border rounded-xl shadow-fbCard">
         <GovernanceInputPanel onSubmit={handleAudit} loading={loading} />
       </div>
 
       {/* ── Right Panel: Live Compliance Report ── */}
-      <div className="p-6 lg:p-8 bg-white border border-fb-border rounded-xl shadow-fbCard min-h-[600px]">
+      <div className="p-6 lg:p-8 bg-fb-card border border-fb-border rounded-xl shadow-fbCard min-h-[600px]">
         {/* Database persistence status. Deliberately visible: a skipped or
             failed DB write previously produced only a console.warn, so an
             audit that persisted nothing looked identical to one that

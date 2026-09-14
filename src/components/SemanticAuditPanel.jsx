@@ -53,7 +53,7 @@ export default function SemanticAuditPanel({ description }) {
           <select
             value={modelId}
             onChange={(e) => setModelId(e.target.value)}
-            className="w-full px-2 py-1.5 text-[11px] bg-white border border-fb-border rounded-lg text-fb-text focus:outline-none focus:border-fb-blue"
+            className="w-full px-2 py-1.5 text-[11px] bg-fb-card border border-fb-border rounded-lg text-fb-text focus:outline-none focus:border-fb-blue"
           >
             {PRESET_MODELS.map((m) => (
               <option key={m} value={m}>{m}</option>
@@ -67,7 +67,7 @@ export default function SemanticAuditPanel({ description }) {
             value={hfToken}
             onChange={(e) => setHfToken(e.target.value)}
             placeholder="hf_xxxxxxxxxxxx"
-            className="w-full px-2 py-1.5 text-[11px] bg-white border border-fb-border rounded-lg text-fb-text placeholder-gray-400 focus:outline-none focus:border-fb-blue"
+            className="w-full px-2 py-1.5 text-[11px] bg-fb-card border border-fb-border rounded-lg text-fb-text placeholder-gray-400 focus:outline-none focus:border-fb-blue"
           />
         </div>
       </div>

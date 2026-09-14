@@ -24,7 +24,7 @@ export default function SandboxWorkspace({
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
       {/* Left Console (7 Cols) */}
-      <div className="lg:col-span-7 flex flex-col gap-4 p-6 rounded-xl border border-fb-border bg-white shadow-fbCard">
+      <div className="lg:col-span-7 flex flex-col gap-4 p-6 rounded-xl border border-fb-border bg-fb-card shadow-fbCard">
         <div>
           <h2 className="text-xs text-fb-textSecondary uppercase tracking-widest flex items-center gap-2 font-bold">
             <Terminal size={14} className="text-fb-blue" /> Technical Architecture Console
@@ -117,10 +117,10 @@ export default function SandboxWorkspace({
             value={architectureText}
             onChange={(e) => setArchitectureText(e.target.value)}
             placeholder="Paste custom architectural data system logs or pipeline descriptions here..."
-            className="w-full flex-1 p-4 bg-fb-bg border border-fb-border rounded-xl font-mono text-xs leading-relaxed text-fb-text focus:outline-none focus:border-fb-blue focus:bg-white resize-none placeholder:text-gray-400 transition-all"
+            className="w-full flex-1 p-4 bg-fb-bg border border-fb-border rounded-xl font-mono text-xs leading-relaxed text-fb-text focus:outline-none focus:border-fb-blue focus:bg-fb-card resize-none placeholder:text-gray-400 transition-all"
           />
           {isAnalyzing && (
-            <div className="absolute bottom-4 right-4 text-[10px] text-fb-blue bg-white border border-fb-border px-3 py-1.5 rounded-lg flex items-center gap-2 shadow-fbCard">
+            <div className="absolute bottom-4 right-4 text-[10px] text-fb-blue bg-fb-card border border-fb-border px-3 py-1.5 rounded-lg flex items-center gap-2 shadow-fbCard">
               <RefreshCw size={10} className="animate-spin text-fb-blue" /> Computing Matrices...
             </div>
           )}
@@ -130,7 +130,7 @@ export default function SandboxWorkspace({
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                className="absolute bottom-4 right-4 text-[10px] text-fb-textSecondary bg-white border border-green-200 px-3 py-1.5 rounded-lg flex items-center gap-2 shadow-fbCard"
+                className="absolute bottom-4 right-4 text-[10px] text-fb-textSecondary bg-fb-card border border-green-200 px-3 py-1.5 rounded-lg flex items-center gap-2 shadow-fbCard"
               >
                 <Save size={10} className="text-fb-green" /> Checkpoint saved to history
               </motion.div>
@@ -140,7 +140,7 @@ export default function SandboxWorkspace({
       </div>
 
       {/* Right Radar & Compliance Overview (5 Cols) */}
-      <div className="lg:col-span-5 flex flex-col gap-4 p-6 rounded-xl border border-fb-border bg-white shadow-fbCard justify-between">
+      <div className="lg:col-span-5 flex flex-col gap-4 p-6 rounded-xl border border-fb-border bg-fb-card shadow-fbCard justify-between">
         <div>
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-xs font-bold text-fb-text uppercase tracking-widest flex items-center gap-1.5">
@@ -169,7 +169,7 @@ export default function SandboxWorkspace({
           <span
             className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
               !report
-                ? 'bg-white border-fb-border text-fb-textSecondary'
+                ? 'bg-fb-card border-fb-border text-fb-textSecondary'
                 : report.score > 75
                 ? 'bg-green-50 border-green-200 text-fb-green'
                 : report.score > 45

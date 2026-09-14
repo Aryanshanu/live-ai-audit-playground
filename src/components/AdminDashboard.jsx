@@ -98,7 +98,7 @@ export default function AdminDashboard() {
         <button
           onClick={load}
           disabled={loading}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] bg-white hover:bg-fb-bg border border-fb-border rounded-lg cursor-pointer disabled:opacity-50 font-medium"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] bg-fb-card hover:bg-fb-bg border border-fb-border rounded-lg cursor-pointer disabled:opacity-50 font-medium"
         >
           <RefreshCw size={12} className={loading ? 'animate-spin' : ''} /> Refresh
         </button>
@@ -118,7 +118,7 @@ export default function AdminDashboard() {
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-                className="p-3 bg-white border border-fb-border rounded-lg"
+                className="p-3 bg-fb-card border border-fb-border rounded-lg"
               >
                 <div className="flex items-center gap-1.5 mb-1.5">
                   <t.icon size={12} className="text-fb-textSecondary" />
@@ -132,7 +132,7 @@ export default function AdminDashboard() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Live audit log */}
-            <div className="p-4 bg-white border border-fb-border rounded-lg">
+            <div className="p-4 bg-fb-card border border-fb-border rounded-lg">
               <h3 className="text-xs font-bold text-fb-text mb-1">Audit Log</h3>
               <p className="text-[9px] text-fb-textSecondary mb-2">
                 Append-only and hash-chained. Unlike a conventional audit table, entries here cannot be updated or deleted — proven by test, not asserted.
@@ -157,7 +157,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Registry inventory */}
-            <div className="p-4 bg-white border border-fb-border rounded-lg">
+            <div className="p-4 bg-fb-card border border-fb-border rounded-lg">
               <h3 className="text-xs font-bold text-fb-text mb-1 flex items-center gap-1.5">
                 <Server size={12} className="text-fb-blue" /> Inventory
               </h3>

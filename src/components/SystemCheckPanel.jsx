@@ -88,7 +88,7 @@ export default function SystemCheckPanel() {
   };
 
   return (
-    <div className="p-4 bg-white border border-fb-border rounded-lg">
+    <div className="p-4 bg-fb-card border border-fb-border rounded-lg">
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-xs font-bold text-fb-text flex items-center gap-1.5">
           <Stethoscope size={14} className="text-fb-blue" /> System Check

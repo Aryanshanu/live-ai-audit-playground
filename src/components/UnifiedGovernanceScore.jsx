@@ -62,7 +62,7 @@ export default function UnifiedGovernanceScore({ signals }) {
             Backed by real/live evidence, not just text-matching:
           </p>
           <div className="flex items-center gap-2 justify-end">
-            <div className="w-32 h-2 bg-gray-200 rounded-full overflow-hidden">
+            <div className="w-32 h-2 bg-fb-border rounded-full overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${strongEvidencePct}%` }}

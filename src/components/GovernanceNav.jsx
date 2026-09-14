@@ -21,7 +21,7 @@ export default function GovernanceNav() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] bg-white hover:bg-fb-bg border border-fb-border rounded-lg cursor-pointer font-medium text-fb-text"
+        className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] bg-fb-card hover:bg-fb-bg border border-fb-border rounded-lg cursor-pointer font-medium text-fb-text"
       >
         <Menu size={13} /> Governance Map
       </button>
@@ -37,9 +37,9 @@ export default function GovernanceNav() {
             <motion.aside
               initial={{ x: -320 }} animate={{ x: 0 }} exit={{ x: -320 }}
               transition={{ type: 'spring', damping: 28, stiffness: 260 }}
-              className="fixed left-0 top-0 bottom-0 w-[320px] bg-white border-r border-fb-border z-[61] overflow-y-auto"
+              className="fixed left-0 top-0 bottom-0 w-[320px] bg-fb-card border-r border-fb-border z-[61] overflow-y-auto"
             >
-              <div className="sticky top-0 bg-white border-b border-fb-border px-4 py-3 flex items-center justify-between">
+              <div className="sticky top-0 bg-fb-card border-b border-fb-border px-4 py-3 flex items-center justify-between">
                 <div>
                   <p className="text-xs font-bold text-fb-text">Governance Map</p>
                   <p className="text-[9px] text-fb-textSecondary mt-0.5">

@@ -34,7 +34,7 @@ export default function IntegrationStudioPanel({ report, architectureText, copie
           <h4 className="text-xs font-bold text-fb-red uppercase tracking-widest flex items-center gap-1.5 mb-2">
             <AlertCircle size={14} /> Red-Team Adversarial Threat Profile
           </h4>
-          <div className="whitespace-pre-line text-fb-text font-mono text-xs leading-relaxed p-3 bg-white border border-fb-border rounded-xl max-h-[320px] overflow-y-auto">
+          <div className="whitespace-pre-line text-fb-text font-mono text-xs leading-relaxed p-3 bg-fb-card border border-fb-border rounded-xl max-h-[320px] overflow-y-auto">
             {report.threatModel}
           </div>
         </div>
@@ -45,7 +45,7 @@ export default function IntegrationStudioPanel({ report, architectureText, copie
       </div>
 
       {/* Integration Studio Tabs (7 Cols) */}
-      <div className="lg:col-span-7 p-5 rounded-xl border border-fb-border bg-white shadow-fbCard flex flex-col justify-between">
+      <div className="lg:col-span-7 p-5 rounded-xl border border-fb-border bg-fb-card shadow-fbCard flex flex-col justify-between">
         {/* Tabs Bar */}
         <div className="flex border-b border-fb-border text-xs mb-3">
           {tabs.map((tab) => (
@@ -127,7 +127,7 @@ export default function IntegrationStudioPanel({ report, architectureText, copie
                   {copiedKey === 'py-test' ? 'Copied!' : 'Copy Code'}
                 </button>
               </div>
-              <pre className="p-2.5 bg-[#F6F8FA] border border-fb-border rounded-lg text-[10px] text-fb-text font-mono overflow-x-auto max-h-[140px]">
+              <pre className="p-2.5 bg-fb-bg border border-fb-border rounded-lg text-[10px] text-fb-text font-mono overflow-x-auto max-h-[140px]">
                 {generatePythonTestSuite(report)}
               </pre>
             </div>
@@ -152,7 +152,7 @@ export default function IntegrationStudioPanel({ report, architectureText, copie
                   {copiedKey === 'promptfoo-config' ? 'Copied!' : 'Copy Config'}
                 </button>
               </div>
-              <pre className="p-2.5 bg-[#F6F8FA] border border-fb-border rounded-lg text-[10px] text-fb-text font-mono overflow-x-auto max-h-[140px]">
+              <pre className="p-2.5 bg-fb-bg border border-fb-border rounded-lg text-[10px] text-fb-text font-mono overflow-x-auto max-h-[140px]">
                 {generatePromptfooConfig({ activeLayers: [...new Set(report.issues.map((i) => i.layer))] })}
               </pre>
               <div className="flex justify-between items-center text-[10px] text-fb-textSecondary">
@@ -164,7 +164,7 @@ export default function IntegrationStudioPanel({ report, architectureText, copie
                   {copiedKey === 'promptfoo-workflow' ? 'Copied!' : 'Copy Workflow'}
                 </button>
               </div>
-              <pre className="p-2.5 bg-[#F6F8FA] border border-fb-border rounded-lg text-[10px] text-fb-text font-mono overflow-x-auto max-h-[100px]">
+              <pre className="p-2.5 bg-fb-bg border border-fb-border rounded-lg text-[10px] text-fb-text font-mono overflow-x-auto max-h-[100px]">
                 {generatePromptfooWorkflow()}
               </pre>
             </div>

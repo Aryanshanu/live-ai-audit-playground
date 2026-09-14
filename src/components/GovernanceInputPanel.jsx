@@ -74,7 +74,7 @@ export default function GovernanceInputPanel({ onSubmit, loading }) {
           placeholder="meta-llama/Llama-3-8B-Instruct"
           autoComplete="off"
           spellCheck="false"
-          className={`w-full px-4 py-3 bg-fb-bg border rounded-lg font-mono text-sm text-fb-text placeholder-gray-400 focus:outline-none focus:ring-2 focus:bg-white transition-all duration-200 ${
+          className={`w-full px-4 py-3 bg-fb-bg border rounded-lg font-mono text-sm text-fb-text placeholder-gray-400 focus:outline-none focus:ring-2 focus:bg-fb-card transition-all duration-200 ${
             !isValidModelId
               ? 'border-fb-red focus:ring-fb-red/30'
               : 'border-fb-border focus:ring-fb-blue/30 focus:border-fb-blue'
@@ -116,7 +116,7 @@ export default function GovernanceInputPanel({ onSubmit, loading }) {
                 className={`text-[10px] font-mono px-2 py-1 rounded border transition-all cursor-pointer ${
                   modelId === preset
                     ? 'bg-fb-blueLight border-fb-blue text-fb-blue font-bold'
-                    : 'bg-white border-fb-border text-fb-textSecondary hover:border-fb-blue hover:text-fb-blue'
+                    : 'bg-fb-card border-fb-border text-fb-textSecondary hover:border-fb-blue hover:text-fb-blue'
                 }`}
               >
                 {preset}
@@ -135,7 +135,7 @@ export default function GovernanceInputPanel({ onSubmit, loading }) {
           id="use-case"
           value={useCase}
           onChange={(e) => setUseCase(e.target.value)}
-          className="w-full px-4 py-3 bg-fb-bg border border-fb-border rounded-lg text-sm text-fb-text focus:outline-none focus:ring-2 focus:ring-fb-blue/30 focus:border-fb-blue focus:bg-white transition-all cursor-pointer"
+          className="w-full px-4 py-3 bg-fb-bg border border-fb-border rounded-lg text-sm text-fb-text focus:outline-none focus:ring-2 focus:ring-fb-blue/30 focus:border-fb-blue focus:bg-fb-card transition-all cursor-pointer"
         >
           <option value="customer-facing">🔴 Customer-Facing Conversational Interface (High Risk)</option>
           <option value="internal-analytics">🟡 Internal Data Analytics &amp; Processing (Medium Risk)</option>
@@ -203,7 +203,7 @@ export default function GovernanceInputPanel({ onSubmit, loading }) {
                 onChange={(e) => setHfToken(e.target.value)}
                 placeholder="hf_xxxxxxxxxxxxxxxxxxxx"
                 autoComplete="off"
-                className="w-full px-4 py-3 bg-fb-bg border border-fb-border rounded-lg font-mono text-sm text-fb-text placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-fb-blue/30 focus:bg-white"
+                className="w-full px-4 py-3 bg-fb-bg border border-fb-border rounded-lg font-mono text-sm text-fb-text placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-fb-blue/30 focus:bg-fb-card"
               />
               <p className="mt-1.5 text-[10px] text-fb-textSecondary">
                 🔒 Token is passed locally via header only — never stored or indexed.
@@ -222,7 +222,7 @@ export default function GovernanceInputPanel({ onSubmit, loading }) {
         className={`w-full py-3 rounded-lg font-bold text-sm transition-all duration-300 ${
           isFormValid
             ? 'bg-fb-blue hover:bg-fb-blueHover text-white cursor-pointer shadow-sm'
-            : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-fb-border'
+            : 'bg-fb-bg text-gray-400 cursor-not-allowed border border-fb-border'
         }`}
       >
         {loading ? (

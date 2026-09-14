@@ -39,7 +39,7 @@ export default function BrowserClassifierPanel({ text }) {
   const tier = getEvidenceTier('local_inference');
 
   return (
-    <div className="p-4 bg-white border border-fb-border rounded-lg">
+    <div className="p-4 bg-fb-card border border-fb-border rounded-lg">
       <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
         <h3 className="text-xs font-bold text-fb-text flex items-center gap-1.5">
           <Cpu size={14} className="text-purple-600" /> On-Device Risk Classifier
@@ -61,7 +61,7 @@ export default function BrowserClassifierPanel({ text }) {
 
       {state?.loading && (
         <div className="space-y-1">
-          <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+          <div className="w-full h-1.5 bg-fb-border rounded-full overflow-hidden">
             <motion.div
               className="h-full bg-purple-500"
               animate={{ width: `${state.progress || 5}%` }}

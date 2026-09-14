@@ -61,7 +61,7 @@ export default function AuthForm() {
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-sm p-8 bg-white border border-fb-border rounded-xl shadow-fbCard"
+        className="w-full max-w-sm p-8 bg-fb-card border border-fb-border rounded-xl shadow-fbCard"
       >
         <div className="text-center mb-6">
           <span className="text-2xl font-bold text-fb-blue">GOV.AX</span>
@@ -77,7 +77,7 @@ export default function AuthForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full px-4 py-2.5 bg-fb-bg border border-fb-border rounded-lg text-sm focus:outline-none focus:border-fb-blue focus:bg-white"
+            className="w-full px-4 py-2.5 bg-fb-bg border border-fb-border rounded-lg text-sm focus:outline-none focus:border-fb-blue focus:bg-fb-card"
           />
           <input
             type="password"
@@ -86,7 +86,7 @@ export default function AuthForm() {
             onChange={(e) => setPassword(e.target.value)}
             required
             minLength={6}
-            className="w-full px-4 py-2.5 bg-fb-bg border border-fb-border rounded-lg text-sm focus:outline-none focus:border-fb-blue focus:bg-white"
+            className="w-full px-4 py-2.5 bg-fb-bg border border-fb-border rounded-lg text-sm focus:outline-none focus:border-fb-blue focus:bg-fb-card"
           />
 
           {error && <p className="text-xs text-fb-red">⚠ {error}</p>}
@@ -110,7 +110,7 @@ export default function AuthForm() {
         <button
           onClick={() => handleProvider(signInWithGoogle)}
           disabled={loading}
-          className="w-full py-2.5 bg-white hover:bg-fb-bg border border-fb-border rounded-lg font-medium text-sm text-fb-text disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+          className="w-full py-2.5 bg-fb-card hover:bg-fb-bg border border-fb-border rounded-lg font-medium text-sm text-fb-text disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
         >
           <svg width="16" height="16" viewBox="0 0 48 48" aria-hidden="true">
             <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.05 6.05 29.3 4 24 4 12.95 4 4 12.95 4 24s8.95 20 20 20 20-8.95 20-20c0-1.3-.14-2.4-.4-3.5z"/>
@@ -125,7 +125,7 @@ export default function AuthForm() {
         <button
           onClick={() => handleProvider(signInAsGuest)}
           disabled={loading}
-          className="w-full py-2 mt-2 bg-fb-bg hover:bg-gray-200 border border-dashed border-fb-border rounded-lg font-medium text-xs text-fb-textSecondary disabled:opacity-50 cursor-pointer"
+          className="w-full py-2 mt-2 bg-fb-bg hover:bg-fb-border border border-dashed border-fb-border rounded-lg font-medium text-xs text-fb-textSecondary disabled:opacity-50 cursor-pointer"
         >
           Continue as guest (explore without an account)
         </button>

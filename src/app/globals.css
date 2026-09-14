@@ -9,13 +9,35 @@
 :root {
   --fb-blue: #1877F2;
   --fb-blue-hover: #166FE5;
+  --fb-blue-dark: #0C63D4;
+  --fb-blue-light: #E7F3FF;
   --fb-bg: #F0F2F5;
   --fb-card: #FFFFFF;
   --fb-border: #DADDE1;
+  --fb-divider: #CED0D4;
   --fb-text: #050505;
   --fb-text-secondary: #65676B;
   --fb-green: #31A24C;
   --fb-red: #FA383E;
+  --fb-amber: #F7B928;
+}
+
+/* Dark theme. Blues are lightened because #1877F2 on a near-black
+   background fails WCAG AA contrast; greens/reds likewise. */
+.dark {
+  --fb-blue: #4599FF;
+  --fb-blue-hover: #5DA8FF;
+  --fb-blue-dark: #2D82E8;
+  --fb-blue-light: #1B2B3F;
+  --fb-bg: #18191A;
+  --fb-card: #242526;
+  --fb-border: #3A3B3C;
+  --fb-divider: #3E4042;
+  --fb-text: #E4E6EB;
+  --fb-text-secondary: #B0B3B8;
+  --fb-green: #45BD62;
+  --fb-red: #FF5C5C;
+  --fb-amber: #FFC53D;
 }
 
 /* ── Base ── */

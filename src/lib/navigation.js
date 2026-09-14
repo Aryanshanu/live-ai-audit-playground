@@ -25,7 +25,7 @@ export const NAV_STATUS = {
   live: { label: 'Live', className: 'bg-green-50 text-fb-green border-green-200' },
   partial: { label: 'Partial', className: 'bg-amber-50 text-amber-700 border-amber-200' },
   schema: { label: 'Schema only', className: 'bg-purple-50 text-purple-700 border-purple-200' },
-  planned: { label: 'Planned', className: 'bg-gray-100 text-fb-textSecondary border-gray-300' },
+  planned: { label: 'Planned', className: 'bg-fb-bg text-fb-textSecondary border-gray-300' },
 };
 
 export const NAV_SECTIONS = [

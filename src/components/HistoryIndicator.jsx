@@ -75,7 +75,7 @@ export default function HistoryIndicator() {
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="absolute top-6 left-0 z-50 w-64 p-2.5 bg-white border border-red-200 rounded-lg text-[10px] text-fb-red flex items-start gap-1.5 shadow-fbCardHover"
+            className="absolute top-6 left-0 z-50 w-64 p-2.5 bg-fb-card border border-red-200 rounded-lg text-[10px] text-fb-red flex items-start gap-1.5 shadow-fbCardHover"
           >
             <AlertTriangle size={12} className="shrink-0 mt-0.5" />
             <span>Couldn't save to local history: {saveError}. Your browser storage may be full or in private mode.</span>
@@ -90,7 +90,7 @@ export default function HistoryIndicator() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.98 }}
             transition={{ duration: 0.15 }}
-            className="absolute top-6 right-0 z-50 w-72 bg-white border border-fb-border rounded-xl shadow-fbCardHover overflow-hidden"
+            className="absolute top-6 right-0 z-50 w-72 bg-fb-card border border-fb-border rounded-xl shadow-fbCardHover overflow-hidden"
           >
             <div className="px-3 py-2 border-b border-fb-border flex items-center justify-between">
               <span className="text-[10px] text-fb-textSecondary uppercase tracking-wider font-bold">Local Audit History</span>

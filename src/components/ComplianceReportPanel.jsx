@@ -91,7 +91,7 @@ export default function ComplianceReportPanel({
           📊 Verified Model Card Audit
         </h2>
         <div className="flex justify-center">
-          <div className="w-[200px] h-[200px] rounded-full bg-gray-100 skeleton-pulse" />
+          <div className="w-[200px] h-[200px] rounded-full bg-fb-bg skeleton-pulse" />
         </div>
         <p className="text-center text-sm text-fb-blue animate-pulse">
           Querying metadata from Hugging Face Hub...
@@ -100,7 +100,7 @@ export default function ComplianceReportPanel({
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="h-24 bg-gray-100 rounded-lg skeleton-pulse"
+              className="h-24 bg-fb-bg rounded-lg skeleton-pulse"
               style={{ animationDelay: `${i * 150}ms` }}
             />
           ))}
@@ -177,13 +177,13 @@ export default function ComplianceReportPanel({
         <div className="flex gap-2">
           <button
             onClick={handleCopy}
-            className="px-3 py-1.5 text-xs bg-fb-bg hover:bg-gray-200 text-fb-text rounded-lg transition-all cursor-pointer font-medium"
+            className="px-3 py-1.5 text-xs bg-fb-bg hover:bg-fb-border text-fb-text rounded-lg transition-all cursor-pointer font-medium"
           >
             📋 Copy
           </button>
           <button
             onClick={handleExport}
-            className="px-3 py-1.5 text-xs bg-fb-bg hover:bg-gray-200 text-fb-text rounded-lg transition-all cursor-pointer font-medium"
+            className="px-3 py-1.5 text-xs bg-fb-bg hover:bg-fb-border text-fb-text rounded-lg transition-all cursor-pointer font-medium"
           >
             ⬇️ Export
           </button>
@@ -249,7 +249,7 @@ export default function ComplianceReportPanel({
               <span
                 key={c.key}
                 className={`text-[9px] px-1.5 py-0.5 rounded-full border ${
-                  c.met ? 'bg-green-50 border-green-200 text-fb-green' : 'bg-gray-100 border-gray-300 text-gray-500'
+                  c.met ? 'bg-green-50 border-green-200 text-fb-green' : 'bg-fb-bg border-gray-300 text-gray-500'
                 }`}
               >
                 {c.met ? '✓' : '✗'} {c.label}
@@ -301,7 +301,7 @@ export default function ComplianceReportPanel({
               {isActive && (
                 <motion.div
                   layoutId="activeTabPill"
-                  className="absolute inset-0 bg-white rounded-md shadow-fbCard"
+                  className="absolute inset-0 bg-fb-card rounded-md shadow-fbCard"
                   transition={{ type: 'spring', bounce: 0.2, duration: 0.4 }}
                 />
               )}

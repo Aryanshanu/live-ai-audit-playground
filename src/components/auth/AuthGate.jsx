@@ -7,7 +7,7 @@ const ROLE_STYLE = {
   owner: 'bg-red-50 text-fb-red border-red-200',
   admin: 'bg-red-50 text-fb-red border-red-200',
   auditor: 'bg-fb-blueLight text-fb-blue border-fb-blue/30',
-  viewer: 'bg-gray-100 text-fb-textSecondary border-gray-300',
+  viewer: 'bg-fb-bg text-fb-textSecondary border-gray-300',
   external_auditor: 'bg-amber-50 text-amber-700 border-amber-200',
 };
 

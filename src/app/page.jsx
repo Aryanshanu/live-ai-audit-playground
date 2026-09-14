@@ -18,8 +18,9 @@ import HistoryIndicator from '../components/HistoryIndicator';
 import DataQualityUpload from '../components/DataQualityUpload';
 import UnifiedGovernanceScore from '../components/UnifiedGovernanceScore';
 import AuthGate from '../components/auth/AuthGate';
+import AppShell, { findView } from '../components/AppShell';
+import PlaceholderView from '../components/PlaceholderView';
 import SystemCheckPanel from '../components/SystemCheckPanel';
-import GovernanceNav from '../components/GovernanceNav';
 import AdminDashboard from '../components/AdminDashboard';
 
 const ARCHITECTURE_TEMPLATES = {
@@ -117,106 +118,38 @@ export default function UnifiedGovernanceCenter() {
 
   return (
     <AuthGate>
-    <div className="min-h-screen bg-fb-bg text-fb-text font-sans selection:bg-fb-blue/20 overflow-x-hidden">
-      {/* ━━ Top Navbar ━━ */}
-      <header className="border-b border-fb-border bg-white/95 backdrop-blur-md sticky top-0 z-50 px-6 py-2.5 flex justify-between items-center shadow-sm">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-fb-blue flex items-center justify-center text-lg">
-            ⚖️
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xl font-bold text-fb-blue">
-                GOV.AX
-              </span>
-              <span className="text-[10px] bg-fb-blueLight text-fb-blue px-2 py-0.5 rounded-full font-bold tracking-wide uppercase hidden md:inline-block">
-                Unified Governance Center
-              </span>
-            </div>
-            <p className="text-[11px] text-fb-textSecondary hidden sm:block">
-              Architecture Sandbox &amp; Verified Model Scanner
-            </p>
-          </div>
-        </div>
+    <AppShell
+      activeView={activeMode}
+      onNavigate={setActiveMode}
+      headerActions={<HistoryIndicator />}
+    >
 
-        {/* Mode Selector Pill Switcher */}
-        <div className="flex items-center bg-fb-bg p-1 rounded-full border border-fb-border text-sm relative">
-          <button
-            onClick={() => setActiveMode('sandbox')}
-            className={`px-4 py-1.5 rounded-full transition-colors cursor-pointer flex items-center gap-1.5 relative z-10 ${
-              activeMode === 'sandbox' ? 'text-fb-blue font-bold' : 'text-fb-textSecondary hover:text-fb-text'
-            }`}
-          >
-            {activeMode === 'command_center' && (
-        <main className="max-w-[1400px] mx-auto px-6 py-6">
-          <AdminDashboard />
-        </main>
+      {/* Standalone views backed by components that genuinely exist. These
+          were previously reachable only from inside the Sandbox; giving them
+          their own destination means the sidebar neither overstates NOR
+          understates what is actually built. */}
+      {activeMode === 'data_quality' && (
+        <div className="max-w-4xl">
+          <DataQualityUpload onResult={setCsvQualityResult} />
+        </div>
       )}
 
-      {activeMode === 'sandbox' && (
-              <motion.div
-                layoutId="navModePill"
-                className="absolute inset-0 bg-white rounded-full shadow-fbCard"
-                transition={{ type: 'spring', bounce: 0.2, duration: 0.35 }}
-              />
-            )}
-            <Workflow size={13} className="relative z-10" />
-            <span className="relative z-10">Architecture Sandbox</span>
-          </button>
-
-          <button
-            onClick={() => setActiveMode('hf_model')}
-            className={`px-4 py-1.5 rounded-full transition-colors cursor-pointer flex items-center gap-1.5 relative z-10 ${
-              activeMode === 'hf_model' ? 'text-fb-blue font-bold' : 'text-fb-textSecondary hover:text-fb-text'
-            }`}
-          >
-            {activeMode === 'hf_model' && (
-              <motion.div
-                layoutId="navModePill"
-                className="absolute inset-0 bg-white rounded-full shadow-fbCard"
-                transition={{ type: 'spring', bounce: 0.2, duration: 0.35 }}
-              />
-            )}
-            <Cpu size={13} className="relative z-10" />
-            <span className="relative z-10">Hugging Face Hub Scanner</span>
-          </button>
-
-          <button
-            onClick={() => setActiveMode('command_center')}
-            className={`px-4 py-1.5 rounded-full transition-colors cursor-pointer flex items-center gap-1.5 relative z-10 ${
-              activeMode === 'command_center' ? 'text-fb-blue font-bold' : 'text-fb-textSecondary hover:text-fb-text'
-            }`}
-          >
-            {activeMode === 'command_center' && (
-              <motion.div
-                layoutId="navModePill"
-                className="absolute inset-0 bg-white rounded-full shadow-fbCard"
-                transition={{ type: 'spring', bounce: 0.2, duration: 0.35 }}
-              />
-            )}
-            <LayoutDashboard size={13} className="relative z-10" />
-            <span className="relative z-10">Command Center</span>
-          </button>
+      {activeMode === 'system_check' && (
+        <div className="max-w-2xl">
+          <SystemCheckPanel />
         </div>
+      )}
 
-        <div className="hidden lg:flex items-center gap-4 text-xs text-fb-textSecondary">
-          <GovernanceNav />
-        <HistoryIndicator />
-          <a
-            href="https://github.com/Aryanshanu/live-ai-audit-playground"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-fb-blue transition-colors flex items-center gap-1"
-          >
-            GitHub Source <ExternalLink size={12} />
-          </a>
-        </div>
-      </header>
+      {/* Views listed in the sidebar whose UI isn't built yet render an
+          explicit honest state rather than a blank page. */}
+      {!['sandbox', 'hf_model', 'command_center', 'data_quality', 'system_check'].includes(activeMode) && (
+        <PlaceholderView view={findView(activeMode)} />
+      )}
 
       {/* ━━ MODE B: HUGGING FACE MODEL CARD AUDITOR ━━ */}
       {activeMode === 'hf_model' && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="mb-6 p-4 rounded-xl border border-fb-border bg-white shadow-fbCard flex items-center justify-between flex-wrap gap-2">
+        <div>
+          <div className="mb-6 p-4 rounded-xl border border-fb-border bg-fb-card shadow-fbCard flex items-center justify-between flex-wrap gap-2">
             <div>
               <span className="text-xs text-fb-blue font-bold uppercase tracking-wide flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-fb-blue animate-pulse" />
@@ -237,15 +170,15 @@ export default function UnifiedGovernanceCenter() {
 
       {/* ━━ MODE A: ARCHITECTURE SANDBOX ━━ */}
       {activeMode === 'command_center' && (
-        <main className="max-w-[1400px] mx-auto px-6 py-6">
+        <div>
           <AdminDashboard />
-        </main>
+        </div>
       )}
 
       {activeMode === 'sandbox' && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
           {/* Confidence Notice Bar */}
-          <div className="p-3.5 rounded-xl border border-fb-border bg-white shadow-fbCard flex items-center justify-between flex-wrap gap-2 text-sm">
+          <div className="p-3.5 rounded-xl border border-fb-border bg-fb-card shadow-fbCard flex items-center justify-between flex-wrap gap-2 text-sm">
             <div className="flex items-center gap-2">
               <span className="px-2 py-0.5 rounded bg-amber-50 border border-fb-amber/40 text-amber-700 font-bold uppercase text-[10px]">
                 Heuristic Analysis
@@ -297,7 +230,7 @@ export default function UnifiedGovernanceCenter() {
           />
         </div>
       )}
-    </div>
+    </AppShell>
     </AuthGate>
   );
 }

@@ -55,7 +55,7 @@ export default function DataLineageGraph({ report, text }) {
   ];
 
   return (
-    <div className="border border-fb-border bg-white rounded-xl p-5 shadow-fbCard">
+    <div className="border border-fb-border bg-fb-card rounded-xl p-5 shadow-fbCard">
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
         <div>
           <h4 className="text-xs font-bold text-fb-text uppercase tracking-wider flex items-center gap-2">

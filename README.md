@@ -74,6 +74,7 @@ Most audit tools show you one score and ask you to trust it. This one shows the 
 | Attack library — adversarial probes as extensible data, not hardcoded | ✅ Live (schema; runtime wiring pending) | 🔵 Verified |
 | Governance Map — full navigation with honest per-item status (live/partial/schema/planned) | ✅ Live | 🔵 Verified |
 | Command Center — admin dashboard with live status tiles, audit-log feed, and inventory | ✅ Live | 🔵 Verified |
+| Sidebar app shell — sectioned navigation, collapsible, page headers, dark/light theme | ✅ Live | 🔵 Verified |
 | Multi-tenant orgs with per-org roles, isolation proven with two real users | ✅ Live | 🔵 Verified |
 | Production-scale drift/observability | ❌ Not built | — |
 | Multi-tenant orgs, stage-gate approvals, SIEM export | ❌ Not built | — |

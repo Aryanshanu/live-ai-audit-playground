@@ -48,7 +48,7 @@ export default function DataQualityUpload({ onResult }) {
   const tier = getEvidenceTier('verified_data');
 
   return (
-    <div className="p-5 rounded-xl border border-fb-border bg-white shadow-fbCard">
+    <div className="p-5 rounded-xl border border-fb-border bg-fb-card shadow-fbCard">
       <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
         <div>
           <h3 className="text-xs font-bold text-fb-text flex items-center gap-1.5">

@@ -94,7 +94,7 @@ export default function DynamicSecurityPanel({ modelId, hfToken, issues, onSuite
   return (
     <div className="space-y-4">
       {/* ── Live Security Suite ── */}
-      <div className="p-4 bg-white border border-fb-border rounded-lg">
+      <div className="p-4 bg-fb-card border border-fb-border rounded-lg">
         <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
           <h3 className="text-xs font-bold text-fb-text flex items-center gap-1.5">
             <ShieldAlert size={14} className="text-fb-blue" /> Dynamic Security Suite
@@ -152,7 +152,7 @@ export default function DynamicSecurityPanel({ modelId, hfToken, issues, onSuite
       </div>
 
       {/* ── Remediation Agent ── */}
-      <div className="p-4 bg-white border border-fb-border rounded-lg">
+      <div className="p-4 bg-fb-card border border-fb-border rounded-lg">
         <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
           <h3 className="text-xs font-bold text-fb-text flex items-center gap-1.5">
             <Bot size={14} className="text-fb-blue" /> Remediation Agent
@@ -192,7 +192,7 @@ export default function DynamicSecurityPanel({ modelId, hfToken, issues, onSuite
       </div>
 
       {/* ── Model Registry + Ethics Board Escalation (GitHub-backed) ── */}
-      <div className="p-4 bg-white border border-fb-border rounded-lg">
+      <div className="p-4 bg-fb-card border border-fb-border rounded-lg">
         <h3 className="text-xs font-bold text-fb-text flex items-center gap-1.5 mb-2">
           <Database size={14} className="text-fb-blue" /> Model Registry &amp; Escalation
           <span className="ml-1 text-[8px] font-bold uppercase px-1.5 py-0.5 rounded-full border bg-fb-blueLight text-fb-blue border-fb-blue/30">

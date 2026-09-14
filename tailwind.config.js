@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'class',
   content: ['./src/**/*.{js,jsx,ts,tsx}'],
   theme: {
     extend: {
@@ -8,20 +9,24 @@ module.exports = {
         // reusing Tailwind's default blue scale so every usage in the
         // codebase is intentional and searchable, not an accidental
         // Tailwind default that happens to look similar.
+        // Driven by CSS variables (see globals.css) so a single `.dark`
+        // class on <html> re-themes the entire app. Previously these were
+        // hardcoded hex, which made dark mode impossible without rewriting
+        // every component.
         fb: {
-          blue: '#1877F2',       // primary action color (Like/Share buttons, links)
-          blueHover: '#166FE5',
-          blueDark: '#0C63D4',
-          blueLight: '#E7F3FF',  // light blue hover/selected backgrounds
-          bg: '#F0F2F5',         // page background (Facebook's classic light gray)
-          card: '#FFFFFF',
-          border: '#DADDE1',
-          divider: '#CED0D4',
-          text: '#050505',       // primary text, near-black not pure black
-          textSecondary: '#65676B',
-          green: '#31A24C',      // Facebook's positive/success green
-          red: '#FA383E',        // Facebook's destructive/error red
-          amber: '#F7B928',
+          blue: 'var(--fb-blue)',
+          blueHover: 'var(--fb-blue-hover)',
+          blueDark: 'var(--fb-blue-dark)',
+          blueLight: 'var(--fb-blue-light)',
+          bg: 'var(--fb-bg)',
+          card: 'var(--fb-card)',
+          border: 'var(--fb-border)',
+          divider: 'var(--fb-divider)',
+          text: 'var(--fb-text)',
+          textSecondary: 'var(--fb-text-secondary)',
+          green: 'var(--fb-green)',
+          red: 'var(--fb-red)',
+          amber: 'var(--fb-amber)',
         },
       },
       fontFamily: {

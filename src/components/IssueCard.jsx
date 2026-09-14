@@ -84,7 +84,7 @@ export default function IssueCard({ result }) {
       <p className="text-[11px] text-fb-textSecondary mt-1">{result.regulation}</p>
 
       {result.remediation && (
-        <div className="mt-2.5 p-2.5 bg-white rounded-md border border-fb-border text-xs text-fb-blue">
+        <div className="mt-2.5 p-2.5 bg-fb-card rounded-md border border-fb-border text-xs text-fb-blue">
           <span className="font-bold">💡 Remediation:</span> {result.remediation}
         </div>
       )}
