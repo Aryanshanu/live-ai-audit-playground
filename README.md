@@ -81,6 +81,8 @@ Most audit tools show you one score and ask you to trust it. This one shows the 
 | Compliance Hub — 15 real rule-to-clause mappings (DPDP, EU AI Act, ISO, OWASP, PSA), derived from the rules themselves | ✅ Live | 🔵 Verified |
 | Threat Modeling — attack narrative chained from Sandbox findings | ✅ Live | 🟡 Heuristic |
 | Settings + Documentation | ✅ Live | — |
+| Data Quality Center — Analyze / Rules / History, persisted, admin-gated rule creation | ✅ Live | 🔵 Verified |
+| Model Registry + Use Case Registry — register, list, admin-gated risk-tier changes | ✅ Live | 🔵 Verified |
 | Multi-tenant orgs with per-org roles, isolation proven with two real users | ✅ Live | 🔵 Verified |
 | Production-scale drift/observability | ❌ Not built | — |
 | Multi-tenant orgs, stage-gate approvals, SIEM export | ❌ Not built | — |

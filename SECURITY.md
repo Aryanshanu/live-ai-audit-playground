@@ -41,6 +41,10 @@ Revoke with:
 delete from public.platform_admins where email = 'someone@example.com';
 ```
 
+## Why the security advisor now shows many "anonymous access" warnings
+
+Enabling guest sign-in (see GUEST-ACCESS.md) makes the advisor flag most org-scoped tables as reachable by `anon`. This is the expected shape of that feature, not a new hole: Supabase's anonymous sign-in issues a real `authenticated`-role JWT for a real, isolated `auth.users` row with its own personal org — a guest is just another org member under RLS, not an unauthenticated bypass. Verified by test (see the multi-tenancy isolation checks) that a guest/any org member is still fully isolated from every other org's data. Revisit this list if guest access is ever removed per GUEST-ACCESS.md's own removal steps.
+
 ## Known limitations, stated plainly
 
 - **Hash-chaining detects tampering; it does not prevent it.** Someone with full database access can rewrite the entire chain consistently. Prevention requires anchoring periodic Merkle roots outside the operator's control — not built, not claimed.

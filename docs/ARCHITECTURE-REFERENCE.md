@@ -152,6 +152,16 @@ The table list alone was **not** the blueprint, and presenting it as one was wro
 
 30 of 31 UI pages, every table's column-level schema, all RLS policies, database functions and triggers, and every edge function's implementation. The reference is substantially larger than what has been examined.
 
+## Third pass: Data Quality and AI Governance depth (2026-09-14)
+
+The prior passes covered RAI/Security pillar pages and four cross-cutting views, but left the two other named pillars thin: Data Quality was a single ephemeral CSV uploader (zero Supabase calls — every real analysis this app ever computed was lost on refresh), and "AI Governance" was schema with no interface. Closed both, and formalized the customer/admin boundary as [ACCESS-ARCHITECTURE.md](ACCESS-ARCHITECTURE.md) rather than leaving it as an unwritten convention.
+
+**Data Quality Center**: `dq_runs` (persisted results, any org member) + `dq_rules` (declarative thresholds, owner/admin only — RLS-enforced, verified with a real viewer-role user whose rule-creation attempt was rejected). Real Analyze / Rules / History UI.
+
+**AI Governance**: Model Registry and Use Case Registry got real register/list interfaces on top of schema that existed since the second pass. The governance-meaningful action — changing `risk_tier` or `lifecycle_stage` — is now blocked for non-admins by a column-level trigger, not a row-level policy, so a member can still edit a model's description while being rejected on its risk classification. Verified with a real second user: registered a model successfully, was rejected reclassifying it, then the same row's risk_tier was changed successfully by the org owner.
+
+Views with real UI: 16 of 18 (was 14/18).
+
 ## Second pass: what GOV.AX could genuinely back (2026-09-14)
 
 After the pillar pages, compared every remaining reference destination against GOV.AX's actual exports (`RULE_REGISTRY`, `GOVERNANCE_RULES`, `historyStore.js`, the Supabase schema) rather than guessing. Four destinations were genuinely backable and were built:

@@ -58,16 +58,16 @@ export const VIEWS = [
     { id: 'pentesting', label: 'AI Pentesting', icon: ShieldCheck, status: 'live',
       title: 'AI Pentesting', subtitle: 'Prompt injection, system-prompt extraction, and role override against a live model' },
     { id: 'attack_library', label: 'Attack Library', icon: Boxes, status: 'schema',
-      title: 'Attack Library', subtitle: 'Adversarial probes stored as extensible data rather than hardcoded constants' },
+      title: 'Attack Library', subtitle: 'Adversarial probes stored as extensible data rather than hardcoded constants. AI Pentesting still reads the hardcoded set — this table is not wired into the runtime yet.' },
   ]},
   { section: 'DATA', items: [
     { id: 'data_quality', label: 'Data Quality', icon: Database, status: 'live',
-      title: 'Data Quality', subtitle: 'Null rates, duplicates, class imbalance, PII, and disparate impact on a real CSV' },
+      title: 'Data Quality Center', subtitle: 'Analyze real datasets, define org-wide rules, and browse persisted history' },
   ]},
   { section: 'REGISTRIES', items: [
-    { id: 'model_registry', label: 'Model Registry', icon: Boxes, status: 'schema',
-      title: 'Model Registry', subtitle: 'Registered models, versions, and EU AI Act risk tiers' },
-    { id: 'use_case_registry', label: 'Use Case Registry', icon: FileCheck, status: 'schema',
+    { id: 'model_registry', label: 'Model Registry', icon: Boxes, status: 'live',
+      title: 'Model Registry', subtitle: 'Register models; risk-tier changes require an org owner or admin' },
+    { id: 'use_case_registry', label: 'Use Case Registry', icon: FileCheck, status: 'live',
       title: 'Use Case Registry', subtitle: 'A model is governed by what it is used for, not only by what it is' },
   ]},
   { section: 'ADMIN', items: [

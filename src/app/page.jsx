@@ -22,6 +22,8 @@ import AppShell, { findView } from '../components/AppShell';
 import PlaceholderView from '../components/PlaceholderView';
 import PillarPage from '../components/PillarPage';
 import { AuditCenter, ComplianceHub, ThreatModeling, SettingsView, DocumentationView } from '../components/GovernanceViews';
+import DataQualityCenter from '../components/DataQualityCenter';
+import { ModelRegistry, UseCaseRegistry } from '../components/GovernanceRegistry';
 import { PILLARS } from '../lib/pillarConfig';
 import SystemCheckPanel from '../components/SystemCheckPanel';
 import AdminDashboard from '../components/AdminDashboard';
@@ -131,11 +133,9 @@ export default function UnifiedGovernanceCenter() {
           were previously reachable only from inside the Sandbox; giving them
           their own destination means the sidebar neither overstates NOR
           understates what is actually built. */}
-      {activeMode === 'data_quality' && (
-        <div className="max-w-4xl">
-          <DataQualityUpload onResult={setCsvQualityResult} />
-        </div>
-      )}
+      {activeMode === 'data_quality' && <DataQualityCenter />}
+      {activeMode === 'model_registry' && <ModelRegistry />}
+      {activeMode === 'use_case_registry' && <UseCaseRegistry />}
 
       {activeMode === 'system_check' && (
         <div className="max-w-2xl">
@@ -156,7 +156,7 @@ export default function UnifiedGovernanceCenter() {
 
       {/* Views listed in the sidebar whose UI isn't built yet render an
           explicit honest state rather than a blank page. */}
-      {!PILLARS[activeMode] && !['sandbox', 'hf_model', 'command_center', 'data_quality', 'system_check', 'audit_center', 'compliance_hub', 'threat_modeling', 'settings', 'documentation'].includes(activeMode) && (
+      {!PILLARS[activeMode] && !['sandbox', 'hf_model', 'command_center', 'data_quality', 'system_check', 'audit_center', 'compliance_hub', 'threat_modeling', 'settings', 'documentation', 'model_registry', 'use_case_registry'].includes(activeMode) && (
         <PlaceholderView view={findView(activeMode)} />
       )}
 
