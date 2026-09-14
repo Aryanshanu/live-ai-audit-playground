@@ -15,6 +15,60 @@ export async function signIn(email, password) {
   return data;
 }
 
+/**
+ * Guest / anonymous sign-in.
+ *
+ * Uses Supabase's NATIVE anonymous sign-in, which creates a real auth
+ * user with a real JWT — so RLS applies in full and a guest is isolated
+ * in their own org exactly like any other user. This is deliberately NOT
+ * a fake client-side "pretend we're logged in" flag, which would bypass
+ * the security model entirely and be genuinely dangerous to leave in.
+ *
+ * REQUIRES: Supabase Dashboard → Authentication → Sign In / Providers →
+ * "Allow anonymous sign-ins" must be enabled. It is OFF by default.
+ *
+ * TEMPORARY — see docs/GUEST-ACCESS.md for the one-step removal.
+ * Anonymous users accumulate in auth.users and each gets an org, so this
+ * should not be left enabled indefinitely on a public deployment.
+ */
+export async function signInAsGuest() {
+  const { data, error } = await supabase.auth.signInAnonymously();
+  if (error) {
+    if (error.message?.toLowerCase().includes('disabled') || error.status === 422) {
+      throw new Error('Anonymous sign-ins are disabled. Enable them in Supabase Dashboard → Authentication → Sign In / Providers → "Allow anonymous sign-ins".');
+    }
+    throw error;
+  }
+  return data;
+}
+
+/**
+ * Google OAuth sign-in.
+ *
+ * REQUIRES two configuration steps that cannot be done from this repo:
+ *  1. Google Cloud Console → create OAuth 2.0 credentials, and add
+ *     https://ceppqcqgwietagzixrhr.supabase.co/auth/v1/callback
+ *     as an Authorized redirect URI.
+ *  2. Supabase Dashboard → Authentication → Sign In / Providers → Google
+ *     → enable, paste the Client ID and Client Secret.
+ *
+ * redirectTo must point back at this app INCLUDING its base path, since
+ * this is a static export served under /live-ai-audit-playground.
+ */
+export async function signInWithGoogle() {
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: typeof window !== 'undefined' ? window.location.origin + window.location.pathname : undefined },
+  });
+  if (error) throw error;
+  return data;
+}
+
+/** True if the current session is an anonymous/guest session. */
+export function isGuestSession(session) {
+  return Boolean(session?.user?.is_anonymous);
+}
+
 export async function signOut() {
   const { error } = await supabase.auth.signOut();
   if (error) throw error;

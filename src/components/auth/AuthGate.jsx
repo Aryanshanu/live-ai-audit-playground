@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession, useOrgMembership, signOut } from '../../lib/supabase/auth';
+import { useSession, useOrgMembership, signOut, isGuestSession } from '../../lib/supabase/auth';
 import AuthForm from './AuthForm';
 
 const ROLE_STYLE = {
@@ -21,6 +21,7 @@ const ROLE_STYLE = {
 export default function AuthGate({ children }) {
   const { session, user, loading } = useSession();
   const { activeOrg, roles, loading: orgLoading } = useOrgMembership(user?.id);
+  const guest = isGuestSession(session);
 
   if (loading) {
     return (
@@ -36,9 +37,15 @@ export default function AuthGate({ children }) {
 
   return (
     <div>
+      {/* TEMPORARY — remove with guest access. See docs/GUEST-ACCESS.md */}
+      {guest && (
+        <div className="bg-amber-50 border-b border-amber-200 px-4 py-1.5 text-[11px] text-amber-800 text-center">
+          Exploring as a guest. This is a real isolated workspace, but it is temporary — sign up to keep your audits.
+        </div>
+      )}
       <div className="bg-fb-blueLight border-b border-fb-blue/20 px-4 py-1.5 flex items-center justify-between text-[11px] text-fb-blue">
         <span className="flex items-center gap-2">
-          Signed in as {user.email}
+          {guest ? 'Guest session' : `Signed in as ${user.email}`}
           {!orgLoading && activeOrg?.organizations?.name && (
             <span className="text-fb-textSecondary">· {activeOrg.organizations.name}</span>
           )}

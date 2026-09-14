@@ -28,7 +28,7 @@
 
 Every GOV.AX row below is checked against the actual repository and the actual live Supabase project (`ai.gov-prod`) as of this date — not the plan, the state. Every competitor row is checked against the research already done this session (funding, acquisition status, actual product capabilities from their own materials). Where I'm inferring a competitor capability from general knowledge rather than a source pulled this session, it's marked. Nothing here is rounded up to make a number look better.
 
-**Verified fact that frames this whole document:** the `ai.gov-prod` Supabase project has **0 users, 0 audits ever run, 0 rows in `fairness_metrics` or `explainability_reports`.** The schema is real and advisor-verified. Nothing has used it. That gap — schema vs. live usage — is the single most important thing to hold in mind reading everything below.
+**Verified fact that frames this whole document:** the `ai.gov-prod` Supabase project has **1 registered user, 0 audits ever run, 0 rows in `fairness_metrics` or `explainability_reports`.** The signup path is now confirmed working end-to-end in production (profile, personal org, and owner role all created correctly for a real account). The schema is real and advisor-verified. Nothing has used it. That gap — schema vs. live usage — is the single most important thing to hold in mind reading everything below.
 
 ---
 

@@ -31,8 +31,8 @@ Most audit tools show you one score and ask you to trust it. This one shows the 
 
 | | |
 |---|---|
-| Registered users | **0** |
-| Audits ever run through the UI | **0** — run **System Check** in-app first, then see [docs/FIRST-AUDIT.md](docs/FIRST-AUDIT.md) |
+| Registered users | **1** (verified: profile, personal org, and owner role all auto-created correctly) |
+| Audits ever run through the UI | **0** — signup path now confirmed working; the audit itself is the remaining step. See [docs/FIRST-AUDIT.md](docs/FIRST-AUDIT.md) |
 | Python service endpoints built | 3 (ModelScan, Fairlearn, SHAP) |
 | Python service endpoints **reachable** | **0** — not deployed |
 | Multi-tenancy | ✅ org-scoped, isolation proven with two real users |
@@ -68,6 +68,8 @@ Most audit tools show you one score and ask you to trust it. This one shows the 
 | Model file supply-chain scanning (ModelScan) | 🟡 Built & tested, **not deployed** | 🔵 Verified |
 | Real Fairlearn metrics (demographic parity, equalized odds) | 🟡 Built & tested, **not deployed** | 🔵 Verified |
 | System Check — self-diagnostic naming the exact failure in the signup→audit→DB path | ✅ Live | 🔵 Verified |
+| Google OAuth + guest (anonymous) sign-in | ✅ Live (needs dashboard enablement) | 🔵 Verified |
+| Platform admin — read-only cross-org access, audit-logged | ✅ Live | 🔵 Verified |
 | Multi-tenant orgs with per-org roles, isolation proven with two real users | ✅ Live | 🔵 Verified |
 | Production-scale drift/observability | ❌ Not built | — |
 | Multi-tenant orgs, stage-gate approvals, SIEM export | ❌ Not built | — |
