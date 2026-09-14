@@ -31,6 +31,7 @@ Most audit tools show you one score and ask you to trust it. This one shows the 
 
 - The Supabase backend (`ai.gov-prod`) is real, schema-complete, and advisor-verified for security and performance — and as of this writing has **zero users and zero audits ever run against it.** The infrastructure is correct; it has not yet been exercised by a real second person.
 - The Python service that would run real Fairlearn/AIF360/SHAP/ModelScan doesn't exist yet — that's `ROADMAP.md` Phase 1, currently blocked on a hosting decision, not on unsolved engineering.
+- The Python analysis service (`services/rai-agent/`) now has **three real, tested endpoints** — ModelScan supply-chain scanning, Fairlearn fairness metrics, and SHAP explainability. Every one is verified against ground truth, not just "returns numbers without crashing." **None of them are deployed**, so nothing in the UI can reach them yet. "Built and tested" is a genuinely weaker claim than "live," and this README won't blur the two.
 - Full detail, including a line-by-line capability comparison against Credo AI, IBM watsonx.governance, Fiddler, Cisco AI Defense (formerly Robust Intelligence), and Palo Alto Prisma AIRS (formerly Protect AI), is in **[BENCHMARKS.md](BENCHMARKS.md)**.
 
 ---
@@ -51,8 +52,9 @@ Most audit tools show you one score and ask you to trust it. This one shows the 
 | GitHub Issues-backed Ethics Board escalation for CRITICAL findings | ✅ Live | — |
 | Real Supabase RBAC (Postgres RLS, not a client dropdown) | ✅ Live, 🔴 zero real users | — |
 | Genuinely immutable audit log (no UPDATE/DELETE policy exists — hard deny, not convention) | ✅ Live, 🔴 zero rows written | — |
-| Real SHAP/LIME explainability | ❌ Not built | — |
-| Model file supply-chain scanning (ModelScan) | ❌ Not built | — |
+| Real SHAP explainability (surrogate-based, never deserializes uploaded models) | 🟡 Built & tested, **not deployed** | 🔵 Verified |
+| Model file supply-chain scanning (ModelScan) | 🟡 Built & tested, **not deployed** | 🔵 Verified |
+| Real Fairlearn metrics (demographic parity, equalized odds) | 🟡 Built & tested, **not deployed** | 🔵 Verified |
 | Production-scale drift/observability | ❌ Not built | — |
 | Multi-tenant orgs, stage-gate approvals, SIEM export | ❌ Not built | — |
 
@@ -118,6 +120,10 @@ npm run build   # static output to ./out/ — GitHub Pages or any static host
 live-ai-audit-playground/
 ├── ROADMAP.md                       # Phased plan toward broader parity
 ├── BENCHMARKS.md                    # Detailed live comparison vs. competitors
+├── services/rai-agent/              # Python analysis service (FastAPI + Docker)
+│   ├── main.py                      #   /checks/modelscan · /checks/fairness · /checks/explainability
+│   ├── Dockerfile                   #   Deploys via Coolify on a Vultr Mumbai VPS
+│   └── README.md                    #   Deploy steps + honest limitations per check
 ├── src/
 │   ├── app/page.jsx                 # Mode switcher: Sandbox ↔ HF Model Scanner
 │   ├── components/
@@ -138,6 +144,7 @@ live-ai-audit-playground/
 │       ├── browserClassifier.js            # In-browser transformers.js classifier
 │       ├── githubRegistry.js / githubEscalation.js  # GitHub-backed registry + HITL
 │       ├── modelCardCompleteness.js        # Real Model Cards standard scorer
+│       ├── api/raiEngine.js                # Caller for the Python service (contract-verified)
 │       └── supabase/                       # Real backend: client, auth, persistence
 ```
 

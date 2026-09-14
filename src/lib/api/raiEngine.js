@@ -100,6 +100,45 @@ export async function runModelScan({ modelId, auditId }) {
 }
 
 /**
+ * @param {object} params
+ * @param {string} [params.auditId]
+ * @param {string[]} params.featureNames
+ * @param {number[][]} params.featureValues - rows x features, one value per featureName
+ * @param {number[]} params.predictions - the black-box model's actual predictions for those rows
+ * @returns {Promise<{
+ *   method: string,
+ *   n_rows: number,
+ *   n_features: number,
+ *   fidelity: number,
+ *   feature_importances: Array<{feature: string, mean_abs_shap: number, rank: number}>,
+ *   low_fidelity_warning: string | null,
+ *   methodology_note: string,
+ * }>}
+ *
+ * NOTE on `fidelity`: this is CROSS-VALIDATED, not train-set accuracy —
+ * a real bug was caught in testing where train-set fidelity reported
+ * 1.0 for pure-noise predictions (RandomForest memorizes its training
+ * set). Any UI showing this number should also surface
+ * `low_fidelity_warning` when present: a SHAP explanation of a
+ * surrogate that doesn't match the real model is a confident-looking
+ * wrong answer, which is worse than no answer.
+ */
+export async function runExplainabilityCheck({ auditId, featureNames, featureValues, predictions }) {
+  const baseUrl = requireEngineUrl();
+  const response = await fetch(`${baseUrl}/checks/explainability`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      audit_id: auditId ?? null,
+      feature_names: featureNames,
+      feature_values: featureValues,
+      predictions,
+    }),
+  });
+  return handleResponse(response);
+}
+
+/**
  * @returns {Promise<{status: string, supabase_connected: boolean}>}
  */
 export async function checkEngineHealth() {

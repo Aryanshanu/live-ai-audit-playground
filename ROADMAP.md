@@ -1,6 +1,6 @@
 # GOV.AX Roadmap — Toward an Open-Source AI Governance Platform
 
-**Last updated:** 2026-09-13
+**Last updated:** 2026-09-14
 **North star:** Reach a meaningful fraction of what Credo AI, IBM watsonx.governance, Fiddler, Robust Intelligence, and Protect AI each built with dozens of engineers over years — as an open-source, self-hostable, Hugging Face-native alternative.
 
 ## Reading this document honestly
@@ -30,9 +30,11 @@ The five platforms above represent roughly 500+ engineer-years combined. This ro
 
 ---
 
-## Phase 1 — The Python Analysis Service (in progress — two checks written and tested, not deployed)
+## Phase 1 — The Python Analysis Service (in progress — three checks written and tested, not deployed)
 
-**Status update:** `services/rai-agent/` now has two real, tested endpoints. `/checks/modelscan` (previous update) and `/checks/fairness` — real Fairlearn `demographic_parity_ratio`/`equalized_odds_ratio`, verified against a synthetic biased dataset via the real HTTP endpoint (not just a function call), including error-handling tests (mismatched array lengths, empty input) and a real, non-theoretical finding: a genuinely fair process at n=100/group produced a false "non-compliant" reading from pure sampling noise, confirmed by rerunning the identical fair process at n=20,000/group (correctly converged to 0.99). The endpoint now surfaces a `small_sample_warning` field rather than silently reporting a confident-sounding verdict on too little data. **Still never deployed — no live URL exists.** **Hosting decision superseded and finalized:** Coolify (self-hosted, open-source PaaS) on a Vultr VPS in the Mumbai region, not Fly.io — see `services/rai-agent/README.md` for the full reasoning and deploy steps. The underlying region logic carried over unchanged: `ai.gov-prod` is in AWS `ap-south-1` (Mumbai), so the VPS must actually be in Mumbai too — Hetzner was ruled out for having no India datacenter at all, despite being the default recommendation in most Coolify tutorials.
+**Latest (2026-09-14): `/checks/explainability` added — real SHAP.** A significant security decision is baked into its design: SHAP needs an actual model object, and the obvious API ("upload your pickled model") would require deserializing arbitrary user pickles server-side — the exact RCE vector this service's own `/checks/modelscan` endpoint exists to detect, running with a service-role key that bypasses RLS. So it never deserializes anything: it fits a *surrogate* to mimic the caller's supplied predictions and explains that. Verified against ground truth (a deliberately-planted decisive feature was correctly ranked first at ~52x dominance over noise features). **A real bug was caught and fixed during testing**: surrogate fidelity measured on training data reported 1.0 for *pure random noise* predictions, because a RandomForest memorizes its training set — meaning the honesty metric was confidently vouching for meaningless explanations. Now cross-validated (noise correctly scores 0.505, warning fires; learnable data scores 0.99, no warning).
+
+**Status update:** `services/rai-agent/` now has three real, tested endpoints. `/checks/modelscan` (previous update) and `/checks/fairness` — real Fairlearn `demographic_parity_ratio`/`equalized_odds_ratio`, verified against a synthetic biased dataset via the real HTTP endpoint (not just a function call), including error-handling tests (mismatched array lengths, empty input) and a real, non-theoretical finding: a genuinely fair process at n=100/group produced a false "non-compliant" reading from pure sampling noise, confirmed by rerunning the identical fair process at n=20,000/group (correctly converged to 0.99). The endpoint now surfaces a `small_sample_warning` field rather than silently reporting a confident-sounding verdict on too little data. **Still never deployed — no live URL exists.** **Hosting decision superseded and finalized:** Coolify (self-hosted, open-source PaaS) on a Vultr VPS in the Mumbai region, not Fly.io — see `services/rai-agent/README.md` for the full reasoning and deploy steps. The underlying region logic carried over unchanged: `ai.gov-prod` is in AWS `ap-south-1` (Mumbai), so the VPS must actually be in Mumbai too — Hetzner was ruled out for having no India datacenter at all, despite being the default recommendation in most Coolify tutorials.
 
 **Reframed from "the RAI agent" to "the Python service"** after mapping this
 against real competitor "build-your-own" blueprints (Credo AI, IBM
@@ -163,4 +165,4 @@ Being honest about what we'll likely never out-build (compliance certifications,
 
 ## Immediate next action
 
-Hosting decision made: Coolify on a Vultr VPS in Mumbai. Immediate next action is now provisioning that VPS and actually running the Coolify deployment (see `services/rai-agent/README.md`), then wiring `src/lib/api/raiEngine.js`'s functions into an actual UI button — both still outside what can be done from this environment (no Vultr/Coolify credentials or network access here).
+Hosting decision made: Coolify on a Vultr VPS in Mumbai. Three checks (ModelScan, Fairlearn, SHAP) are now built and tested. Immediate next action is provisioning that VPS and actually running the Coolify deployment (see `services/rai-agent/README.md`), then wiring `src/lib/api/raiEngine.js`'s functions into an actual UI button — both still outside what can be done from this environment (no Vultr/Coolify credentials or network access here).

@@ -1,6 +1,6 @@
 # GOV.AX vs. Live Competitors — Detailed Benchmark
 
-**As of:** 2026-09-13
+**As of:** 2026-09-14
 **Companion to:** `ROADMAP.md` (phased plan) — this document is the reality check the roadmap is measured against.
 
 ## Methodology, stated plainly
@@ -29,14 +29,14 @@ Legend: ✅ Live & real · 🟡 Partial/schema-only/limited · ❌ Absent
 
 | Capability | GOV.AX (verified today) | Credo AI | IBM watsonx.gov | Fiddler | Cisco AI Defense | Palo Alto Prisma AIRS |
 |---|---|---|---|---|---|---|
-| **Bias/fairness metrics on real data** | 🟡 Real four-fifths-rule math on uploaded CSVs (`dataQualityAnalyzer.js`, verified against synthetic biased data). No Fairlearn/AIF360 — simplified, single-metric | ✅ Core product | ✅ Core product | 🟡 Secondary to observability | ❌ Not their focus | ❌ Not their focus |
-| **Real explainability (SHAP/LIME)** | ❌ Not implemented. Schema (`explainability_reports`) exists, zero rows | 🟡 Some | 🟡 Some | ✅ Core product (their founding use case) | ❌ | ❌ |
+| **Bias/fairness metrics on real data** | 🟡 Client-side four-fifths math live; **real Fairlearn** (`demographic_parity_ratio`, `equalized_odds_ratio`) built & tested server-side — **not deployed** | ✅ Core product | ✅ Core product | 🟡 Secondary to observability | ❌ Not their focus | ❌ Not their focus |
+| **Real explainability (SHAP/LIME)** | 🟡 Real SHAP built & tested (`/checks/explainability`, ground-truth verified) — **but the service is not deployed**, so zero rows still | 🟡 Some | 🟡 Some | ✅ Core product (their founding use case) | ❌ | ❌ |
 | **Model card / registry** | 🟡 Real HF-metadata completeness scorer (`modelCardCompleteness.js`) + GitHub-backed external registry (`githubRegistry.js`, real commits). No centralized DB registry populated (0 rows in `rai_audits`) | ✅ Core product | ✅ Core product | 🟡 Secondary | ❌ | 🟡 Via AI-BOM |
 | **RBAC** | ✅ Real Postgres RLS + role enum, advisor-verified. **0 actual users** — never exercised with a real second account | ✅ | ✅ | ✅ | ✅ (Cisco-grade) | ✅ (Palo Alto-grade) |
 | **Immutable audit log** | ✅ Genuinely immutable (no UPDATE/DELETE policy = hard deny). **0 rows ever written by a real user action** | ✅ | ✅ | 🟡 | ✅ | ✅ |
 | **Live adversarial/injection testing** | ✅ Real — 4 live probes against actual models via HF inference, verified with mocked-fetch tests, "thorough scan" gives real n=3 statistical rate | ❌ Not their focus | 🟡 Some LLM risk checks | ❌ Not their focus | ✅ Core product (pioneered "AI Firewall") | 🟡 Secondary |
 | **Real-time inline firewall (blocking live traffic)** | ❌ Not built | ❌ | ❌ | ❌ | ✅ **Their entire original differentiator** | 🟡 |
-| **Model file supply-chain scanning (pickle/malware)** | ❌ Not implemented (ModelScan integration is Phase 1, unbuilt) | ❌ | ❌ | ❌ | ❌ | ✅ **Their entire original differentiator** (ModelScan is literally their own OSS tool) |
+| **Model file supply-chain scanning (pickle/malware)** | 🟡 Real ModelScan integration built & tested (`/checks/modelscan`) — **not deployed** | ❌ | ❌ | ❌ | ❌ | ✅ **Their entire original differentiator** (ModelScan is literally their own OSS tool) |
 | **Production drift/observability at scale** | ❌ Not built (Phase 3, needs Phase 1 first) | ❌ Not their focus | 🟡 Some | ✅ **Their entire original differentiator**, now "giga-scale" streaming | ❌ | ❌ |
 | **Regulatory framework mapping (EU AI Act, NIST)** | 🟡 Rule `clause` fields cite regulations by name (e.g. "DPDP Act — Section 6"), but it's static text on 9 heuristic rules, not a maintained, versioned policy engine | ✅ **Core differentiator** — dedicated legal/policy team maintains this | ✅ | ❌ | ❌ | ❌ |
 | **In-browser / zero-cost live ML inference** | ✅ **Nobody else on this list does this** — real transformers.js zero-shot classifier, zero token, zero server cost | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -54,7 +54,9 @@ Legend: ✅ Live & real · 🟡 Partial/schema-only/limited · ❌ Absent
 
 **Rows where GOV.AX has a real foundation but zero live exercise:** RBAC, immutable audit log, model registry. The infrastructure is correct — genuinely, advisor-verified correct — but "0 users, 0 audits" means none of it has been tested against a real workflow. This is the single most fixable gap on this entire table, and it doesn't require new features — it requires *using what already exists*.
 
-**Rows that are fully absent, not partial:** real explainability, inline firewall, model file scanning, production-scale observability, multi-tenancy, stage-gate workflows, SIEM integration. This is most of the table. These aren't small gaps.
+**Rows that moved from ❌ to 🟡 (built and tested, but not deployed):** real explainability (SHAP), model file supply-chain scanning (ModelScan), and server-side Fairlearn fairness metrics. All three are real, ground-truth-verified code in `services/rai-agent/`. **None of them are reachable by a user**, because the service has never been deployed — this is the honest meaning of 🟡 here, and it is a materially weaker claim than ✅.
+
+**Rows that remain fully absent:** inline firewall, production-scale observability, multi-tenancy, stage-gate workflows, SIEM integration.
 
 **Rows where "catching up" isn't really the right frame:** the two acquired companies' core differentiators (Cisco's inline firewall, Palo Alto's supply-chain AI-BOM) are now backed by two of the largest security companies on earth. Closing the *functional* gap (per the earlier OSS-parity analysis, genuinely 50-90% depending on which piece) doesn't close the *trust* gap — a security team choosing between "Cisco AI Defense" and "an open-source project with zero live users" is not making a decision based on feature parity.
 
@@ -64,8 +66,8 @@ Legend: ✅ Live & real · 🟡 Partial/schema-only/limited · ❌ Absent
 
 | Gap | What's actually blocking it | Type |
 |---|---|---|
-| Real explainability (SHAP) | Needs the Phase 1 Python service — still no hosting decision made | **Decision, not effort** |
-| Model file scanning (ModelScan) | Same — Phase 1 Python service | **Decision, not effort** |
+| Real explainability (SHAP) | ~~Needs the Python service~~ **Built and tested.** Now blocked only on deployment (provision Vultr Mumbai VPS + install Coolify) | **Deployment, not engineering** |
+| Model file scanning (ModelScan) | ~~Same~~ **Built and tested.** Same single remaining blocker: deployment | **Deployment, not engineering** |
 | Production observability at scale | Needs Phase 1 to exist first, generating data to observe | **Sequencing** |
 | Inline firewall | Needs an actual deployed model with real traffic to sit in front of — GOV.AX audits models, it doesn't host them | **Product-scope question**, not just engineering |
 | Regulatory framework mapping (Credo AI's actual moat) | Needs *ongoing, continuous* legal/policy expertise to track law changes — this is a staffing problem forever, not a one-time build | **Structural** — no amount of engineering closes an ongoing-expertise gap |

@@ -8,11 +8,12 @@ Phase 1 of `ROADMAP.md`. The Python service GOV.AX's browser-only app couldn't p
 
 - `POST /checks/modelscan` — scans a Hugging Face model's actual weight file for known unsafe-deserialization patterns via ModelScan's native `-hf` flag. If `audit_id` is provided, writes the result to the real `rai_findings` table using the Supabase **service role** key (bypasses RLS by design — this is the one place in the whole system that should have that level of access, and only server-side).
 - `POST /checks/fairness` — real Fairlearn `demographic_parity_ratio` and `equalized_odds_ratio` computed on caller-supplied `y_true`/`y_pred`/`sensitive_features`. Scope note: this audits decisions a model already made — it doesn't train one. Writes to the real `fairness_metrics` table when `audit_id` is provided. **Real caveat found during testing, not theoretical**: a genuinely fair 50/50 process at n=100/group produced a false "non-compliant" reading (ratio 0.77) purely from sampling noise — confirmed by rerunning at n=20,000/group, which correctly converged to 0.99. The endpoint now returns a `small_sample_warning` field whenever the smallest group has under 1,000 rows.
+- `POST /checks/explainability` — real SHAP feature importance. **Never deserializes an uploaded model**: doing so would require loading arbitrary pickles server-side, the exact RCE vector `/checks/modelscan` exists to detect. Instead it fits a surrogate to reproduce the caller's supplied predictions and explains that. Returns `fidelity` (cross-validated — see below) and a `low_fidelity_warning` when the surrogate doesn't reliably match. Writes to `explainability_reports` when `audit_id` is given. **Real bug caught in testing**: train-set fidelity reported 1.0 for pure-noise predictions (RandomForest memorizes its training data), so the metric meant to flag untrustworthy explanations was vouching for meaningless ones. Now cross-validated — noise correctly scores ~0.50 and warns.
 - `GET /health` — reports whether the Supabase connection is configured.
 
 ## What isn't implemented yet
 
-MLflow (real model-version lineage) and SHAP (real explainability) — per `ROADMAP.md`'s sequencing.
+MLflow (real model-version lineage) — per `ROADMAP.md`'s sequencing. SHAP is now implemented (see above).
 
 ## A finding worth repeating, not just noting
 
