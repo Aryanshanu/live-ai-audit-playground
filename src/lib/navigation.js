@@ -28,83 +28,10 @@ export const NAV_STATUS = {
   planned: { label: 'Planned', className: 'bg-fb-bg text-fb-textSecondary border-gray-300' },
 };
 
-export const NAV_SECTIONS = [
-  {
-    section: null, // top-level
-    items: [
-      { id: 'command-center', label: 'Command Center', status: 'live', note: 'Live status tiles, audit-log feed, and registry inventory — all real figures, no sample data.' },
-    ],
-  },
-  {
-    section: 'AUDIT',
-    items: [
-      { id: 'sandbox', label: 'Architecture Sandbox', status: 'live', note: 'Free-text heuristic audit across 4 pillars.' },
-      { id: 'model-scanner', label: 'HF Model Scanner', status: 'live', note: 'Real Hugging Face metadata audit + live probes.' },
-      { id: 'audit-history', label: 'Audit History', status: 'partial', note: 'Persists to the database; no dedicated browsing UI yet.' },
-    ],
-  },
-  {
-    section: 'RESPONSIBLE AI',
-    items: [
-      { id: 'fairness', label: 'Fairness', status: 'partial', note: 'Real four-fifths rule in-browser; full Fairlearn suite built but the service is not deployed.' },
-      { id: 'transparency', label: 'Transparency', status: 'partial', note: 'Model card completeness scoring is live; SHAP explainability built but not deployed.' },
-      { id: 'safety', label: 'Safety', status: 'live', note: 'Live content-moderation and jailbreak probes.' },
-      { id: 'privacy', label: 'Privacy', status: 'live', note: 'PII scanning on both uploaded datasets and live model output.' },
-      { id: 'fidelity', label: 'Fidelity', status: 'planned', note: 'Accuracy/drift over time — needs the analysis service and real traffic.' },
-    ],
-  },
-  {
-    section: 'SECURITY',
-    items: [
-      { id: 'security-dashboard', label: 'Security Dashboard', status: 'partial', note: 'Findings render per-audit; no aggregate dashboard yet.' },
-      { id: 'pentesting', label: 'AI Pentesting', status: 'live', note: '4 live adversarial vectors, thorough mode gives a real containment rate. Replaced the separate Jailbreak Lab entry — both ran the identical suite.' },
-      { id: 'attack-library', label: 'Attack Library', status: 'schema', note: 'Probes are now data rather than constants; the runtime still reads hardcoded values.' },
-      { id: 'supply-chain', label: 'Supply Chain Scan', status: 'schema', note: 'ModelScan integration built and tested; service not deployed.' },
-    ],
-  },
-  {
-    section: 'DATA',
-    items: [
-      { id: 'data-quality', label: 'Data Quality', status: 'live', note: 'Real CSV analysis: nulls, duplicates, imbalance, PII, disparate impact.' },
-      { id: 'data-inventory', label: 'Data Inventory', status: 'planned', note: 'No dataset registry yet.' },
-    ],
-  },
-  {
-    section: 'REGISTRIES',
-    items: [
-      { id: 'model-registry', label: 'Model Registry', status: 'schema', note: 'Models, versions, EU AI Act risk tiers exist in the database; no UI yet.' },
-      { id: 'use-case-registry', label: 'Use Case Registry', status: 'schema', note: 'Use cases and model links exist; no UI yet.' },
-    ],
-  },
-  {
-    section: 'GOVERN',
-    items: [
-      { id: 'compliance', label: 'Compliance Hub', status: 'partial', note: 'Findings cite clauses as static text, not a versioned policy engine.' },
-      { id: 'escalation', label: 'Escalation & Review', status: 'live', note: 'Files real GitHub Issues for CRITICAL findings.' },
-      { id: 'intake', label: 'Intake & Approvals', status: 'planned', note: 'Stage-gate approvals — Wave 4.' },
-      { id: 'policy', label: 'Policy & Guardrails', status: 'planned', note: 'Regulation-as-code — deferred pending a committed reviewer (DECISIONS.md D5).' },
-    ],
-  },
-  {
-    section: 'MONITOR',
-    items: [
-      { id: 'observability', label: 'Observability Hub', status: 'planned', note: 'Requires production traffic — Wave 4.' },
-      { id: 'ongoing-validation', label: 'Ongoing Validation', status: 'planned', note: 'Scheduled re-audits — Wave 4.' },
-    ],
-  },
-  {
-    section: 'ADMIN',
-    items: [
-      { id: 'system-check', label: 'System Check', status: 'live', note: 'Self-diagnostic for the signup → audit → database path.' },
-      { id: 'audit-integrity', label: 'Audit Log Integrity', status: 'live', note: 'Hash-chained, tamper-evident, verifiable by org admins.' },
-      { id: 'user-management', label: 'User Management', status: 'schema', note: 'Org members and per-org roles exist; no management UI yet.' },
-    ],
-  },
-];
+// NAV_SECTIONS and navStatusCounts removed — they backed GovernanceNav.jsx,
+// which was dead code (superseded by AppShell.jsx's sidebar, never imported
+// anywhere, caught by the System Audit in docs/SYSTEM-AUDIT.md Section 10).
+// AppShell.jsx's own VIEWS array is now the single source of truth for
+// nav structure and status; NAV_STATUS below is kept because it still
+// backs real badge styling in AppShell.jsx and PlaceholderView.jsx.
 
-/** Real counts, for honest display rather than an impressive-looking menu. */
-export function navStatusCounts() {
-  const counts = { live: 0, partial: 0, schema: 0, planned: 0 };
-  NAV_SECTIONS.forEach((s) => s.items.forEach((i) => { counts[i.status] += 1; }));
-  return counts;
-}

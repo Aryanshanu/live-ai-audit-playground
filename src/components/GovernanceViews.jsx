@@ -277,6 +277,7 @@ export function SettingsView() {
 const DOCS = [
   ['README.md', 'What GOV.AX is, current status, and what it deliberately does not do'],
   ['docs/ACCESS-ARCHITECTURE.md', 'The formal customer / org-admin / platform-admin boundary, with DB-verified enforcement for every row'],
+  ['docs/SYSTEM-AUDIT.md', 'Full system inventory and consistency pass, verified against the live schema and file tree'],
   ['ROADMAP.md', 'Wave-structured plan with decision gates'],
   ['BENCHMARKS.md', 'Line-by-line comparison against Credo AI, IBM watsonx, Fiddler, Cisco AI Defense, Palo Alto Prisma AIRS'],
   ['EVIDENCE-TIERS.md', 'The evidence-tier specification — the core idea of this project'],

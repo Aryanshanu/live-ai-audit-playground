@@ -31,7 +31,7 @@ Most audit tools show you one score and ask you to trust it. This one shows the 
 
 | | |
 |---|---|
-| Registered users | **1** (verified: profile, personal org, and owner role all auto-created correctly) |
+| Registered users | **2** — 1 email signup, 1 anonymous guest signup, both independently confirmed working end-to-end |
 | Audits ever run through the UI | **0** — signup path now confirmed working; the audit itself is the remaining step. See [docs/FIRST-AUDIT.md](docs/FIRST-AUDIT.md) |
 | Python service endpoints built | 3 (ModelScan, Fairlearn, SHAP) |
 | Python service endpoints **reachable** | **0** — not deployed |
