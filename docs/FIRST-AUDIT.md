@@ -19,15 +19,17 @@ AuthGate → AuthForm → signup → email confirmation → session created
         → sign out, sign up a SECOND account, confirm it cannot see the first's audit
 ```
 
-## Likely failure points
+## Likely failure points — three of five now ruled out or fixed
 
-Paths never executed by a human usually break at least once. Most probable, in rough order:
+Before running this, use the **System Check** panel in the app (Sandbox mode, top of the page). It runs every dependency of this path and names the exact failure instead of failing silently.
 
-1. **Supabase Auth email confirmation redirect** — the redirect URL must be configured in the Supabase dashboard to match the GitHub Pages base path (`/live-ai-audit-playground`). This is the single most likely failure.
-2. **`activeOrgId` is null on first render** — `useOrgMembership` fetches asynchronously; if an audit is submitted before it resolves, `persistAuditToDb` throws its "no organization" error. May need a loading guard.
-3. **The signup trigger failing silently** — if `private.handle_new_user()` errors, signup may appear to succeed while no profile/org exists.
-4. **`NEXT_PUBLIC_*` vars baked at build time** — this is a static export; env changes require a rebuild, not just a restart.
-5. **RLS passing in the SQL editor but failing under a real JWT** — already mitigated by testing under real `authenticated` context, but the app sends a real token, which is different again.
+| # | Failure point | Status |
+|---|---|---|
+| 1 | **Supabase Auth email confirmation redirect** — the Site URL and Redirect URLs in Supabase Dashboard → Authentication → URL Configuration must include the app's full path, including the `/live-ai-audit-playground` base path | ⚠️ **STILL THE TOP SUSPECT.** This is a dashboard setting, not code — it cannot be fixed or inspected from the repo. System Check will identify it via the "Email confirmed" row. |
+| 2 | `activeOrgId` null on first render → DB write skipped | ✅ **FIXED.** It was worse than a race: the write was skipped with only a `console.warn`, so an audit that persisted *nothing* looked identical to one that succeeded. Every branch now reports its real outcome in the UI. |
+| 3 | Signup trigger failing silently | ✅ **RULED OUT by direct testing.** 3 synthetic signups verified: profile created, personal org created, user is `owner`. Also tested two edge cases — two users with *identical* email local-parts get distinct slugs (a collision would have made the second signup fail outright, since `slug` is `UNIQUE`), and special characters are stripped correctly. |
+| 4 | `NEXT_PUBLIC_*` baked at build time | ⚠️ Still true by design — static export. Env changes need a rebuild, not a restart. Only relevant once the Python service is deployed. |
+| 5 | RLS passing as service role but failing under a real JWT | ✅ **Largely ruled out.** All RLS testing was done under real `authenticated` JWT context, not service role. The app sends a real token, which is one step further — but the policies themselves are proven. |
 
 ## Fill this in when you run it
 

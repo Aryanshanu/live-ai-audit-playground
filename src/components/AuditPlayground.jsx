@@ -16,7 +16,11 @@ import { persistAuditToDb } from '../lib/supabase/auditPersistence';
  */
 export default function AuditPlayground() {
   const { user } = useSession();
-  const { activeOrgId } = useOrgMembership(user?.id);
+  const { activeOrgId, loading: orgLoading } = useOrgMembership(user?.id);
+  // Surfaced in the UI, not just console.warn — a silently-skipped
+  // database write makes an audit LOOK successful while nothing persists,
+  // which is worse than a visible failure.
+  const [dbStatus, setDbStatus] = useState(null); // null | 'saved' | {error}
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [score, setScore] = useState(null);
@@ -28,6 +32,7 @@ export default function AuditPlayground() {
     // Reset state for fresh audit
     setLoading(true);
     setError(null);
+    setDbStatus(null);
     setScore(null);
     setResults(null);
     setModelMeta(null);
@@ -63,21 +68,32 @@ export default function AuditPlayground() {
         modelOrTitle: meta.id,
       });
 
-      // Real database persistence (in addition to localStorage above —
-      // a deliberate dual-write during migration, not a replacement yet,
-      // since every other feature this session still reads from
-      // historyStore.js and ripping that out blind would be reckless).
-      // Requires an authenticated user; RLS itself would reject the
-      // insert if this check were skipped, but failing early with a
-      // clear message is better than a raw Postgres error in the console.
-      // orgId is required since the multi-tenancy migration (org_id is
-      // NOT NULL and RLS-enforced). A personal org is auto-created on
-      // signup, so activeOrgId should be present for any real user.
-      if (user && activeOrgId) {
+      // Real database persistence, in addition to the localStorage write
+      // above (a deliberate dual-write during migration — every other
+      // feature still reads from historyStore.js, and ripping that out
+      // blind would be reckless).
+      //
+      // org_id is NOT NULL and RLS-enforced since the multi-tenancy
+      // migration. A personal org is auto-created by a signup trigger, so
+      // activeOrgId SHOULD always resolve for a real user — but
+      // useOrgMembership fetches asynchronously, so an audit submitted
+      // before it resolves would previously skip the DB write entirely
+      // with only a console.warn. That made a failed persist look like a
+      // successful audit, which is the worst possible failure mode for a
+      // tool whose entire point is honest evidence. Every branch now
+      // reports its real outcome to the UI.
+      if (!user) {
+        setDbStatus({ error: 'Not signed in — saved locally only.' });
+      } else if (orgLoading) {
+        setDbStatus({ error: 'Your organization was still loading, so this audit was saved locally only. Re-run it to persist to the database.' });
+      } else if (!activeOrgId) {
+        setDbStatus({ error: 'No organization found for your account. A personal org should be created automatically at signup — if you see this, that trigger did not run. Saved locally only.' });
+      } else {
         try {
-          await persistAuditToDb({ userId: user.id, orgId: activeOrgId, modelId: meta.id, issues: failedIssues });
+          const { auditId } = await persistAuditToDb({ userId: user.id, orgId: activeOrgId, modelId: meta.id, issues: failedIssues });
+          setDbStatus({ saved: true, auditId });
         } catch (dbErr) {
-          console.warn('[GOV.AX] Database persistence failed (localStorage copy still saved):', dbErr.message);
+          setDbStatus({ error: `Database write failed: ${dbErr.message}` });
         }
       }
     } catch (err) {
@@ -96,6 +112,20 @@ export default function AuditPlayground() {
 
       {/* ── Right Panel: Live Compliance Report ── */}
       <div className="p-6 lg:p-8 bg-white border border-fb-border rounded-xl shadow-fbCard min-h-[600px]">
+        {/* Database persistence status. Deliberately visible: a skipped or
+            failed DB write previously produced only a console.warn, so an
+            audit that persisted nothing looked identical to one that
+            persisted correctly. */}
+        {dbStatus?.saved && (
+          <div className="mb-4 p-2.5 bg-green-50 border border-green-200 rounded-lg text-[11px] text-fb-green">
+            ✓ Saved to database · audit id <span className="font-mono">{dbStatus.auditId}</span>
+          </div>
+        )}
+        {dbStatus?.error && (
+          <div className="mb-4 p-2.5 bg-amber-50 border border-amber-200 rounded-lg text-[11px] text-amber-700">
+            ⚠ Not persisted to database. {dbStatus.error}
+          </div>
+        )}
         <ComplianceReportPanel
           score={score}
           results={results}

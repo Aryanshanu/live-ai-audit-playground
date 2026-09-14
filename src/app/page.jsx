@@ -17,6 +17,7 @@ import HistoryIndicator from '../components/HistoryIndicator';
 import DataQualityUpload from '../components/DataQualityUpload';
 import UnifiedGovernanceScore from '../components/UnifiedGovernanceScore';
 import AuthGate from '../components/auth/AuthGate';
+import SystemCheckPanel from '../components/SystemCheckPanel';
 
 const ARCHITECTURE_TEMPLATES = {
   ragBot:
@@ -224,6 +225,8 @@ export default function UnifiedGovernanceCenter() {
               Statutory references: India DPDP 2023 • MeitY IndiaAI • OWASP Top 10 • FTC Disgorgement
             </span>
           </div>
+
+          <SystemCheckPanel />
 
           {/* ━━ Unified Governance Score — combines whatever signals exist ━━ */}
           <UnifiedGovernanceScore

@@ -8,7 +8,7 @@
 | Wave | What | Status |
 |---|---|---|
 | Wave 0 | Decisions | 🟡 6 of 8 decided — D1 (hosting) and D2 (project purpose) still open |
-| Wave 1 | Credibility wins | 🟡 Audit-log proof ✅, evidence-tier spec ✅, **first real browser audit ❌** |
+| Wave 1 | Credibility wins | 🟡 Audit-log proof ✅, evidence-tier spec ✅, signup-trigger verified ✅, silent-DB-write bug fixed ✅, System Check diagnostic ✅ — **first real browser audit ❌** (only remaining item; top suspect is a Supabase dashboard redirect setting, not code) |
 | Wave 2 | Multi-tenancy | ✅ **Done** — isolation proven with two real users |
 | Wave 3 | Python service (deploy 3 existing endpoints) | ❌ Gated on D1 |
 | Wave 4 | Enterprise features | ⏸️ Deferred — firewall demand-gated, regulation-as-code reviewer-gated |
