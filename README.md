@@ -68,7 +68,7 @@ Most audit tools show you one score and ask you to trust it. This one shows the 
 | Model file supply-chain scanning (ModelScan) | 🟡 Built & tested, **not deployed** | 🔵 Verified |
 | Real Fairlearn metrics (demographic parity, equalized odds) | 🟡 Built & tested, **not deployed** | 🔵 Verified |
 | System Check — self-diagnostic naming the exact failure in the signup→audit→DB path | ✅ Live | 🔵 Verified |
-| Google OAuth + guest (anonymous) sign-in | ✅ Live (needs dashboard enablement) | 🔵 Verified |
+| Google OAuth + guest (anonymous) sign-in | ⚠️ Built, **requires one-time Supabase dashboard enablement** — the app shows setup steps until then | 🔵 Verified |
 | Platform admin — read-only cross-org access, audit-logged | ✅ Live | 🔵 Verified |
 | Model registry — models, versions, use cases, EU AI Act risk tiers | ✅ Live (schema; UI pending) | 🔵 Verified |
 | Attack library — adversarial probes as extensible data, not hardcoded | ✅ Live (schema; runtime wiring pending) | 🔵 Verified |

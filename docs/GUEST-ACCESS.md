@@ -10,6 +10,14 @@ This distinction matters. A fake "pretend we're logged in" client flag would byp
 
 Guests are labelled: `is_anonymous` is true on the session, their org is named "Guest Workspace", and a persistent amber banner shows in the app.
 
+## ⚠️ Required before the button works
+
+**Supabase Dashboard → Authentication → Sign In / Providers → "Allow anonymous sign-ins" → ON.**
+
+Direct link: `https://supabase.com/dashboard/project/ceppqcqgwietagzixrhr/auth/providers`
+
+This is OFF by default. Until it's enabled, the button shows in-app setup instructions rather than a raw API error.
+
 ## Prerequisite
 
 **Supabase Dashboard → Authentication → Sign In / Providers → "Allow anonymous sign-ins"** must be enabled. It is off by default. Until it's on, the guest button returns a clear error telling you exactly this.

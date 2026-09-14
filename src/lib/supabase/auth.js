@@ -34,8 +34,23 @@ export async function signIn(email, password) {
 export async function signInAsGuest() {
   const { data, error } = await supabase.auth.signInAnonymously();
   if (error) {
-    if (error.message?.toLowerCase().includes('disabled') || error.status === 422) {
-      throw new Error('Anonymous sign-ins are disabled. Enable them in Supabase Dashboard → Authentication → Sign In / Providers → "Allow anonymous sign-ins".');
+    // Supabase returns several shapes for "not enabled" depending on
+    // version (422, 400 validation_failed, or a message mentioning
+    // disabled/not enabled). Matching only one of them previously let a
+    // raw API error reach the user, which is a useless thing to show
+    // someone. Treat any of them as the same actionable setup problem.
+    const msg = (error.message || '').toLowerCase();
+    const notEnabled =
+      error.status === 422 ||
+      error.status === 400 ||
+      error.code === 'validation_failed' ||
+      msg.includes('disabled') ||
+      msg.includes('not enabled') ||
+      msg.includes('unsupported provider');
+    if (notEnabled) {
+      const err = new Error('Guest access needs to be switched on once in Supabase.');
+      err.setupRequired = 'anonymous';
+      throw err;
     }
     throw error;
   }
@@ -60,9 +75,20 @@ export async function signInWithGoogle() {
     provider: 'google',
     options: { redirectTo: typeof window !== 'undefined' ? window.location.origin + window.location.pathname : undefined },
   });
-  if (error) throw error;
+  if (error) {
+    const msg = (error.message || '').toLowerCase();
+    if (msg.includes('not enabled') || msg.includes('unsupported provider') || error.status === 400) {
+      const err = new Error('Google sign-in needs to be connected once in Supabase.');
+      err.setupRequired = 'google';
+      throw err;
+    }
+    throw error;
+  }
   return data;
 }
+
+/** Supabase project ref, used to build direct dashboard links in setup messages. */
+export const SUPABASE_PROJECT_REF = 'ceppqcqgwietagzixrhr';
 
 /** True if the current session is an anonymous/guest session. */
 export function isGuestSession(session) {

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { signIn, signUp, signInAsGuest, signInWithGoogle } from '../../lib/supabase/auth';
+import { signIn, signUp, signInAsGuest, signInWithGoogle, SUPABASE_PROJECT_REF } from '../../lib/supabase/auth';
 
 const PENDING_CONFIRMATION_KEY = 'govax_pending_email_confirmation';
 
@@ -16,6 +16,7 @@ export default function AuthForm() {
   // refresh while waiting on email confirmation previously wiped this
   // message with no explanation, leaving someone who'd already signed
   // up looking at what appeared to be a blank, broken login form.
+  const [setupNeeded, setSetupNeeded] = useState(null); // 'anonymous' | 'google'
   const [signupMessage, setSignupMessage] = useState(() => {
     if (typeof window === 'undefined') return null;
     const pendingEmail = window.localStorage.getItem(PENDING_CONFIRMATION_KEY);
@@ -25,11 +26,16 @@ export default function AuthForm() {
   const handleProvider = async (fn) => {
     setError(null);
     setSignupMessage(null);
+    setSetupNeeded(null);
     setLoading(true);
     try {
       await fn();
     } catch (err) {
-      setError(err.message);
+      // A one-time Supabase setting, not a failure the user caused —
+      // show them exactly what to switch on and where, rather than a
+      // raw API error which tells them nothing useful.
+      if (err.setupRequired) setSetupNeeded(err.setupRequired);
+      else setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -100,6 +106,44 @@ export default function AuthForm() {
             {loading ? 'Please wait…' : mode === 'signin' ? 'Sign In' : 'Sign Up'}
           </button>
         </form>
+
+
+        {setupNeeded && (
+          <div className="mt-3 p-3 bg-fb-blueLight border border-fb-blue/30 rounded-lg text-left">
+            <p className="text-[11px] font-bold text-fb-blue mb-1">
+              One-time setup needed{setupNeeded === 'google' ? ' for Google sign-in' : ' for guest access'}
+            </p>
+            {setupNeeded === 'anonymous' ? (
+              <ol className="text-[10px] text-fb-text space-y-1 list-decimal list-inside">
+                <li>Open your Supabase project&apos;s Authentication settings</li>
+                <li>Find <strong>Allow anonymous sign-ins</strong> and turn it on</li>
+                <li>Come back and press the guest button again</li>
+              </ol>
+            ) : (
+              <ol className="text-[10px] text-fb-text space-y-1 list-decimal list-inside">
+                <li>In Google Cloud Console, create OAuth 2.0 credentials</li>
+                <li>
+                  Add this as an authorised redirect URI:
+                  <code className="block mt-0.5 p-1 bg-fb-card border border-fb-border rounded text-[9px] break-all">
+                    https://{SUPABASE_PROJECT_REF}.supabase.co/auth/v1/callback
+                  </code>
+                </li>
+                <li>In Supabase → Authentication → Providers → Google: enable it and paste the Client ID and Secret</li>
+              </ol>
+            )}
+            <a
+              href={`https://supabase.com/dashboard/project/${SUPABASE_PROJECT_REF}/auth/providers`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block mt-2 text-[10px] font-medium text-fb-blue underline"
+            >
+              Open Supabase auth settings →
+            </a>
+            <p className="text-[9px] text-fb-textSecondary mt-1.5">
+              Email sign-in above already works and needs no setup.
+            </p>
+          </div>
+        )}
 
         <div className="flex items-center gap-2 my-4">
           <div className="flex-1 h-px bg-fb-border" />
