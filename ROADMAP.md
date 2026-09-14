@@ -25,6 +25,8 @@ Replication is deliberately prioritised rather than wholesale — GOV.AX had 9 t
 | 1 | Model registry (`models`, `model_versions`, `use_cases`) | ✅ Built, isolation tested |
 | 2 | `attack_library` — probes as data | ✅ Built, 4 built-ins seeded |
 | 3 | `dq_rules` — declarative data-quality rules | ⏸️ Next |
+
+**End-to-end comparison completed (2026-09-14):** walked the reference's Safety, Privacy, AI Pentesting, and Data Quality pages in full detail and built a reusable pillar-page component wired to GOV.AX's real live-probe engine. Then compared what GOV.AX could genuinely back against every remaining reference destination and added 4 more real views (Audit Center, Compliance Hub, Threat Modeling, Settings/Documentation) — nothing added without a real computation behind it. Views with real UI: 14 of 18. A real bug was caught and fixed while building the Compliance Hub: `GOVERNANCE_RULES` entries use a `regulation` field, not `clause` — the first version silently dropped all 6 DPDP/PSA citations because it read the wrong field name on that source.
 | 4 | `review_queue` + `decision_ledger` | ⏸️ Gated on real usage |
 | 5 | Knowledge graph (`kg_nodes`/`kg_edges`) | ⏸️ Largest build |
 

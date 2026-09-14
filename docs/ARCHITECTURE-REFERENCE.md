@@ -152,6 +152,19 @@ The table list alone was **not** the blueprint, and presenting it as one was wro
 
 30 of 31 UI pages, every table's column-level schema, all RLS policies, database functions and triggers, and every edge function's implementation. The reference is substantially larger than what has been examined.
 
+## Second pass: what GOV.AX could genuinely back (2026-09-14)
+
+After the pillar pages, compared every remaining reference destination against GOV.AX's actual exports (`RULE_REGISTRY`, `GOVERNANCE_RULES`, `historyStore.js`, the Supabase schema) rather than guessing. Four destinations were genuinely backable and were built:
+
+- **Audit Center** — reads real `rai_audits` rows plus local session history, kept visibly separate since a database record and a browser-only record are different strengths of evidence.
+- **Compliance Hub** — 15 real rule-to-clause mappings, built by reading the `clause`/`regulation` field already attached to every rule, so it cannot drift from what the engines check without the underlying rule also changing.
+- **Threat Modeling** — chains the existing `generateThreatNarrative()` output, previously only reachable via a download button, into its own destination.
+- **Settings / Documentation** — account state and every project doc, linked directly rather than duplicated.
+
+**A real bug caught while building this**: the Compliance Hub's first draft read `r.clause` on both rule sources, but `rules.js`'s `GOVERNANCE_RULES` uses a `regulation` field, not `clause`. That silently dropped all 6 DPDP/PSA Framework citations — exactly the entries most relevant to an India-focused compliance page — while looking like it worked, since the `RULE_REGISTRY` source (which does use `clause`) still populated most of the page. Caught by checking the actual exported field names against the real source files before trusting the aggregation, not by the UI looking broken.
+
+**Still not added, on purpose:** Data Inventory, Intake & Approvals, Policy & Guardrails, Observability Hub, Ongoing Validation — none have a real computation behind them yet. Adding them now would be the exact capability-inflation-by-navigation this whole exercise has been trying to avoid.
+
 ## Honest scope assessment
 
 GOV.AX has 9 tables. This POC has 145. **Replicating it wholesale would be the exact "15 speculative features, 0 users" trap** flagged in `DECISIONS.md` — and most of these tables have 0 rows, meaning they were scaffolded rather than used.

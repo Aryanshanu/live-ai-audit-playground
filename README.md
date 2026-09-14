@@ -77,6 +77,10 @@ Most audit tools show you one score and ask you to trust it. This one shows the 
 | Sidebar app shell — sectioned navigation, collapsible, page headers, dark/light theme | ✅ Live | 🔵 Verified |
 | Pillar evaluation pages — Fairness, Safety, Privacy, AI Pentesting, Transparency | ✅ Live | 🟢 Live Test |
 | Custom Prompt Test — throw your own adversarial prompt at a live model, see the raw response | ✅ Live | 🟢 Live Test |
+| Audit Center — database-backed audit history, organization-scoped | ✅ Live | 🔵 Verified |
+| Compliance Hub — 15 real rule-to-clause mappings (DPDP, EU AI Act, ISO, OWASP, PSA), derived from the rules themselves | ✅ Live | 🔵 Verified |
+| Threat Modeling — attack narrative chained from Sandbox findings | ✅ Live | 🟡 Heuristic |
+| Settings + Documentation | ✅ Live | — |
 | Multi-tenant orgs with per-org roles, isolation proven with two real users | ✅ Live | 🔵 Verified |
 | Production-scale drift/observability | ❌ Not built | — |
 | Multi-tenant orgs, stage-gate approvals, SIEM export | ❌ Not built | — |

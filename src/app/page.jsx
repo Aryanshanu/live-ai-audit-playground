@@ -21,6 +21,7 @@ import AuthGate from '../components/auth/AuthGate';
 import AppShell, { findView } from '../components/AppShell';
 import PlaceholderView from '../components/PlaceholderView';
 import PillarPage from '../components/PillarPage';
+import { AuditCenter, ComplianceHub, ThreatModeling, SettingsView, DocumentationView } from '../components/GovernanceViews';
 import { PILLARS } from '../lib/pillarConfig';
 import SystemCheckPanel from '../components/SystemCheckPanel';
 import AdminDashboard from '../components/AdminDashboard';
@@ -145,9 +146,17 @@ export default function UnifiedGovernanceCenter() {
       {/* Evaluation pillars — one reusable page, real engines behind it */}
       {PILLARS[activeMode] && <PillarPage pillarId={activeMode} />}
 
+      {/* Views added after the end-to-end comparison, each backed by
+          real existing GOV.AX computation — see docs/ARCHITECTURE-REFERENCE.md */}
+      {activeMode === 'audit_center' && <AuditCenter />}
+      {activeMode === 'compliance_hub' && <ComplianceHub />}
+      {activeMode === 'threat_modeling' && <ThreatModeling report={report} architectureText={architectureText} />}
+      {activeMode === 'settings' && <SettingsView />}
+      {activeMode === 'documentation' && <DocumentationView />}
+
       {/* Views listed in the sidebar whose UI isn't built yet render an
           explicit honest state rather than a blank page. */}
-      {!PILLARS[activeMode] && !['sandbox', 'hf_model', 'command_center', 'data_quality', 'system_check'].includes(activeMode) && (
+      {!PILLARS[activeMode] && !['sandbox', 'hf_model', 'command_center', 'data_quality', 'system_check', 'audit_center', 'compliance_hub', 'threat_modeling', 'settings', 'documentation'].includes(activeMode) && (
         <PlaceholderView view={findView(activeMode)} />
       )}
 

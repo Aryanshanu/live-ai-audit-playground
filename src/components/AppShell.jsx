@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import {
   LayoutDashboard, Workflow, Cpu, Scale, Eye, ShieldCheck, Lock, Activity,
   Database, Boxes, FileCheck, Users, Sun, Moon, PanelLeftClose, PanelLeft,
+  History, Crosshair, Settings as SettingsIcon, BookOpen,
 } from 'lucide-react';
 import { useSession, useOrgMembership, signOut, isGuestSession } from '../lib/supabase/auth';
 import { NAV_STATUS } from '../lib/navigation';
@@ -38,6 +39,8 @@ export const VIEWS = [
       title: 'Architecture Sandbox', subtitle: 'Free-text governance audit across RAI, Security, Data Quality, and Legal' },
     { id: 'hf_model', label: 'Model Scanner', icon: Cpu, status: 'live',
       title: 'Hugging Face Model Scanner', subtitle: 'Verified metadata audit and live adversarial probing against a real model' },
+    { id: 'audit_center', label: 'Audit Center', icon: History, status: 'live',
+      title: 'Audit Center', subtitle: 'Every persisted audit, database-backed and organization-scoped' },
   ]},
   { section: 'RESPONSIBLE AI', items: [
     { id: 'fairness', label: 'Fairness', icon: Scale, status: 'live',
@@ -50,6 +53,8 @@ export const VIEWS = [
       title: 'Privacy', subtitle: 'PII detection across uploaded datasets and live model output' },
   ]},
   { section: 'SECURITY', items: [
+    { id: 'threat_modeling', label: 'Threat Modeling', icon: Crosshair, status: 'live',
+      title: 'Threat Modeling', subtitle: 'Attack narrative chained from your most recent Sandbox findings' },
     { id: 'pentesting', label: 'AI Pentesting', icon: ShieldCheck, status: 'live',
       title: 'AI Pentesting', subtitle: 'Prompt injection, system-prompt extraction, and role override against a live model' },
     { id: 'attack_library', label: 'Attack Library', icon: Boxes, status: 'schema',
@@ -70,6 +75,10 @@ export const VIEWS = [
       title: 'System Check', subtitle: 'Diagnoses every dependency of the signup → audit → database path' },
     { id: 'user_management', label: 'User Management', icon: Users, status: 'schema',
       title: 'User Management', subtitle: 'Organization members and per-organization roles' },
+    { id: 'settings', label: 'Settings', icon: SettingsIcon, status: 'live',
+      title: 'Settings', subtitle: 'Account, organization, and inference credentials' },
+    { id: 'documentation', label: 'Documentation', icon: BookOpen, status: 'live',
+      title: 'Documentation', subtitle: 'The evidence-tier spec and every project document' },
   ]},
 ];
 
