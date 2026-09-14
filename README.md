@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-14-black.svg)](https://nextjs.org/)
 
-📍 **[ROADMAP.md](ROADMAP.md)** — the phased plan · **[BENCHMARKS.md](BENCHMARKS.md)** — the honest reality check against live competitors
+📍 **[ROADMAP.md](ROADMAP.md)** — the phased plan · **[BENCHMARKS.md](BENCHMARKS.md)** — the honest reality check against live competitors · **[EVIDENCE-TIERS.md](EVIDENCE-TIERS.md)** — the evidence-tier spec
 
 ---
 
@@ -51,7 +51,8 @@ Most audit tools show you one score and ask you to trust it. This one shows the 
 | GitHub-backed centralized model registry (real commits, real git-history lineage) | ✅ Live | — |
 | GitHub Issues-backed Ethics Board escalation for CRITICAL findings | ✅ Live | — |
 | Real Supabase RBAC (Postgres RLS, not a client dropdown) | ✅ Live, 🔴 zero real users | — |
-| Genuinely immutable audit log (no UPDATE/DELETE policy exists — hard deny, not convention) | ✅ Live, 🔴 zero rows written | — |
+| Immutable audit log — **empirically proven**, not asserted (real user created, UPDATE/DELETE both confirmed blocked) | ✅ Live | 🔵 Verified |
+| Hash-chained tamper-evidence — a real superuser tamper was detected and the exact row located | ✅ Live | 🔵 Verified |
 | Real SHAP explainability (surrogate-based, never deserializes uploaded models) | 🟡 Built & tested, **not deployed** | 🔵 Verified |
 | Model file supply-chain scanning (ModelScan) | 🟡 Built & tested, **not deployed** | 🔵 Verified |
 | Real Fairlearn metrics (demographic parity, equalized odds) | 🟡 Built & tested, **not deployed** | 🔵 Verified |
@@ -149,6 +150,19 @@ live-ai-audit-playground/
 ```
 
 ---
+
+## What GOV.AX doesn't do (yet)
+
+Stated plainly, because a governance tool that overstates itself is worse than none:
+
+- **No production drift/observability at scale** — Fiddler's core strength. Planned, not built.
+- **No inline firewall** blocking live model traffic — Cisco AI Defense's core strength. Planned, not built.
+- **No multi-tenancy** — the schema is user-scoped, not org-scoped. This is a real migration, best done before real users exist.
+- **No stage-gate approval workflows or SIEM export.**
+- **Regulatory mapping is static text on 9 rules**, not a versioned, maintained policy engine. Credo AI employs a legal team for this; the planned counter is regulation-as-code with community governance, which does not exist yet.
+- **The Python analysis service is not deployed** — three real tested endpoints exist and none are reachable.
+
+We also will not match incumbents on brand trust, enterprise sales, 24/7 support, or legal staffing. The counters are self-hosting, auditability, and zero cost — not pretending otherwise. See [BENCHMARKS.md](BENCHMARKS.md).
 
 ## Security & Privacy
 

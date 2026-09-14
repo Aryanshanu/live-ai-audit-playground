@@ -1,6 +1,6 @@
 # GOV.AX vs. Live Competitors — Detailed Benchmark
 
-**As of:** 2026-09-14
+**As of:** 2026-09-14 (audit-log immutability + tamper-evidence now empirically proven)
 **Companion to:** `ROADMAP.md` (phased plan) — this document is the reality check the roadmap is measured against.
 
 ## Methodology, stated plainly
@@ -33,7 +33,7 @@ Legend: ✅ Live & real · 🟡 Partial/schema-only/limited · ❌ Absent
 | **Real explainability (SHAP/LIME)** | 🟡 Real SHAP built & tested (`/checks/explainability`, ground-truth verified) — **but the service is not deployed**, so zero rows still | 🟡 Some | 🟡 Some | ✅ Core product (their founding use case) | ❌ | ❌ |
 | **Model card / registry** | 🟡 Real HF-metadata completeness scorer (`modelCardCompleteness.js`) + GitHub-backed external registry (`githubRegistry.js`, real commits). No centralized DB registry populated (0 rows in `rai_audits`) | ✅ Core product | ✅ Core product | 🟡 Secondary | ❌ | 🟡 Via AI-BOM |
 | **RBAC** | ✅ Real Postgres RLS + role enum, advisor-verified. **0 actual users** — never exercised with a real second account | ✅ | ✅ | ✅ | ✅ (Cisco-grade) | ✅ (Palo Alto-grade) |
-| **Immutable audit log** | ✅ Genuinely immutable (no UPDATE/DELETE policy = hard deny). **0 rows ever written by a real user action** | ✅ | ✅ | 🟡 | ✅ | ✅ |
+| **Immutable audit log** | ✅ **Empirically proven**, not asserted — a real authenticated user was created and UPDATE/DELETE both confirmed blocked. Now also hash-chained: tampering by a service-role/DBA (which RLS cannot stop) was performed in a real test and the exact altered row was detected | ✅ | ✅ | 🟡 | ✅ | ✅ |
 | **Live adversarial/injection testing** | ✅ Real — 4 live probes against actual models via HF inference, verified with mocked-fetch tests, "thorough scan" gives real n=3 statistical rate | ❌ Not their focus | 🟡 Some LLM risk checks | ❌ Not their focus | ✅ Core product (pioneered "AI Firewall") | 🟡 Secondary |
 | **Real-time inline firewall (blocking live traffic)** | ❌ Not built | ❌ | ❌ | ❌ | ✅ **Their entire original differentiator** | 🟡 |
 | **Model file supply-chain scanning (pickle/malware)** | 🟡 Real ModelScan integration built & tested (`/checks/modelscan`) — **not deployed** | ❌ | ❌ | ❌ | ❌ | ✅ **Their entire original differentiator** (ModelScan is literally their own OSS tool) |
@@ -50,7 +50,7 @@ Legend: ✅ Live & real · 🟡 Partial/schema-only/limited · ❌ Absent
 
 ## What this table actually says, without softening it
 
-**Rows where GOV.AX is at genuine parity or ahead:** exactly two — evidence-tier transparency, and zero-cost in-browser inference. Both are real, both are verified, both are architecturally interesting, and **neither is a reason a security or compliance team picks a platform.** They're good differentiators for a technical audience, not yet reasons to migrate off an incumbent.
+**Rows where GOV.AX is at genuine parity or ahead:** three — evidence-tier transparency (now published as a spec, [EVIDENCE-TIERS.md](EVIDENCE-TIERS.md)), zero-cost in-browser inference, and hash-chained tamper-evident audit logging that any signed-in auditor can independently verify without read access to log contents. Both are real, both are verified, both are architecturally interesting, and **neither is a reason a security or compliance team picks a platform.** They're good differentiators for a technical audience, not yet reasons to migrate off an incumbent.
 
 **Rows where GOV.AX has a real foundation but zero live exercise:** RBAC, immutable audit log, model registry. The infrastructure is correct — genuinely, advisor-verified correct — but "0 users, 0 audits" means none of it has been tested against a real workflow. This is the single most fixable gap on this entire table, and it doesn't require new features — it requires *using what already exists*.
 
@@ -71,7 +71,7 @@ Legend: ✅ Live & real · 🟡 Partial/schema-only/limited · ❌ Absent
 | Production observability at scale | Needs Phase 1 to exist first, generating data to observe | **Sequencing** |
 | Inline firewall | Needs an actual deployed model with real traffic to sit in front of — GOV.AX audits models, it doesn't host them | **Product-scope question**, not just engineering |
 | Regulatory framework mapping (Credo AI's actual moat) | Needs *ongoing, continuous* legal/policy expertise to track law changes — this is a staffing problem forever, not a one-time build | **Structural** — no amount of engineering closes an ongoing-expertise gap |
-| Zero live usage | Needs real users signing up and running real audits — this is a distribution/adoption problem, not a code problem | **Go-to-market**, not engineering |
+| Zero live usage | Needs real users signing up and running real audits — a distribution/adoption problem, not a code problem. **Partially addressed:** the audit-log path has now been exercised end-to-end with real writes during immutability/tamper testing, so the "never been exercised by anything" claim is no longer fully true of that subsystem | **Go-to-market**, not engineering |
 | Multi-tenancy | Real schema migration (org-scoped RLS instead of user-scoped) — scoped in Roadmap Phase 4 | **Effort** — genuinely buildable |
 
 ---

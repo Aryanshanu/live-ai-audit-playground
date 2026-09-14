@@ -1,6 +1,6 @@
 # GOV.AX Roadmap — Toward an Open-Source AI Governance Platform
 
-**Last updated:** 2026-09-14
+**Last updated:** 2026-09-14 (Wave 1 credibility wins landed)
 **North star:** Reach a meaningful fraction of what Credo AI, IBM watsonx.governance, Fiddler, Robust Intelligence, and Protect AI each built with dozens of engineers over years — as an open-source, self-hostable, Hugging Face-native alternative.
 
 ## Reading this document honestly
@@ -18,13 +18,15 @@ The five platforms above represent roughly 500+ engineer-years combined. This ro
 | Evidence-tier taxonomy (heuristic/verified/local-inference/live-dynamic) applied to every finding | ✅ | Used consistently across all engines |
 | Real Supabase backend (`ai.gov-prod`, `ap-south-1`) | ✅ | `list_projects` confirms ACTIVE_HEALTHY |
 | Real RBAC (Postgres enum + RLS, not client-side) | ✅ | Security advisor: 0 findings |
-| Genuinely immutable audit log (no UPDATE/DELETE policy = hard deny) | ✅ | Verified via RLS policy inspection |
+| Genuinely immutable audit log (no UPDATE/DELETE policy = hard deny) | ✅ | **Empirically proven** — real authenticated user created, UPDATE/DELETE both confirmed blocked (previously only inferred from reading policies) |
 | RAI schema shaped for real Fairlearn/AIF360/SHAP output | ✅ | `fairness_metrics`, `explainability_reports` tables live |
 | Real Supabase Auth (signup/login/session) wired into the app | ✅ | Build passes; **not yet smoke-tested in a real browser** |
 | 4-probe live security suite + thorough-scan statistical rate | ✅ | Mocked-fetch verified |
 | GitHub-backed centralized model registry + HITL escalation | ✅ | Mocked-fetch verified |
 | In-browser ML classifier (zero-shot, zero-token) | ✅ | Build verified; **CDN import never executed in a real browser from this environment** |
 | Disparate impact (four-fifths rule) on real uploaded data | ✅ | Verified against a synthetic biased dataset |
+
+**Wave 1 credibility wins completed (2026-09-14):** audit-log immutability moved from *asserted* to *empirically proven*; hash-chaining added with a real tamper-detection test (superuser altered a middle row; the chain identified that exact row); `EVIDENCE-TIERS.md` published as a spec. Remaining Wave 1 item: run one full real audit end-to-end through the UI and publish the transcript — blocked on a real browser session, not on code.
 
 **Known debt carried forward:** sandbox-mode (free-text) audits still only write to `localStorage`. RBAC roles are now visibly displayed in the UI (fixed — `useRoles()` existed but was never called anywhere, so every user saw an identical interface regardless of role), but there is still no admin UI to *grant* roles — must be done via direct SQL today. The signup "check your email" message used to vanish on a page refresh (fixed — now persisted so it survives a reload while confirmation is pending).
 
