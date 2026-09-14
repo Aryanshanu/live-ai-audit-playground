@@ -20,6 +20,8 @@ import UnifiedGovernanceScore from '../components/UnifiedGovernanceScore';
 import AuthGate from '../components/auth/AuthGate';
 import AppShell, { findView } from '../components/AppShell';
 import PlaceholderView from '../components/PlaceholderView';
+import PillarPage from '../components/PillarPage';
+import { PILLARS } from '../lib/pillarConfig';
 import SystemCheckPanel from '../components/SystemCheckPanel';
 import AdminDashboard from '../components/AdminDashboard';
 
@@ -140,9 +142,12 @@ export default function UnifiedGovernanceCenter() {
         </div>
       )}
 
+      {/* Evaluation pillars — one reusable page, real engines behind it */}
+      {PILLARS[activeMode] && <PillarPage pillarId={activeMode} />}
+
       {/* Views listed in the sidebar whose UI isn't built yet render an
           explicit honest state rather than a blank page. */}
-      {!['sandbox', 'hf_model', 'command_center', 'data_quality', 'system_check'].includes(activeMode) && (
+      {!PILLARS[activeMode] && !['sandbox', 'hf_model', 'command_center', 'data_quality', 'system_check'].includes(activeMode) && (
         <PlaceholderView view={findView(activeMode)} />
       )}
 

@@ -68,13 +68,15 @@ Most audit tools show you one score and ask you to trust it. This one shows the 
 | Model file supply-chain scanning (ModelScan) | 🟡 Built & tested, **not deployed** | 🔵 Verified |
 | Real Fairlearn metrics (demographic parity, equalized odds) | 🟡 Built & tested, **not deployed** | 🔵 Verified |
 | System Check — self-diagnostic naming the exact failure in the signup→audit→DB path | ✅ Live | 🔵 Verified |
-| Google OAuth + guest (anonymous) sign-in | ⚠️ Built, **requires one-time Supabase dashboard enablement** — the app shows setup steps until then | 🔵 Verified |
+| Guest (anonymous) sign-in | ✅ Live | 🔵 Verified |
 | Platform admin — read-only cross-org access, audit-logged | ✅ Live | 🔵 Verified |
 | Model registry — models, versions, use cases, EU AI Act risk tiers | ✅ Live (schema; UI pending) | 🔵 Verified |
 | Attack library — adversarial probes as extensible data, not hardcoded | ✅ Live (schema; runtime wiring pending) | 🔵 Verified |
 | Governance Map — full navigation with honest per-item status (live/partial/schema/planned) | ✅ Live | 🔵 Verified |
 | Command Center — admin dashboard with live status tiles, audit-log feed, and inventory | ✅ Live | 🔵 Verified |
 | Sidebar app shell — sectioned navigation, collapsible, page headers, dark/light theme | ✅ Live | 🔵 Verified |
+| Pillar evaluation pages — Fairness, Safety, Privacy, AI Pentesting, Transparency | ✅ Live | 🟢 Live Test |
+| Custom Prompt Test — throw your own adversarial prompt at a live model, see the raw response | ✅ Live | 🟢 Live Test |
 | Multi-tenant orgs with per-org roles, isolation proven with two real users | ✅ Live | 🔵 Verified |
 | Production-scale drift/observability | ❌ Not built | — |
 | Multi-tenant orgs, stage-gate approvals, SIEM export | ❌ Not built | — |

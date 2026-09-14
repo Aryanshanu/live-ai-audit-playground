@@ -37,6 +37,22 @@ Every page in the reference shares one shape, which GOV.AX now follows:
 - **List pages** (Model Registry): search input + primary action, an explicit `Showing X of Y` count, then rows carrying type tag, environment tag, name, description, version, risk level, status, owner, and updated date.
 - **Evaluation pages** (Fairness): a capability-badge strip, a target selector plus a `Run` action, a genuine empty state (`Select a Model` + "1 model available"), then score tiles and a custom-prompt test panel.
 
+### The pillar page anatomy (adopted)
+
+Every evaluation page in the reference shares one shape, which GOV.AX now implements as a single reusable component:
+
+1. **Capability strip** — mode badge (`BOTH`/`INPUT`/`OUTPUT` Analysis), an `Input:` and `Output:` description of what is actually analysed, then engine badges.
+2. **Target selector + run action** — `Select Model` plus a pillar-specific verb (`Run Safety Test`, `Run Privacy Audit`, `Run Pentest`).
+3. **Empty state** — `Select a Model` with a line explaining what selecting one enables.
+4. **Score tiles** once a target is chosen.
+5. **Custom Prompt Test** — a `Load Attack Sample` picker, a free-text prompt box with a pillar-specific example, and `Run Test`.
+
+**The best idea here is #5.** Letting someone throw their own adversarial prompt at a live model and read the real response is worth more than any number of canned results, and GOV.AX now does it.
+
+**What was deliberately not copied:** the reference's engine badges name `Detoxify + Gemini 2.5 Pro`, `AIF360 Metrics`, and `K2 Reasoning`. GOV.AX does not run those, so claiming them would be a lie told by a badge. Its badges name its own engines and mark each `live`, `built but undeployed`, or `not built` with a coloured dot.
+
+One more honest divergence: the reference's Fairness, Safety and Privacy pages all showed the same two tiles — `74 FAIRNESS` and `1 OVERALL` — regardless of which pillar was open, so the Privacy page displayed a fairness score. GOV.AX shows per-run containment and vector counts from the actual probes that just executed.
+
 ### The admin dashboard pattern
 
 Its System Admin page used a consistent shape: four status tiles across the top (Database connectivity + round-trip ms, Role Assignments, Avg Latency 24h, Open Incidents), then a live audit-log feed ("Last 20 events"), then three summary panels (Infrastructure row-counts per table, Traffic 24h with blocked/warned/error counts, Platform Summary).

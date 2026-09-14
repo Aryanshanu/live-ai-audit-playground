@@ -57,36 +57,6 @@ export async function signInAsGuest() {
   return data;
 }
 
-/**
- * Google OAuth sign-in.
- *
- * REQUIRES two configuration steps that cannot be done from this repo:
- *  1. Google Cloud Console → create OAuth 2.0 credentials, and add
- *     https://ceppqcqgwietagzixrhr.supabase.co/auth/v1/callback
- *     as an Authorized redirect URI.
- *  2. Supabase Dashboard → Authentication → Sign In / Providers → Google
- *     → enable, paste the Client ID and Client Secret.
- *
- * redirectTo must point back at this app INCLUDING its base path, since
- * this is a static export served under /live-ai-audit-playground.
- */
-export async function signInWithGoogle() {
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: typeof window !== 'undefined' ? window.location.origin + window.location.pathname : undefined },
-  });
-  if (error) {
-    const msg = (error.message || '').toLowerCase();
-    if (msg.includes('not enabled') || msg.includes('unsupported provider') || error.status === 400) {
-      const err = new Error('Google sign-in needs to be connected once in Supabase.');
-      err.setupRequired = 'google';
-      throw err;
-    }
-    throw error;
-  }
-  return data;
-}
-
 /** Supabase project ref, used to build direct dashboard links in setup messages. */
 export const SUPABASE_PROJECT_REF = 'ceppqcqgwietagzixrhr';
 

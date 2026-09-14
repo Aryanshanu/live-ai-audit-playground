@@ -57,7 +57,7 @@ export const NAV_SECTIONS = [
     section: 'SECURITY',
     items: [
       { id: 'security-dashboard', label: 'Security Dashboard', status: 'partial', note: 'Findings render per-audit; no aggregate dashboard yet.' },
-      { id: 'jailbreak-lab', label: 'Jailbreak Lab', status: 'live', note: '4 live adversarial probes with a real containment rate.' },
+      { id: 'pentesting', label: 'AI Pentesting', status: 'live', note: '4 live adversarial vectors, thorough mode gives a real containment rate. Replaced the separate Jailbreak Lab entry — both ran the identical suite.' },
       { id: 'attack-library', label: 'Attack Library', status: 'schema', note: 'Probes are now data rather than constants; the runtime still reads hardcoded values.' },
       { id: 'supply-chain', label: 'Supply Chain Scan', status: 'schema', note: 'ModelScan integration built and tested; service not deployed.' },
     ],
