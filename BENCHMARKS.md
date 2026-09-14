@@ -65,7 +65,7 @@ Legend: ✅ Live & real · 🟡 Partial/schema-only/limited · ❌ Absent
 | **Multi-tenant orgs** | ✅ **Org-scoped with proven isolation** — two real users tested; neither could read or write the other's data. Per-org roles (owner/admin/auditor/viewer/external_auditor), personal org auto-created on signup | ✅ | ✅ | ✅ | ✅ | ✅ |
 | **Stage-gate deployment approval workflows** | ❌ Not built | ✅ | ✅ **Core product** | 🟡 | 🟡 | 🟡 |
 | **SIEM/enterprise security tool integration** | ❌ Not built | ❌ Not their focus | 🟡 | 🟡 | ✅ (native to Cisco Security Cloud) | ✅ (native to Prisma) |
-| **Actual production usage / paying customers** | ❌ **Zero.** 0 signups, 0 audits run, ever | ✅ Real customers, ~$3.7M revenue | ✅ Massive (IBM's install base) | ✅ Fortune 500 customers | ✅ Cisco's entire enterprise base | ✅ Palo Alto's entire enterprise base |
+| **Actual production usage / paying customers** | ❌ **Zero paying customers, zero revenue.** 2 real signups exist and 1 real audit has run end-to-end (see `docs/FIRST-AUDIT.md`) — genuine proof-of-concept usage, still nowhere near production adoption | ✅ Real customers, ~$3.7M revenue | ✅ Massive (IBM's install base) | ✅ Fortune 500 customers | ✅ Cisco's entire enterprise base | ✅ Palo Alto's entire enterprise base |
 
 ---
 
@@ -73,7 +73,7 @@ Legend: ✅ Live & real · 🟡 Partial/schema-only/limited · ❌ Absent
 
 **Rows where GOV.AX is at genuine parity or ahead:** four — multi-tenant isolation (proven, not asserted), evidence-tier transparency (now published as a spec, [EVIDENCE-TIERS.md](EVIDENCE-TIERS.md)), zero-cost in-browser inference, and hash-chained tamper-evident audit logging that any signed-in auditor can independently verify without read access to log contents. Both are real, both are verified, both are architecturally interesting, and **neither is a reason a security or compliance team picks a platform.** They're good differentiators for a technical audience, not yet reasons to migrate off an incumbent.
 
-**Rows where GOV.AX has a real foundation but zero live exercise:** RBAC, immutable audit log, model registry. The infrastructure is correct — genuinely, advisor-verified correct — but "0 users, 0 audits" means none of it has been tested against a real workflow. This is the single most fixable gap on this entire table, and it doesn't require new features — it requires *using what already exists*.
+**Rows where GOV.AX had a real foundation but zero live exercise — UPDATE, 2026-09-14: now partially exercised.** RBAC, the immutable audit log, and the audit-persistence path were correct-but-untested; one real end-to-end audit (`docs/FIRST-AUDIT.md`) has now exercised RLS, the org-scoped write path, and hash-chain integrity for a genuine live-inserted row, not just synthetic SQL tests. Still true: this was one audit by one guest user — not load-bearing proof of correctness under real volume or concurrent users, and the model registry specifically remains at 0 real rows.
 
 **Rows that moved from ❌ to 🟡 (built and tested, but not deployed):** real explainability (SHAP), model file supply-chain scanning (ModelScan), and server-side Fairlearn fairness metrics. All three are real, ground-truth-verified code in `services/rai-agent/`. **None of them are reachable by a user**, because the service has never been deployed — this is the honest meaning of 🟡 here, and it is a materially weaker claim than ✅.
 
