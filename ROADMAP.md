@@ -16,7 +16,7 @@
 
 ## Unified governance architecture reference
 
-A prior proof-of-concept's schema (145 tables) has been captured as a capability map in [docs/ARCHITECTURE-REFERENCE.md](docs/ARCHITECTURE-REFERENCE.md) — 14 domains a complete unified governance platform covers. It is a **domain map, not a port**: no code, UI, or copy from it is reproduced, and everything rebuilt here uses GOV.AX's own org-scoped conventions (which the reference lacked).
+A prior proof-of-concept has been captured as a capability map in [docs/ARCHITECTURE-REFERENCE.md](docs/ARCHITECTURE-REFERENCE.md): **145 tables and ~90 edge functions** across 14 domains. The edge functions were missed on the first pass and are where the real logic lives — the table list alone was not the blueprint. It is a **domain map, not a port**: no code, UI, or copy from it is reproduced, and everything rebuilt here uses GOV.AX's own org-scoped conventions (which the reference lacked).
 
 Replication is deliberately prioritised rather than wholesale — GOV.AX had 9 tables to its 145, and most of its tables held 0 rows, meaning they were scaffolded rather than used. Building all of them would be precisely the "15 speculative features, 0 users" trap recorded in DECISIONS.md.
 

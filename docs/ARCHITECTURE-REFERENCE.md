@@ -95,6 +95,37 @@ Row counts indicate which parts were genuinely exercised vs. scaffolded.
 `platform_config` · `platform_config_history` · `organization_settings` · `notification_channels` · `notification_history` · `gateway_config` · `deployment_environments` · `governance_activation_state` · `admin_audit_log` (409) · `audit_report_ledger` · `processing_queue` · `idempotency_cache` · `llm_prompt_cache` · `conversation_sessions` · `remediation_actions` · `intelligence_reports` · `governance_agent_runs` · `data_retention_policies` · `gdpr_pseudonym_map` · `gdpr_erasure_requests`
 → GOV.AX: 🟡 audit log only (though ours is hash-chained, which the POC's wasn't). **`gdpr_erasure_requests` + `gdpr_pseudonym_map`** are real DPDP/GDPR primitives.
 
+## Correction: ~90 edge functions (found later, initially missed)
+
+The table list alone was **not** the blueprint, and presenting it as one was wrong. The reference also runs roughly **90 Supabase edge functions** — that is where the actual logic lives. Function source is not retrievable (the API returns only stub comments), so what follows is derived from names, versions and auth config, which is still substantial.
+
+| Cluster | Functions |
+|---|---|
+| **RAI evaluation** | `eval-fairness` · `eval-toxicity-hf` · `eval-privacy-hf` · `eval-explainability-hf` · `eval-hallucination-hf` · `eval-data-quality` · `run-rai-evaluation` · `rai-reasoning-engine` |
+| **Security** | `security-pentest` · `security-jailbreak` · `security-threat-model` · `run-red-team` · `custom-prompt-test` · `detect-governance-bypass` |
+| **Data quality (12)** | `dq-control-plane` · `dq-ingest-data` · `dq-profile-dataset` · `dq-generate-rules` · `dq-execute-rules` · `dq-detect-anomalies` · `dq-raise-incidents` · `dq-truth-enforcer` · `dq-generate-dashboard-assets` · `dq-chat` · `validate-contract` · `run-quality-tests` |
+| **Knowledge graph (5)** | `kg-query` · `kg-sync` · `kg-upsert` · `kg-explain` · `kg-lineage` |
+| **Gateway / enforcement** | `ai-gateway` · `gateway-route` · `ai-governance-gateway` · `policy-violation-handler` · `cicd-gate` |
+| **Policy-as-code** | `nl-to-policy` · `compile-policy` · `policy-lint` |
+| **Decision governance** | `log-decision` · `explain-decision` · `process-appeal` · `track-outcome` · `hitl-auto-assist` · `threshold-validator` |
+| **Remediation** | `generate-remediation` · `execute-remediation` · `revert-remediation` |
+| **Agents / assistants** | `governance-agent` · `copilot` · `rai-assistant` · `realtime-chat` |
+| **Enterprise integration** | `collibra-audit-sync` · `collibra-monitor-sync` · `collibra-rai-sync` · `collibra-registry-sync` |
+| **Semantic layer (5)** | `semantic-compiler` · `semantic-query` · `semantic-layer-gateway` · `semantic-drift-check` · `semantic-query-log` |
+| **Monitoring** | `detect-drift` · `check-slo-breaches` · `sla-escalation-monitor` · `incident-lifecycle` · `compute-runtime-risk` · `predictive-governance` |
+| **Reporting** | `generate-audit-report` · `generate-scorecard` · `generate-model-card` · `weekly-intelligence-report` |
+
+### Four things this changes
+
+1. **They built the gateway.** `ai-gateway`, `gateway-route`, `ai-governance-gateway` mean the POC *did* sit in the request path — the inline-enforcement capability GOV.AX deferred (D4). That deferral still stands on reliability grounds, but "nobody built it" was the wrong reason.
+2. **`eval-*-hf` confirms Hugging Face inference** was the evaluation backend — the same zero-cost pattern GOV.AX uses independently. Convergent, and a good sign.
+3. **`generate-remediation` / `execute-remediation` / `revert-remediation`** is a full remediation lifecycle with rollback. GOV.AX's remediation agent is draft-only by design, but *revert* is the piece that makes execution defensible.
+4. **The knowledge graph and semantic layer were genuinely implemented**, not scaffolded — 5 functions each, against 129 `kg_nodes` and 78 `kg_edges`.
+
+### Still unexplored, stated plainly
+
+30 of 31 UI pages, every table's column-level schema, all RLS policies, database functions and triggers, and every edge function's implementation. The reference is substantially larger than what has been examined.
+
 ## Honest scope assessment
 
 GOV.AX has 9 tables. This POC has 145. **Replicating it wholesale would be the exact "15 speculative features, 0 users" trap** flagged in `DECISIONS.md` — and most of these tables have 0 rows, meaning they were scaffolded rather than used.
